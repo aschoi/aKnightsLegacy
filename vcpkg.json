@@ -1,0 +1,20 @@
+{
+  "name": "aknightslegacy",
+  "version-string": "0.1.0",
+  "builtin-baseline": "4e39a8622e56a113c89228e4e13944dce8654da7",
+  "dependencies": [
+    "sdl3",
+    {
+      "name": "sdl3-image",
+      "features": [
+        "png",
+        "jpeg"
+      ]
+    },
+    "sdl3-ttf",
+    "nlohmann-json",
+    "sdl2-mixer"
+
+
+  ]
+}

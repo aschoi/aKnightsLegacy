@@ -1,0 +1,17 @@
+pixel width:  2000
+pixel height: 1792
+
+tile size:    16x16 pixels == 1 tile
+
+tile width:   125
+tile height:  112
+
+
+screen stats: 960 x 540
+	      60 x 34
+
+
+
+34
+68
+72
