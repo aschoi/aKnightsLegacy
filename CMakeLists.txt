@@ -1,5 +1,9 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.24)
 project(aKnightsLegacy LANGUAGES CXX)
+
+if (MSVC)
+  set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
+endif()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -9,6 +13,13 @@ find_package(SDL3_image CONFIG REQUIRED)
 find_package(SDL3_ttf CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
+set(USE_SYSTEM_SDL3_MIXER ON)
+if (MSVC)
+  set(USE_SYSTEM_SDL3_MIXER OFF)
+endif()
+if (USE_SYSTEM_SDL3_MIXER)
+  find_package(SDL3_mixer CONFIG QUIET)
+endif()
 
 add_executable(aKnightsLegacy
 	src/main.cpp
@@ -48,23 +59,23 @@ target_link_libraries(aKnightsLegacy PRIVATE
 	nlohmann_json::nlohmann_json
 )
 
-# ---- SDL3_mixer (manual imported target, MSVC-safe) ----
-set(SDL_MIXER_PREFIX "C:/dev/third_party/SDL3_mixer_vcpkg")
+if (SDL3_mixer_FOUND)
+  target_link_libraries(aKnightsLegacy PRIVATE SDL3_mixer::SDL3_mixer)
+else()
+  include(FetchContent)
+  FetchContent_Declare(SDL3_mixer_src
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
+    GIT_TAG prerelease-3.1.2
+  )
+  FetchContent_MakeAvailable(SDL3_mixer_src)
 
-add_library(SDL3_mixer_manual SHARED IMPORTED GLOBAL)
-set_target_properties(SDL3_mixer_manual PROPERTIES
-  IMPORTED_IMPLIB "${SDL_MIXER_PREFIX}/lib/SDL3_mixer.lib"   # link-time
-  IMPORTED_LOCATION "${SDL_MIXER_PREFIX}/bin/SDL3_mixer.dll" # runtime
-  INTERFACE_INCLUDE_DIRECTORIES "${SDL_MIXER_PREFIX}/include"
-)
-
-target_link_libraries(aKnightsLegacy PRIVATE SDL3_mixer_manual)
+  target_link_libraries(aKnightsLegacy PRIVATE SDL3_mixer::SDL3_mixer)
+endif()
 
 if (WIN32)
   add_custom_command(TARGET aKnightsLegacy POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-      "${SDL_MIXER_PREFIX}/bin"
-      "$<TARGET_FILE_DIR:aKnightsLegacy>"
-    COMMENT "Copying SDL3_mixer runtime DLLs"
+    COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:aKnightsLegacy>
+            $<TARGET_RUNTIME_DLLS:aKnightsLegacy>
+    COMMAND_EXPAND_LISTS
   )
 endif()
