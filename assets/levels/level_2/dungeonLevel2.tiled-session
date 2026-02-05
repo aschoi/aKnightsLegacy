@@ -20,8 +20,8 @@
             "scale": 0.5,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 122,
-                "y": 1194
+                "x": 1504,
+                "y": 1000
             }
         },
         "hammer.tsx": {
@@ -82,9 +82,9 @@
         "decorWallCracks.tsx",
         "decorFloorCracks.tsx",
         "player.tsx",
+        "skeleton.tsx",
         "projectile.tsx",
-        "hammer.tsx",
-        "skeleton.tsx"
+        "hammer.tsx"
     ],
     "project": "dungeonLevel2.tiled-project",
     "recentFiles": [
@@ -97,9 +97,9 @@
         "water2.tsx",
         "decorWallCracks.tsx",
         "decorFloorCracks.tsx",
-        "skeleton.tsx",
         "hammer.tsx",
-        "projectile.tsx"
+        "projectile.tsx",
+        "skeleton.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

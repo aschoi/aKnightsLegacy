@@ -56,6 +56,8 @@ void Stun::UpdateFixed(double dt, const bool* keys) {
 
         set_x_px(get_x_px() + vx * get_speed_pixels() * (float)dt);
         set_y_px(get_y_px() + vy * get_speed_pixels() * (float)dt);
+        set_center_px();
+
     }
     else {
         set_hitbox_pixels(HitboxType::AttackRange, 0, 0, 0, 0);

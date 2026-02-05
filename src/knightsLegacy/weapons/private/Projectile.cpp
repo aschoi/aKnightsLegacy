@@ -52,6 +52,8 @@ void SwordWaveProjectile::UpdateFixed(double dt, const bool* keys) {
 
         set_x_px(get_x_px() + vx * get_speed_pixels() * (float)dt);
         set_y_px(get_y_px() + vy * get_speed_pixels() * (float)dt);
+        set_center_px();
+
 
         if (projFacing == Facing::Right) {
             set_hitbox_pixels(HitboxType::AttackRange, get_x_px(), get_y_px()-16.0f, 50.0f, 70.0f);

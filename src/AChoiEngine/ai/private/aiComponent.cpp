@@ -47,9 +47,14 @@ void followTargetSimple(GameObject& hunter, GameObject& target, Map& curMap, flo
     float oldX = hunter.get_x_px();
     float oldY = hunter.get_y_px();
 
-    hunter.set_x_px(hunter.get_x_px() + (dirX * followSpeed * dt));
-    hunter.set_y_px(hunter.get_y_px() + (dirY * followSpeed * dt));
+    if (hunter.collisionStates_.n || hunter.collisionStates_.s) 
+        dirY *= -1;
+    if (hunter.collisionStates_.e || hunter.collisionStates_.w) 
+        dirX *= -1;
 
+    hunter.set_y_px(hunter.get_y_px() + (dirY * followSpeed * dt));
+    hunter.set_x_px(hunter.get_x_px() + (dirX * followSpeed * dt));
+    
     int tl = curMap.intGridType(hunter.get_x_px(), hunter.get_y_px());
     int tr = curMap.intGridType(hunter.get_x_px() + 8, hunter.get_y_px());
     int bl = curMap.intGridType(hunter.get_x_px(), hunter.get_y_px() + 36);
@@ -59,6 +64,7 @@ void followTargetSimple(GameObject& hunter, GameObject& target, Map& curMap, flo
         hunter.set_x_px(oldX);
         hunter.set_y_px(oldY);
     }
+    hunter.set_center_px();
 
     hunter.set_x_gu(static_cast<int>(std::floor(hunter.get_x_px() / hunter.get_singleGU_sideLen_inPixels())));
     hunter.set_y_gu(static_cast<int>(std::floor(hunter.get_y_px() / hunter.get_singleGU_sideLen_inPixels())));
@@ -239,17 +245,20 @@ void smartFollow(GameObject* hunter, Map& curMap, std::vector<std::vector<std::p
         dx *= 0.70710678f;
     }
 
+    if (hunter->collisionStates_.n) dy += 1.0f;
+    if (hunter->collisionStates_.s) dy -= 1.0f;
+    if (hunter->collisionStates_.w) dx += 1.0f;
+    if (hunter->collisionStates_.e) dx -= 1.0f;
+
     const double ai_dt = 1.0 / 60.0;
 
     hunter->set_x_px(hunter->get_x_px() + dx * hunter->get_speed_pixels() * (float)ai_dt);
     hunter->set_y_px(hunter->get_y_px() + dy * hunter->get_speed_pixels() * (float)ai_dt);
+    hunter->set_center_px();
     hunter->set_x_gu(static_cast<int>(std::floor(hunter->get_x_px() / hunter->get_singleGU_sideLen_inPixels())));
     hunter->set_y_gu(static_cast<int>(std::floor(hunter->get_y_px() / hunter->get_singleGU_sideLen_inPixels())));
 
-
 }
-
-
 
 void RenderArrows(SDL_Renderer* r, Camera2D& cam, std::vector<SDL_Texture*>& arrowTextures, Map& curMap, float tileSize_pixels, std::vector<std::vector<std::pair<int, int>>>& vecMap) {
 
@@ -331,8 +340,13 @@ void followTargetSimple(GameObject& hunter, GameObject& target, TileMap& curMap,
     float oldX = hunter.get_x_px();
     float oldY = hunter.get_y_px();
 
-    hunter.set_x_px(hunter.get_x_px() + (dirX * followSpeed * dt));
+    if (hunter.collisionStates_.n || hunter.collisionStates_.s) 
+        dirY *= -1;
+    if (hunter.collisionStates_.e || hunter.collisionStates_.w) 
+        dirX *= -1;
+
     hunter.set_y_px(hunter.get_y_px() + (dirY * followSpeed * dt));
+    hunter.set_x_px(hunter.get_x_px() + (dirX * followSpeed * dt));
 
     if (curMap.IsSolidAt(hunter.get_x_px(), hunter.get_y_px(), catalog)) {
         hunter.set_x_px(oldX);
@@ -350,6 +364,7 @@ void followTargetSimple(GameObject& hunter, GameObject& target, TileMap& curMap,
         hunter.set_x_px(oldX);
         hunter.set_y_px(oldY);
     }
+    hunter.set_center_px();
 
     hunter.set_x_gu(static_cast<int>(std::floor(hunter.get_x_px() / hunter.get_singleGU_sideLen_inPixels())));
     hunter.set_y_gu(static_cast<int>(std::floor(hunter.get_y_px() / hunter.get_singleGU_sideLen_inPixels())));
@@ -528,10 +543,16 @@ void smartFollow(GameObject* hunter, TileMap& curMap, std::vector<std::vector<st
         dx *= 0.70710678f;
     }
 
+    if (hunter->collisionStates_.n) dy += 1.0f;
+    if (hunter->collisionStates_.s) dy -= 1.0f;
+    if (hunter->collisionStates_.w) dx += 1.0f;
+    if (hunter->collisionStates_.e) dx -= 1.0f;
+
     const double ai_dt = 1.0 / 60.0;
 
     hunter->set_x_px(hunter->get_x_px() + dx * hunter->get_speed_pixels() * (float)ai_dt);
     hunter->set_y_px(hunter->get_y_px() + dy * hunter->get_speed_pixels() * (float)ai_dt );
+    hunter->set_center_px();
     hunter->set_x_gu(static_cast<int>(std::floor(hunter->get_x_px() / hunter->get_singleGU_sideLen_inPixels())));
     hunter->set_y_gu(static_cast<int>(std::floor(hunter->get_y_px() / hunter->get_singleGU_sideLen_inPixels())));
 

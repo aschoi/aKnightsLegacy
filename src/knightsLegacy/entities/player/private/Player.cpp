@@ -11,11 +11,11 @@
 #include "assets.h"
 
 
-
 bool Player::Init(SDL_Renderer* appR, float spawnX_px, float spawnY_px) {
 
     set_x_px(spawnX_px);
     set_y_px(spawnY_px);
+    set_center_px();
     set_speed_pixels(BASE_SPEED_);
     set_x_gu(static_cast<int>(std::floor(spawnX_px / 16)));
     set_y_gu(static_cast<int>(std::floor(spawnY_px / 16)));
@@ -65,9 +65,10 @@ bool Player::Init(SDL_Renderer* appR, float spawnX_px, float spawnY_px) {
 
     // Initialize Collision Hitboxes (Inherited from GameObject superclass)
     set_hitbox_pixels(HitboxType::BodyHitbox, get_x_px(), get_y_px(), 18.0f, 40.0f);
+    //set_hitbox_pixels(HitboxType::BodyHitbox, get_x_px(), get_y_px(), get_w_pixels(), get_h_pixels());
     set_hitbox_pixels(HitboxType::AwarenessRange, get_x_px(), get_y_px(), 18.0f, 40.0f);
     set_hitbox_pixels(HitboxType::AttackRange, get_x_px(), get_y_px(), 0.0f, 0.0f);
-    set_hitbox_pixels(HitboxType::UtilityRange1, get_x_px(), get_y_px(), 28.0f, 50.0f);
+    set_hitbox_pixels(HitboxType::UtilityRange1, get_x_px()-8.0f, get_y_px(), 28.0f, 48.0f);
 
     return true;
 }
@@ -108,8 +109,7 @@ void Player::HandleEvent(Keys key) {
         projectilePressed_ = true;
         playerAnimState_ = PlayerAnimState::Projectile;
         projectileTimer_ = PROJECTILE_DURATION_;
-    }
-     
+    } 
 }
 
 // Update player position
@@ -137,6 +137,11 @@ void Player::UpdateFixed(double dt, const bool* keys, TileMap& floorLayer_) {
         if (keys[SDL_SCANCODE_LEFT]) vx -= 1.0f;
         if (keys[SDL_SCANCODE_RIGHT]) vx += 1.0f;
     }
+
+    if (collisionStates_.n) vy += 1.0f;
+    if (collisionStates_.s) vy -= 1.0f;
+    if (collisionStates_.w) vx += 1.0f;
+    if (collisionStates_.e) vx -= 1.0f;
 
     if (vx != 0.0f && vy != 0.0f) {
         vx *= 0.70710678f;
@@ -195,6 +200,7 @@ void Player::UpdateFixed(double dt, const bool* keys, TileMap& floorLayer_) {
         set_x_px(oldX);
         set_y_px(oldY);
     }
+    set_center_px();
 
     set_x_gu(static_cast<int>(std::floor(get_x_px() / get_singleGU_sideLen_inPixels())));
     set_y_gu(static_cast<int>(std::floor(get_y_px() / get_singleGU_sideLen_inPixels())));
@@ -250,6 +256,11 @@ void Player::UpdateFixed(double dt, const bool* keys) {
         if (keys[SDL_SCANCODE_LEFT]) vx -= 1.0f;
         if (keys[SDL_SCANCODE_RIGHT]) vx += 1.0f;
     }
+
+    if (collisionStates_.n) vy += 1.0f;
+    if (collisionStates_.s) vy -= 1.0f;
+    if (collisionStates_.w) vx += 1.0f;
+    if (collisionStates_.e) vx -= 1.0f;
 
     if (vx != 0.0f && vy != 0.0f) {
         vx *= 0.70710678f;
@@ -309,6 +320,7 @@ void Player::UpdateFixed(double dt, const bool* keys) {
         set_y_px(oldY);
     }*/
 
+    set_center_px();
 
     set_x_gu(static_cast<int>(std::floor(get_x_px() / get_singleGU_sideLen_inPixels())));
     set_y_gu(static_cast<int>(std::floor(get_y_px() / get_singleGU_sideLen_inPixels())));
@@ -340,9 +352,6 @@ void Player::UpdateFixed(double dt, const bool* keys) {
     }
 }
 
-
-
-
 void Player::UpdateFixed(double dt, const bool* keys, Map& curMap) {
 
     float vx = 0.0f;
@@ -367,6 +376,11 @@ void Player::UpdateFixed(double dt, const bool* keys, Map& curMap) {
         if (keys[SDL_SCANCODE_LEFT]) vx -= 1.0f;
         if (keys[SDL_SCANCODE_RIGHT]) vx += 1.0f;
     }
+    
+    if (collisionStates_.n) vy += 1.0f;
+    if (collisionStates_.s) vy -= 1.0f;
+    if (collisionStates_.w) vx += 1.0f;
+    if (collisionStates_.e) vx -= 1.0f;
 
     if (vx != 0.0f && vy != 0.0f) {
         vx *= 0.70710678f;
@@ -408,6 +422,7 @@ void Player::UpdateFixed(double dt, const bool* keys, Map& curMap) {
             }
         }
     }
+    set_center_px();
 
     set_x_gu(static_cast<int>(std::floor(get_x_px() / get_singleGU_sideLen_inPixels())));
     set_y_gu(static_cast<int>(std::floor(get_y_px() / get_singleGU_sideLen_inPixels())));
@@ -416,12 +431,12 @@ void Player::UpdateFixed(double dt, const bool* keys, Map& curMap) {
     if (facing == Facing::Right) {
         set_hitbox_pixels(HitboxType::BodyHitbox, get_x_px() - 12.0f, get_y_px(), get_hitbox_w_pixels(HitboxType::BodyHitbox), get_hitbox_h_pixels(HitboxType::BodyHitbox));
         set_hitbox_pixels(HitboxType::AwarenessRange, get_x_px() - 12.0f, get_y_px(), get_hitbox_w_pixels(HitboxType::AwarenessRange), get_hitbox_h_pixels(HitboxType::AwarenessRange));
-        set_hitbox_pixels(HitboxType::UtilityRange1, get_x_px() - 12.0f, get_y_px(), get_hitbox_w_pixels(HitboxType::UtilityRange1), get_hitbox_h_pixels(HitboxType::UtilityRange1));
+        set_hitbox_pixels(HitboxType::UtilityRange1, get_x_px() - 18.0f, get_y_px() - 4.0f, get_hitbox_w_pixels(HitboxType::UtilityRange1), get_hitbox_h_pixels(HitboxType::UtilityRange1));
     }
     else if (facing == Facing::Left) {
         set_hitbox_pixels(HitboxType::BodyHitbox, get_x_px() - 4.0f, get_y_px(), get_hitbox_w_pixels(HitboxType::BodyHitbox), get_hitbox_h_pixels(HitboxType::BodyHitbox));
         set_hitbox_pixels(HitboxType::AwarenessRange, get_x_px() + 12.0f, get_y_px(), get_hitbox_w_pixels(HitboxType::AwarenessRange), get_hitbox_h_pixels(HitboxType::AwarenessRange));
-        set_hitbox_pixels(HitboxType::UtilityRange1, get_x_px() + 9.0f, get_y_px(), get_hitbox_w_pixels(HitboxType::UtilityRange1), get_hitbox_h_pixels(HitboxType::UtilityRange1));
+        set_hitbox_pixels(HitboxType::UtilityRange1, get_x_px() - 8.0f, get_y_px() - 4.0f, get_hitbox_w_pixels(HitboxType::UtilityRange1), get_hitbox_h_pixels(HitboxType::UtilityRange1));    
     }
 
     // update attack range box depending on if attacking or not attacking
@@ -557,11 +572,17 @@ void Player::Render(SDL_Renderer* appR, Camera2D& cam) const {
 
     
     // DEBUG COLLISIONS
-    //SDL_FRect hitboxHighlightDst{ get_hitbox_x_px(HitboxType::UtilityRange1), get_hitbox_y_px(HitboxType::UtilityRange1),
-    //                              get_hitbox_w_pixels(HitboxType::UtilityRange1), get_hitbox_h_pixels(HitboxType::UtilityRange1) };
-    //SDL_FRect screenHitboxDst = cam.WorldToScreen(hitboxHighlightDst);
-    //SDL_SetRenderDrawColor(appR, 0, 255, 0, 40);
-    //SDL_RenderFillRect(appR, &screenHitboxDst);
+    /*SDL_FRect hitboxHighlightDst{ get_hitbox_x_px(HitboxType::UtilityRange1), get_hitbox_y_px(HitboxType::UtilityRange1),
+                                  get_hitbox_w_pixels(HitboxType::UtilityRange1), get_hitbox_h_pixels(HitboxType::UtilityRange1) };
+    SDL_FRect screenHitboxDst = cam.WorldToScreen(hitboxHighlightDst);
+    SDL_SetRenderDrawColor(appR, 0, 255, 0, 40);
+    SDL_RenderFillRect(appR, &screenHitboxDst);*/
+
+    /*SDL_FRect hitboxHighlight2Dst{ get_hitbox_x_px(HitboxType::BodyHitbox), get_hitbox_y_px(HitboxType::BodyHitbox),
+                              get_hitbox_w_pixels(HitboxType::BodyHitbox), get_hitbox_h_pixels(HitboxType::BodyHitbox) };
+    SDL_FRect screenHitbox2Dst = cam.WorldToScreen(hitboxHighlight2Dst);
+    SDL_SetRenderDrawColor(appR, 0, 0, 255, 40);
+    SDL_RenderFillRect(appR, &screenHitbox2Dst);*/
 
 }
 

@@ -33,7 +33,6 @@ public:
     void takesStun(uint64_t now, uint64_t stunLength);
 
     bool playerNearby = false;
-    //bool isAlive = true;
     
     uint64_t INVINCIBLE_DURATION = 400;
     uint64_t invincibleTimer = 0;

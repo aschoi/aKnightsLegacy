@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <vector>
 #include "AChoiEngine/physics/public/CollisionDetectionComponent.h"
+#include "AChoiEngine/physics/public/CollisionResponse.h"
 #include "AChoiEngine/ai/public/aiComponent.h"
 #include "AChoiEngine/input/public/Keyboard.h"
 #include "AChoiEngine/camera/public/Camera.h"
@@ -19,21 +20,6 @@
 #include "knightsLegacy/world/public/TileCatalog.h"
 #include "assets.h"
 
-
-static void revertIfNeeded(GameObject* curEntity, std::vector<GameObject*>& entities, float oldX, float oldY) {
-
-    for (GameObject* entity : entities) {
-        if (curEntity == entity) {
-            continue;
-        }
-        else if (checkCollision(*curEntity, HitboxType::UtilityRange1, *entity, HitboxType::UtilityRange1)) {
-            curEntity->set_x_px(oldX);
-            curEntity->set_y_px(oldY);
-            curEntity->set_x_gu(static_cast<int>(std::floor(curEntity->get_x_px() / curEntity->get_singleGU_sideLen_inPixels())));
-            curEntity->set_y_gu(static_cast<int>(std::floor(curEntity->get_y_px() / curEntity->get_singleGU_sideLen_inPixels())));
-        }
-    }
-}
 
 bool MainGameplayGameState::Init(SDL_Renderer* appR, float appW_pixels, float appH_pixels, int tileSizeAsInt, float tileSizeAsFloat) {
     return false;
@@ -112,15 +98,15 @@ bool MainGameplayGameState::Init(SDL_Renderer* appR, AudioManager* audMan, float
     hudLayer_ = new Hud();
     hudLayer_->Init(appR, appW_pixels_, appH_pixels_, cam, *playerLayer_);
 
-    gameObjects.reserve(16);
-    gameObjects.push_back(skeletonOne_);
-    gameObjects.push_back(skeletonTwo_);
-    gameObjects.push_back(skeletonThree_);
-    gameObjects.push_back(skeletonFour_);
-    gameObjects.push_back(skeletonFive_);
-    gameObjects.push_back(skeletonSix_);
-    gameObjects.push_back(skeletonSeven_);
-    gameObjects.push_back(playerLayer_);
+    entitiesList_.reserve(16);
+    entitiesList_.push_back(skeletonOne_);
+    entitiesList_.push_back(skeletonTwo_);
+    entitiesList_.push_back(skeletonThree_);
+    entitiesList_.push_back(skeletonFour_);
+    entitiesList_.push_back(skeletonFive_);
+    entitiesList_.push_back(skeletonSix_);
+    entitiesList_.push_back(skeletonSeven_);
+    entitiesList_.push_back(playerLayer_);
     
 
     #if SHOW_VECTOR_MAP
@@ -216,61 +202,8 @@ void MainGameplayGameState::HandleEvent(Keys keyPress) {
 }
 
 void MainGameplayGameState::UpdateFixed(double dt, const bool* kKeys) {
-    
-    //for (GameObject* a : gameObjects) {
-    //    for (GameObject* b : gameObjects) {
-    //        if (checkRepulsionANorthBSouth(*a, *b)) {
 
-    //        }
-    //    }
-    //}
-
-    /*
-    float oldX = 0;
-    float oldY = 0;
-
-    oldX = skeletonOne_->get_x_px();
-    oldY = skeletonOne_->get_y_px();
-    SkeletonBehavior(skeletonOne_);
-    revertIfNeeded(skeletonTwo_, gameObjects, oldX, oldY);
-
-    oldX = skeletonTwo_->get_x_px();
-    oldY = skeletonTwo_->get_y_px();
-    SkeletonBehavior(skeletonTwo_);
-    revertIfNeeded(skeletonTwo_, gameObjects, oldX, oldY);
-
-    oldX = skeletonThree_->get_x_px();
-    oldY = skeletonThree_->get_y_px();
-    SkeletonBehavior(skeletonThree_);
-    revertIfNeeded(skeletonThree_, gameObjects, oldX, oldY);
-
-    oldX = skeletonFour_->get_x_px();
-    oldY = skeletonFour_->get_y_px();
-    SkeletonBehavior(skeletonFour_);
-    revertIfNeeded(skeletonFour_, gameObjects, oldX, oldY);
-
-    oldX = skeletonFive_->get_x_px();
-    oldY = skeletonFive_->get_y_px();
-    SkeletonBehavior(skeletonFive_);
-    revertIfNeeded(skeletonFive_, gameObjects, oldX, oldY);
-
-    oldX = skeletonSix_->get_x_px();
-    oldY = skeletonSix_->get_y_px();
-    SkeletonBehavior(skeletonSix_);
-    revertIfNeeded(skeletonSix_, gameObjects, oldX, oldY);
-
-    oldX = skeletonSeven_->get_x_px();
-    oldY = skeletonSeven_->get_y_px();
-    SkeletonBehavior(skeletonSeven_);
-    revertIfNeeded(skeletonSeven_, gameObjects, oldX, oldY);
-
-    oldX = playerLayer_->get_x_px();
-    oldY = playerLayer_->get_y_px();
-    //playerLayer_->UpdateFixed(dt, kKeys, floorLayer_);
-    playerLayer_->UpdateFixed(dt, kKeys, newMapLayer_);
-    revertIfNeeded(playerLayer_, gameObjects, oldX, oldY);
-    */
-
+    basicAllEntitiesCollisionResolution(entitiesList_);
 
     SkeletonBehavior(skeletonOne_);
     SkeletonBehavior(skeletonTwo_);
@@ -419,9 +352,6 @@ void MainGameplayGameState::SkeletonBehavior(Skeleton* curSkeleton_) {
                 // Slightly adjusted get_speed() to ensure skeleton doesn't follow TOO fast.
                 float speed = curSkeleton_->get_speed_pixels();
                 if (curSkeleton_->curMood == Mood::Pissed) speed *= 0.3;
-
-                float oldX = curSkeleton_->get_x_px();
-                float oldY = curSkeleton_->get_y_px();
                 followTargetSimple(*curSkeleton_, *playerLayer_, newMapLayer_, speed);
 
             }

@@ -6,6 +6,8 @@ float GameObject::get_x_px() const { return obj_x_px_; }
 float GameObject::get_y_px() const { return obj_y_px_; }
 float GameObject::get_w_pixels() const { return obj_w_pixels_; }
 float GameObject::get_h_pixels() const { return obj_h_pixels_; }
+yxPos_px GameObject::get_center_px() const { return centerYX_px_; }
+
 float GameObject::get_speed_pixels() const { return speed_pixels_; }
 float GameObject::get_direction() const { return direction_; }
 float GameObject::get_app_w_pixels() const { return app_w_pixels_; }
@@ -14,7 +16,8 @@ float GameObject::get_world_w_pixels() const { return world_w_pixels_; }
 float GameObject::get_world_h_pixels() const { return world_h_pixels_; }
 int GameObject::get_health() const { return health_; }
 int GameObject::get_damage() const { return damage_; }
-velVec GameObject::get_velocity() const { return velocity_; }
+VelVec GameObject::get_velocity() const { return velocity_; }
+float GameObject::get_mass() const { return mass_; }
 int GameObject::get_y_gu() const { return obj_y_gu_; }
 int GameObject::get_x_gu() const { return obj_x_gu_; }
 int GameObject::get_h_gridUnits() const { return obj_h_gridUnits_; }
@@ -231,6 +234,11 @@ void GameObject::set_x_px(float new_x) { obj_x_px_ = new_x; }
 void GameObject::set_y_px(float new_y) { obj_y_px_ = new_y; }
 void GameObject::set_w_pixels(float new_w) { obj_w_pixels_ = new_w; }
 void GameObject::set_h_pixels(float new_h) { obj_h_pixels_ = new_h; }
+void GameObject::set_center_px() {
+	centerYX_px_.yPos_px = obj_y_px_ + obj_h_pixels_ / 2;
+	centerYX_px_.xPos_px = obj_x_px_ + obj_w_pixels_ / 2;
+}
+
 void GameObject::set_speed_pixels(float new_speed) { speed_pixels_ = new_speed; }
 void GameObject::set_direction(float new_direction) { direction_ = new_direction; }
 void GameObject::set_app_w_pixels(float new_app_w) { app_w_pixels_ = new_app_w; }
@@ -245,7 +253,8 @@ void GameObject::set_x_gu(int new_x_gu) { obj_x_gu_ = new_x_gu; }
 void GameObject::set_h_gridUnits(int new_h_gridUnits) { obj_h_gridUnits_ = new_h_gridUnits; }
 void GameObject::set_w_gridUnits(int new_w_gridunits) { obj_w_gridUnits_ = new_w_gridunits; }
 void GameObject::set_singleGU_sideLen_inPixels(int new_sideLen) { guSideLen_inPixels_ = new_sideLen; }
-void GameObject::set_velocity(velVec new_velocity) { velocity_ = new_velocity; }
+void GameObject::set_velocity(VelVec new_velocity) { velocity_ = new_velocity; }
+void GameObject::set_mass(float new_mass) { mass_ = new_mass; }
 
 void GameObject::set_alive_state(AliveState new_alive_state) { aliveState_ = new_alive_state; }
 void GameObject::set_attackable_state(AttackableState new_attackable_state) { attackableState_ = new_attackable_state; }

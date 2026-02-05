@@ -29,14 +29,14 @@ bool Skeleton::Init(SDL_Renderer* appR, float spawnX_px, float spawnY_px, Facing
     set_hitbox_pixels(HitboxType::AttackRange,
         get_x_px(),
         get_y_px(),
-        34.0f,
-        28.0f);
+        46.0f,
+        42.0f);
 
     set_hitbox_pixels(HitboxType::UtilityRange1,
         get_x_px(),
         get_y_px(),
-        25.0f,
-        28.0f);
+        30.0f,
+        30.0f);
 
     skeletonAttack_ = BuildAnimSprite(appR, skeletonAttack1Path.c_str(),    // renderer, imagePath, 
         16, 2, 2, 1.5,  // tileSize, tilesPerFrameW, tilesPerFrameH, scale, 
@@ -111,13 +111,13 @@ void Skeleton::UpdateFixed(double dt, const bool* keys) {
                         get_hitbox_h_pixels(HitboxType::AwarenessRange));
 
             set_hitbox_pixels( HitboxType::AttackRange,
-                        get_x_px() - 12.0f, 
-                        get_y_px() - 8.0f, 
+                        get_x_px() - 20.0f, 
+                        get_y_px() - 12.0f, 
                         get_hitbox_w_pixels(HitboxType::AttackRange), 
                         get_hitbox_h_pixels(HitboxType::AttackRange));
             set_hitbox_pixels(HitboxType::UtilityRange1,
-                        get_x_px() - 12.0f,
-                        get_y_px() - 4.0f,
+                        get_x_px() - 16.0f,
+                        get_y_px() - 6.0f,
                         get_hitbox_w_pixels(HitboxType::UtilityRange1),
                         get_hitbox_h_pixels(HitboxType::UtilityRange1));
         }
@@ -135,19 +135,18 @@ void Skeleton::UpdateFixed(double dt, const bool* keys) {
                         get_hitbox_h_pixels(HitboxType::AwarenessRange));
 
             set_hitbox_pixels( HitboxType::AttackRange,
-                        get_x_px() - 12.0f, 
-                        get_y_px() - 8.0f, 
+                        get_x_px() - 20.0f, 
+                        get_y_px() - 12.0f, 
                         get_hitbox_w_pixels(HitboxType::AttackRange), 
                         get_hitbox_h_pixels(HitboxType::AttackRange));
             set_hitbox_pixels(HitboxType::UtilityRange1,
                         get_x_px() - 12.0f,
-                        get_y_px() - 4.0f,
+                        get_y_px() - 6.0f,
                         get_hitbox_w_pixels(HitboxType::UtilityRange1),
                         get_hitbox_h_pixels(HitboxType::UtilityRange1));
         }
     }
     else {
-        //isAlive = false;
         set_alive_state(AliveState::NotAlive);
 
     }
@@ -156,7 +155,6 @@ void Skeleton::UpdateFixed(double dt, const bool* keys) {
 void Skeleton::UpdateFrame(uint64_t now_ms) {
 
     // INITIATE Animation if needed
-    //if (isAlive) {
     if (get_alive_state() == AliveState::IsAlive) {
 
         if (invincibleTimer > 0) {
@@ -168,7 +166,6 @@ void Skeleton::UpdateFrame(uint64_t now_ms) {
                 PlayAnimSprite(skeletonTakesDamage_, now_ms, false);
             }
         }
-        //else if (!get_isStunned() && playerNearby && !skeletonAttack_.playing && !skeletonTakesDamage_.playing) {
         else if (get_stunned_state() == StunnedState::NotStunned && playerNearby && !skeletonAttack_.playing && !skeletonTakesDamage_.playing) {
 
             StopAnimSprite(skeletonIdle_);
@@ -196,7 +193,6 @@ void Skeleton::UpdateFrame(uint64_t now_ms) {
                 stunMaxTimer_ms = 0;
                 StopAnimGif(stunnedAnimation_);
                 PlayAnimSprite(skeletonIdle_, now_ms, true);
-                //set_isStunned(false);
                 set_stunned_state(StunnedState::NotStunned);
             }
         }
@@ -267,7 +263,6 @@ void Skeleton::Render(SDL_Renderer* appR, Camera2D& cam) const {
     bool flashRed = false;
     bool deadFreezeLastFrame = false;
 
-    //if (!isAlive) {
     if (get_alive_state() == AliveState::NotAlive) {
         anim = &skeletonDead_;
         deadFreezeLastFrame = true;
@@ -320,7 +315,6 @@ void Skeleton::Render(SDL_Renderer* appR, Camera2D& cam) const {
 
     if (flashRed) SDL_SetTextureColorModFloat(a.tex, 1.0f, 1.0f, 1.0f);
 
-    //if (get_isStunned()) {
     if (get_stunned_state() == StunnedState::IsStunned) {
         SDL_Texture* tex = CurrentFrameGif(stunnedAnimation_, now);
         SDL_FlipMode flip = (facing == Facing::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
@@ -330,11 +324,17 @@ void Skeleton::Render(SDL_Renderer* appR, Camera2D& cam) const {
 
 
     // DEBUG COLLISIONS
-    /*SDL_FRect hitboxHighlightDst{ get_hitbox_x_px(HitboxType::UtilityRange1), get_hitbox_y_px(HitboxType::UtilityRange1),
-                                  get_hitbox_w_pixels(HitboxType::UtilityRange1), get_hitbox_h_pixels(HitboxType::UtilityRange1) };
-    SDL_FRect screenHitboxDst = cam.WorldToScreen(hitboxHighlightDst);
+    //SDL_FRect hitboxHighlightDst{ get_hitbox_x_px(HitboxType::AttackRange), get_hitbox_y_px(HitboxType::AttackRange),
+    //                              get_hitbox_w_pixels(HitboxType::AttackRange), get_hitbox_h_pixels(HitboxType::AttackRange) };
+    //SDL_FRect screenHitboxDst = cam.WorldToScreen(hitboxHighlightDst);
+    //SDL_SetRenderDrawColor(appR, 0, 255, 0, 40);
+    //SDL_RenderFillRect(appR, &screenHitboxDst);
+
+    /*SDL_FRect hitboxHighlight2Dst{ get_hitbox_x_px(HitboxType::BodyHitbox), get_hitbox_y_px(HitboxType::BodyHitbox),
+                          get_hitbox_w_pixels(HitboxType::BodyHitbox), get_hitbox_h_pixels(HitboxType::BodyHitbox) };
+    SDL_FRect screenHitbox2Dst = cam.WorldToScreen(hitboxHighlight2Dst);
     SDL_SetRenderDrawColor(appR, 0, 0, 255, 40);
-    SDL_RenderFillRect(appR, &screenHitboxDst);*/
+    SDL_RenderFillRect(appR, &screenHitbox2Dst);*/
 
 }
 
@@ -353,14 +353,11 @@ void Skeleton::collisionResponse() {
 void Skeleton::takesDamage(int dmgAmount) {
     set_health(get_health() - dmgAmount);
     if (get_health() <= 0) {
-
-        //isAlive = false;
         set_alive_state(AliveState::NotAlive);
     }
 }
 
 void Skeleton::takesStun(uint64_t now, uint64_t stunLength) {
-    //set_isStunned(true);
     set_stunned_state(StunnedState::IsStunned);
     stunStartTimer_ms = now;
     stunMaxTimer_ms += stunLength;

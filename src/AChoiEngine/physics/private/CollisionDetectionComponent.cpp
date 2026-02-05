@@ -281,48 +281,45 @@ bool checkAttackWallCollision(GameObject& a, Map& m) {
 
 }
 
+int checkRepulsionXAxis(GameObject& a, GameObject& b) {
 
-void bodyBodySurroundingBodyReuplsion(GameObject& a) {
-	
-}
+	float aX = a.get_hitbox_x_px(HitboxType::UtilityRange1);
+	float aW = a.get_hitbox_w_pixels(HitboxType::UtilityRange1);
 
+	float bX = b.get_hitbox_x_px(HitboxType::UtilityRange1);
+	float bW = b.get_hitbox_w_pixels(HitboxType::UtilityRange1);
 
-bool checkRepulsionANorthBSouth(GameObject& a, GameObject& b) {
-	float aNorthBorder = a.get_hitbox_y_px(HitboxType::BodyHitbox);
-	float bSouthBorder = b.get_hitbox_y_px(HitboxType::BodyHitbox) + b.get_hitbox_h_pixels(HitboxType::BodyHitbox);
+	float aCenterX = aX + aW / 2;
+	float bCenterX = bX + bW / 2;
 
-	if (aNorthBorder <= bSouthBorder) {
-		return true;
+	float deltaX = abs(aCenterX - bCenterX);
+	float overlapX = (aW / 2) + (bW / 2) - deltaX;
+
+	if (overlapX > 0) {
+		if (aCenterX <= bCenterX) return 1;
+		else return 2;
 	}
-	return false;
-}
+	return 0;
+};
 
-bool checkRepulsionAEastBWest(GameObject& a, GameObject& b) {
-	float aEastBorder = a.get_hitbox_x_px(HitboxType::BodyHitbox) + a.get_hitbox_w_pixels(HitboxType::BodyHitbox);
-	float bWestBorder = b.get_hitbox_y_px(HitboxType::BodyHitbox);
+int checkRepulsionYAxis(GameObject& a, GameObject& b) {
 
-	if (aEastBorder >= bWestBorder) {
-		return true;
+	float aY = a.get_hitbox_y_px(HitboxType::UtilityRange1);
+	float aH = a.get_hitbox_h_pixels(HitboxType::UtilityRange1);
+
+	float bY = b.get_hitbox_y_px(HitboxType::UtilityRange1);
+	float bH = b.get_hitbox_h_pixels(HitboxType::UtilityRange1);
+
+	float aCenterY = aY + aH / 2;
+	float bCenterY = bY + bH / 2;
+
+	float deltaY = abs(aCenterY - bCenterY);
+	float overlapY = (aH / 2) + (bH / 2) - deltaY;
+
+	if (overlapY > 0) {
+		if (aCenterY <= bCenterY) return 1;
+		else return 2;
 	}
-	return false;
-}
 
-bool checkRepulsionASouthBNorth(GameObject& a, GameObject& b) {
-	float aSouthBorder = a.get_hitbox_y_px(HitboxType::BodyHitbox) + a.get_hitbox_h_pixels(HitboxType::BodyHitbox);
-	float bNorthBorder = b.get_hitbox_y_px(HitboxType::BodyHitbox);
-
-	if (aSouthBorder >= bNorthBorder) {
-		return true;
-	}
-	return false;
-}
-
-bool checkRepulsionAWestBEast(GameObject& a, GameObject& b) {
-	float aWestBorder = a.get_hitbox_x_px(HitboxType::BodyHitbox);
-	float bEastBorder = b.get_hitbox_x_px(HitboxType::BodyHitbox) + b.get_hitbox_w_pixels(HitboxType::BodyHitbox);
-
-	if (aWestBorder <= bEastBorder) {
-		return true;
-	}
-	return false;
-}
+	return 0;
+};

@@ -76,6 +76,6 @@ private:
     std::vector<std::vector<int>> costMap;
     std::vector<std::vector<std::pair<int, int>>> vectorMap;
 
-    std::vector<GameObject*> gameObjects;
+    std::vector<GameObject*> entitiesList_;
 
 };  

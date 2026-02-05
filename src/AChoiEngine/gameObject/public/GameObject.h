@@ -17,10 +17,36 @@ enum class WorldObjState { Idle, Move, Inactive };
 enum class HitboxType { BodyHitbox, AttackRange, StartAttackRange1, AwarenessRange, BroadHitbox, NarrowHitbox, DealDamageRange1, DealDamageRange2, UtilityRange1, UtilityRange2 };
 
 
+struct yxhw_px {
+    float y_px_;        // y coordinate based on PIXEL coordinate system
+    float x_px_;        // x coordinate based on PIXEL coordinate system
+    float h_pixels_;    // height of object based on PIXEL measurement system
+    float w_pixels_;    // width of object based on PIXEL measurement system
+};
+
+struct yxhw_gu {
+    int obj_y_gu_ = 0;  // y coordinate based on GRID coordinate system
+    int obj_x_gu_ = 0;  // x coordinate based on GRID coordinate system
+    int obj_h_gridUnits_;   // height of object based on GRID measurement system
+    int obj_w_gridUnits_;   // width of object based on GRID measurement system
+};
+
+struct yxPos_px {
+    float yPos_px;
+    float xPos_px;
+};
+
+struct Collisions {
+    bool n = false;
+    bool e = false;
+    bool s = false;
+    bool w = false;
+};
+
 // velocity vector
-struct velVec {
-    float speed;  // magnitude
-    float direction;  // direction
+struct VelVec {
+    float yComp;  // y Component (direciton aka sign, magnitude aka speed)
+    float xComp;  // x Component (direciton aka sign, magnitude aka speed)
 };
 
 enum class Direction : uint8_t {
@@ -40,6 +66,20 @@ constexpr std::array<std::pair<int, int>, 8> DIRS{ {
     {-1, -1}} // NW
 };
 
+/*
+GameObject(
+    ObjectType type, AliveState aliveState,
+    yxwh_px obj_yxwh_pixel, yxwh_gu obj_yxwh_gUnits, yxwh_px anim_yxwh_pixel,
+    float app_w_pixels, float app_h_pixels, float world_w_pixels, float world_h_pixels,
+    int guSideLen_inPixels,
+    float speed_pixels = 0, float direction = 1, int health = 0, int damage = 0)
+    : type_(type), aliveState_(aliveState),
+    obj_x_px_(obj_x_px), obj_y_px_(obj_y_px), obj_w_pixels_(obj_w_pixels), obj_h_pixels_(obj_h_pixels),
+    app_w_pixels_(app_w_pixels), app_h_pixels_(app_h_pixels), world_w_pixels_(world_w_pixels), world_h_pixels_(world_h_pixels),
+    obj_w_gridUnits_(obj_w_gridUnits), obj_h_gridUnits_(obj_h_gridUnits), guSideLen_inPixels_(guSideLen_inPixels),
+    speed_pixels_(speed_pixels), direction_(direction), health_(health), damage_(damage) {
+}
+*/
 
 class GameObject {
 public:
@@ -63,6 +103,7 @@ public:
     float get_y_px() const;
     float get_w_pixels() const;
     float get_h_pixels() const;
+    yxPos_px get_center_px() const;
     float get_speed_pixels() const;
     float get_direction() const;
     float get_app_w_pixels() const;
@@ -79,7 +120,8 @@ public:
     int get_world_w_gridUnits() const;
     int get_world_h_gridUnits() const;
     int get_singleGU_sideLen_inPixels() const;
-    velVec get_velocity() const;
+    VelVec get_velocity() const;
+    float get_mass() const;
     MovingState get_moving_state() const;
     AttackableState get_attackable_state() const;
     StunnedState get_stunned_state() const;
@@ -104,13 +146,13 @@ public:
     void set_y_px(float new_y);
     void set_w_pixels(float new_w);
     void set_h_pixels(float new_h);
+    void set_center_px();
     void set_speed_pixels(float new_speed);
     void set_direction(float new_direction);
     void set_app_w_pixels(float new_app_w);
     void set_app_h_pixels(float new_app_h);
     void set_world_w_pixels(float new_world_w);
     void set_world_h_pixels(float new_world_h);
-
     void set_y_gu(int new_y_gu);
     void set_x_gu(int new_x_gu);
     void set_h_gridUnits(int new_h_gridUnits);
@@ -119,7 +161,8 @@ public:
     void set_app_w_gridUnits(int new_app_w_gridUnits);
     void set_world_w_gridUnits(int new_world_w_gridUnits);
     void set_world_h_gridUnits(int new_world_h_gridUnits);
-    void set_velocity(velVec new_velocity_vector);
+    void set_velocity(VelVec new_velocity_vector);
+    void set_mass(float new_mass);
     void set_singleGU_sideLen_inPixels(int new_sideLen);
 
     void set_health(int new_health);
@@ -134,6 +177,9 @@ public:
     void set_hitbox_pixels(HitboxType hitbox_type, float new_hitbox_x_px, float new_hitbox_y_px, float new_hitbox_w_pixels, float new_hitbox_h_pixels);
 
 
+    Collisions collisionStates_;
+
+
 private:
 
     // GridUnits ==> Grid Units (gu) meaning, the size of the object based on
@@ -143,11 +189,19 @@ private:
     float obj_x_px_;        // x coordinate based on PIXEL coordinate system
     float obj_h_pixels_;    // height of object based on PIXEL measurement system
     float obj_w_pixels_;    // width of object based on PIXEL measurement system
+    yxhw_px obj_yxwh_pixel_ = { 0,0,0,0 };
 
     int obj_y_gu_ = 0;  // y coordinate based on GRID coordinate system
     int obj_x_gu_ = 0;  // x coordinate based on GRID coordinate system
     int obj_h_gridUnits_;   // height of object based on GRID measurement system
     int obj_w_gridUnits_;   // width of object based on GRID measurement system
+    yxhw_gu obj_yxwh_gu_ = { 0,0,0,0 };
+
+    //float anim_y_px_;        
+    //float anim_x_px_;        
+    //float anim_h_pixels_;    
+    //float anim_w_pixels_;
+    yxhw_px anim_yxwh_pixel_ = { 0,0,0,0 };
 
     float app_h_pixels_;
     float app_w_pixels_;
@@ -165,12 +219,16 @@ private:
     float direction_;
     int health_;
     int damage_;
-    velVec velocity_ = { 0, 0 };
+    VelVec velocity_ = { 0, 0 }; // {y component, x component}
+    float mass_ = 1;
+    yxPos_px centerYX_px_{ 0, 0 };
+
 
     MovingState movingState_ = MovingState::NotMoving;
     AttackableState attackableState_ = AttackableState::Normal;
     AliveState aliveState_ = AliveState::IsAlive;
     StunnedState stunnedState_ = StunnedState::NotStunned;
+
 
     SDL_FRect bodyHitbox_pixels_{ 0, 0, 0, 0 };
     SDL_FRect attackRange_pixels_{ 0, 0, 0, 0 };
