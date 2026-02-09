@@ -1,39 +1,39 @@
-#include "AChoiEngine/gameObject/public/GameObject.h"
+#include "AChoiEngine/GameObject/public/GameObject.h"
 
 
-ObjectType GameObject::getType() const { return type_; }
-float GameObject::get_x_px() const { return obj_x_px_; }
-float GameObject::get_y_px() const { return obj_y_px_; }
-float GameObject::get_w_pixels() const { return obj_w_pixels_; }
-float GameObject::get_h_pixels() const { return obj_h_pixels_; }
-yxPos_px GameObject::get_center_px() const { return centerYX_px_; }
+ObjectType ACE_GameObject::getType() const { return type_; }
+float ACE_GameObject::get_x_px() const { return obj_x_px_; }
+float ACE_GameObject::get_y_px() const { return obj_y_px_; }
+float ACE_GameObject::get_w_pixels() const { return obj_w_pixels_; }
+float ACE_GameObject::get_h_pixels() const { return obj_h_pixels_; }
+yxPos_px ACE_GameObject::get_center_px() const { return centerYX_px_; }
 
-float GameObject::get_speed_pixels() const { return speed_pixels_; }
-float GameObject::get_direction() const { return direction_; }
-float GameObject::get_app_w_pixels() const { return app_w_pixels_; }
-float GameObject::get_app_h_pixels() const { return app_h_pixels_; }
-float GameObject::get_world_w_pixels() const { return world_w_pixels_; }
-float GameObject::get_world_h_pixels() const { return world_h_pixels_; }
-int GameObject::get_health() const { return health_; }
-int GameObject::get_damage() const { return damage_; }
-VelVec GameObject::get_velocity() const { return velocity_; }
-float GameObject::get_mass() const { return mass_; }
-int GameObject::get_y_gu() const { return obj_y_gu_; }
-int GameObject::get_x_gu() const { return obj_x_gu_; }
-int GameObject::get_h_gridUnits() const { return obj_h_gridUnits_; }
-int GameObject::get_w_gridUnits() const { return obj_w_gridUnits_; }
-int GameObject::get_singleGU_sideLen_inPixels() const { return guSideLen_inPixels_; }
+float ACE_GameObject::get_speed_pixels() const { return speed_pixels_; }
+float ACE_GameObject::get_direction() const { return direction_; }
+float ACE_GameObject::get_app_w_pixels() const { return app_w_pixels_; }
+float ACE_GameObject::get_app_h_pixels() const { return app_h_pixels_; }
+float ACE_GameObject::get_world_w_pixels() const { return world_w_pixels_; }
+float ACE_GameObject::get_world_h_pixels() const { return world_h_pixels_; }
+int ACE_GameObject::get_health() const { return health_; }
+int ACE_GameObject::get_damage() const { return damage_; }
+VelVec2D ACE_GameObject::get_velocity() const { return velocity_; }
+float ACE_GameObject::get_mass() const { return mass_; }
+int ACE_GameObject::get_y_gu() const { return obj_y_gu_; }
+int ACE_GameObject::get_x_gu() const { return obj_x_gu_; }
+int ACE_GameObject::get_h_gridUnits() const { return obj_h_gridUnits_; }
+int ACE_GameObject::get_w_gridUnits() const { return obj_w_gridUnits_; }
+int ACE_GameObject::get_singleGU_sideLen_inPixels() const { return guSideLen_inPixels_; }
 
-AliveState  GameObject::get_alive_state() const { return aliveState_; }
-MovingState GameObject::get_moving_state() const { return movingState_; }
-AttackableState GameObject::get_attackable_state() const { return attackableState_; }
-StunnedState GameObject::get_stunned_state() const { return stunnedState_; }
+AliveState  ACE_GameObject::get_alive_state() const { return aliveState_; }
+MovingState ACE_GameObject::get_moving_state() const { return movingState_; }
+AttackableState ACE_GameObject::get_attackable_state() const { return attackableState_; }
+StunnedState ACE_GameObject::get_stunned_state() const { return stunnedState_; }
 
-//float GameObject::get_gravity() const { return gravity_; }
-//uint64_t GameObject::get_stunnedTimer() const { return stunnedTimer_; }
+//float ACE_GameObject::get_gravity() const { return gravity_; }
+//uint64_t ACE_GameObject::get_stunnedTimer() const { return stunnedTimer_; }
 
 
-float GameObject::get_hitbox_x_px(HitboxType box_type) const {
+float ACE_GameObject::get_hitbox_x_px(HitboxType box_type) const {
 
 	float number = 0.0f;
 	switch (box_type) {
@@ -73,7 +73,7 @@ float GameObject::get_hitbox_x_px(HitboxType box_type) const {
 	return number;
 }
 
-float GameObject::get_hitbox_y_px(HitboxType box_type) const {
+float ACE_GameObject::get_hitbox_y_px(HitboxType box_type) const {
 
 	float number = 0.0f;
 	switch (box_type) {
@@ -113,7 +113,7 @@ float GameObject::get_hitbox_y_px(HitboxType box_type) const {
 	return number;
 }
 
-float GameObject::get_hitbox_w_pixels(HitboxType box_type) const {
+float ACE_GameObject::get_hitbox_w_pixels(HitboxType box_type) const {
 
 	float number = 0.0f;
 	switch (box_type) {
@@ -153,7 +153,7 @@ float GameObject::get_hitbox_w_pixels(HitboxType box_type) const {
 	return number;
 }
 
-float GameObject::get_hitbox_h_pixels(HitboxType box_type) const {
+float ACE_GameObject::get_hitbox_h_pixels(HitboxType box_type) const {
 
 	float number = 0.0f;
 	switch (box_type) {
@@ -194,7 +194,7 @@ float GameObject::get_hitbox_h_pixels(HitboxType box_type) const {
 }
 
 
-//std::vector<float> GameObject::get_hitbox_xywh(HitboxType box_type) {
+//std::vector<float> ACE_GameObject::get_hitbox_xywh(HitboxType box_type) {
 //	
 //	std::vector<float> xywh = xywh = { 0,0,0,0 };
 //	switch (box_type) {
@@ -229,42 +229,42 @@ float GameObject::get_hitbox_h_pixels(HitboxType box_type) const {
 //}
 
 
-void GameObject::set_type(ObjectType new_type) { type_ = new_type; }
-void GameObject::set_x_px(float new_x) { obj_x_px_ = new_x; }
-void GameObject::set_y_px(float new_y) { obj_y_px_ = new_y; }
-void GameObject::set_w_pixels(float new_w) { obj_w_pixels_ = new_w; }
-void GameObject::set_h_pixels(float new_h) { obj_h_pixels_ = new_h; }
-void GameObject::set_center_px() {
+void ACE_GameObject::set_type(ObjectType new_type) { type_ = new_type; }
+void ACE_GameObject::set_x_px(float new_x) { obj_x_px_ = new_x; }
+void ACE_GameObject::set_y_px(float new_y) { obj_y_px_ = new_y; }
+void ACE_GameObject::set_w_pixels(float new_w) { obj_w_pixels_ = new_w; }
+void ACE_GameObject::set_h_pixels(float new_h) { obj_h_pixels_ = new_h; }
+void ACE_GameObject::set_center_px() {
 	centerYX_px_.yPos_px = obj_y_px_ + obj_h_pixels_ / 2;
 	centerYX_px_.xPos_px = obj_x_px_ + obj_w_pixels_ / 2;
 }
 
-void GameObject::set_speed_pixels(float new_speed) { speed_pixels_ = new_speed; }
-void GameObject::set_direction(float new_direction) { direction_ = new_direction; }
-void GameObject::set_app_w_pixels(float new_app_w) { app_w_pixels_ = new_app_w; }
-void GameObject::set_app_h_pixels(float new_app_h) { app_h_pixels_ = new_app_h; }
-void GameObject::set_world_w_pixels(float new_world_w) { world_w_pixels_ = new_world_w; }
-void GameObject::set_world_h_pixels(float new_world_h) { world_h_pixels_ = new_world_h; }
-void GameObject::set_health(int new_health) { health_ = new_health; }
-void GameObject::set_damage(int new_damage) { damage_ = new_damage; }
+void ACE_GameObject::set_speed_pixels(float new_speed) { speed_pixels_ = new_speed; }
+void ACE_GameObject::set_direction(float new_direction) { direction_ = new_direction; }
+void ACE_GameObject::set_app_w_pixels(float new_app_w) { app_w_pixels_ = new_app_w; }
+void ACE_GameObject::set_app_h_pixels(float new_app_h) { app_h_pixels_ = new_app_h; }
+void ACE_GameObject::set_world_w_pixels(float new_world_w) { world_w_pixels_ = new_world_w; }
+void ACE_GameObject::set_world_h_pixels(float new_world_h) { world_h_pixels_ = new_world_h; }
+void ACE_GameObject::set_health(int new_health) { health_ = new_health; }
+void ACE_GameObject::set_damage(int new_damage) { damage_ = new_damage; }
 
-void GameObject::set_y_gu(int new_y_gu) { obj_y_gu_ = new_y_gu; }
-void GameObject::set_x_gu(int new_x_gu) { obj_x_gu_ = new_x_gu; }
-void GameObject::set_h_gridUnits(int new_h_gridUnits) { obj_h_gridUnits_ = new_h_gridUnits; }
-void GameObject::set_w_gridUnits(int new_w_gridunits) { obj_w_gridUnits_ = new_w_gridunits; }
-void GameObject::set_singleGU_sideLen_inPixels(int new_sideLen) { guSideLen_inPixels_ = new_sideLen; }
-void GameObject::set_velocity(VelVec new_velocity) { velocity_ = new_velocity; }
-void GameObject::set_mass(float new_mass) { mass_ = new_mass; }
+void ACE_GameObject::set_y_gu(int new_y_gu) { obj_y_gu_ = new_y_gu; }
+void ACE_GameObject::set_x_gu(int new_x_gu) { obj_x_gu_ = new_x_gu; }
+void ACE_GameObject::set_h_gridUnits(int new_h_gridUnits) { obj_h_gridUnits_ = new_h_gridUnits; }
+void ACE_GameObject::set_w_gridUnits(int new_w_gridunits) { obj_w_gridUnits_ = new_w_gridunits; }
+void ACE_GameObject::set_singleGU_sideLen_inPixels(int new_sideLen) { guSideLen_inPixels_ = new_sideLen; }
+void ACE_GameObject::set_velocity(VelVec2D new_velocity) { velocity_ = new_velocity; }
+void ACE_GameObject::set_mass(float new_mass) { mass_ = new_mass; }
 
-void GameObject::set_alive_state(AliveState new_alive_state) { aliveState_ = new_alive_state; }
-void GameObject::set_attackable_state(AttackableState new_attackable_state) { attackableState_ = new_attackable_state; }
-void GameObject::set_moving_state(MovingState new_moving_state) { movingState_  = new_moving_state; }
-void GameObject::set_stunned_state(StunnedState new_stunned_state) { stunnedState_ = new_stunned_state; }
+void ACE_GameObject::set_alive_state(AliveState new_alive_state) { aliveState_ = new_alive_state; }
+void ACE_GameObject::set_attackable_state(AttackableState new_attackable_state) { attackableState_ = new_attackable_state; }
+void ACE_GameObject::set_moving_state(MovingState new_moving_state) { movingState_  = new_moving_state; }
+void ACE_GameObject::set_stunned_state(StunnedState new_stunned_state) { stunnedState_ = new_stunned_state; }
 
-//void GameObject::set_gravity(float new_gravity) { gravity_ = new_gravity; }
-//void GameObject::set_stunnedTimer(uint64_t new_stunnedTimer) { stunnedTimer_ = new_stunnedTimer; }
+//void ACE_GameObject::set_gravity(float new_gravity) { gravity_ = new_gravity; }
+//void ACE_GameObject::set_stunnedTimer(uint64_t new_stunnedTimer) { stunnedTimer_ = new_stunnedTimer; }
 
-void GameObject::set_hitbox_pixels(HitboxType box_type, float new_hitbox_x, float new_hitbox_y, float new_hitbox_w, float new_hitbox_h) {
+void ACE_GameObject::set_hitbox_pixels(HitboxType box_type, float new_hitbox_x, float new_hitbox_y, float new_hitbox_w, float new_hitbox_h) {
 
 	switch (box_type) {
 	case HitboxType::BodyHitbox:

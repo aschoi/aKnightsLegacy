@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include "AChoiEngine/input/public/Keyboard.h"
-#include "AChoiEngine/physics/public/CollisionDetectionComponent.h"
+#include "AChoiEngine/physics/public/OverlappingHitboxDetection.h"
 #include "AChoiEngine/worldLayer/public/Map.h"
 #include "AChoiEngine/worldLayer/public/TxtMapLoader.h"
 #include "knightsLegacy/weapons/public/Projectile.h"
@@ -21,45 +21,45 @@ bool Player::Init(SDL_Renderer* appR, float spawnX_px, float spawnY_px) {
     set_y_gu(static_cast<int>(std::floor(spawnY_px / 16)));
 
     // Load IDLE animation
-    playerIdle_ = LoadAnimGif(appR, playerIdlePath.c_str(), 60);
+    playerIdle_ = ACE_LoadAnimGif(appR, playerIdlePath.c_str(), 60);
     if (playerIdle_.frames.empty()) {
         std::cerr << "Failed to load idle GIF: " << playerIdlePath << "\n";
         return false;
     }
     // Loop IDLE animation 
-    PlayAnimGif(playerIdle_, SDL_GetTicks(), true);
+    ACE_PlayAnimGif(playerIdle_, SDL_GetTicks(), true);
 
     if (!playerAttackPath.empty()) {  // Load ATTACK animation
-        playerAttack_ = LoadAnimGif(appR, playerAttackPath.c_str(), 60);
+        playerAttack_ = ACE_LoadAnimGif(appR, playerAttackPath.c_str(), 60);
         if (playerAttack_.frames.empty()) std::cerr << "Warning: failed to load attack GIF: " << playerAttackPath << "\n";
     }
     if (!playerRunPath.empty()) {  // RUNNING
-        playerRun_ = LoadAnimGif(appR, playerRunPath.c_str(), 70);
+        playerRun_ = ACE_LoadAnimGif(appR, playerRunPath.c_str(), 70);
         if (playerRun_.frames.empty()) std::cerr << "Warning: failed to load running GIF: " << playerRunPath << "\n";
     }
     if (!playerCrouchPath.empty()) {  // CROUCH
-        playerCrouch_ = LoadAnimGif(appR, playerCrouchPath.c_str(), 100);
+        playerCrouch_ = ACE_LoadAnimGif(appR, playerCrouchPath.c_str(), 100);
         if (playerCrouch_.frames.empty()) std::cerr << "Warning: failed to load crouch GIF: " << playerCrouchPath << "\n";
     }
     if (!playerRollPath.empty()) {  // ROLL 
-        playerRoll_ = LoadAnimGif(appR, playerRollPath.c_str(), 40);
+        playerRoll_ = ACE_LoadAnimGif(appR, playerRollPath.c_str(), 40);
         if (playerRoll_.frames.empty()) std::cerr << "Warning: failed to load crouch GIF: " << playerRollPath << "\n";
     }
     if (!playerSlidePath.empty()) {  // SLIDE 
-        playerSlide_ = LoadAnimGif(appR, playerSlidePath.c_str(), 70);
+        playerSlide_ = ACE_LoadAnimGif(appR, playerSlidePath.c_str(), 70);
         if (playerSlide_.frames.empty()) std::cerr << "Warning: failed to load crouch GIF: " << playerSlidePath << "\n";
     }
     if (!playerTakesHitPath.empty()) {  // TAKES HIT 
-        playerTakesHit_ = LoadAnimGif(appR, playerTakesHitPath.c_str(), 100);
+        playerTakesHit_ = ACE_LoadAnimGif(appR, playerTakesHitPath.c_str(), 100);
         if (playerTakesHit_.frames.empty()) std::cerr << "Warning: failed to load crouch GIF: " << playerTakesHitPath << "\n";
     }
     if (!playerDeathPath.empty()) {  // DEATH 
-        playerDeath_ = LoadAnimGif(appR, playerDeathPath.c_str(), 100);
+        playerDeath_ = ACE_LoadAnimGif(appR, playerDeathPath.c_str(), 100);
         if (playerDeath_.frames.empty()) std::cerr << "Warning: failed to load crouch GIF: " << playerDeathPath << "\n";
     }
 
     if (!playerTripleSwingGifPath.empty()) {  // PROJECTILE
-        playerProjectile_ = LoadAnimGif(appR, playerTripleSwingGifPath.c_str(), 85);
+        playerProjectile_ = ACE_LoadAnimGif(appR, playerTripleSwingGifPath.c_str(), 85);
         if (playerProjectile_.frames.empty()) std::cerr << "Warning: failed to load running GIF: " << playerTripleSwingGifPath << "\n";
     }
 
@@ -74,15 +74,15 @@ bool Player::Init(SDL_Renderer* appR, float spawnX_px, float spawnY_px) {
 }
 
 void Player::Shutdown() {
-    DestroyAnimGif(playerCrouch_);
-    DestroyAnimGif(playerAttack_);
-    DestroyAnimGif(playerRun_);
-    DestroyAnimGif(playerIdle_);
-    DestroyAnimGif(playerRoll_);
-    DestroyAnimGif(playerSlide_);
-    DestroyAnimGif(playerTakesHit_);
-    DestroyAnimGif(playerDeath_);
-    DestroyAnimGif(playerProjectile_);
+    ACE_DestroyAnimGif(playerCrouch_);
+    ACE_DestroyAnimGif(playerAttack_);
+    ACE_DestroyAnimGif(playerRun_);
+    ACE_DestroyAnimGif(playerIdle_);
+    ACE_DestroyAnimGif(playerRoll_);
+    ACE_DestroyAnimGif(playerSlide_);
+    ACE_DestroyAnimGif(playerTakesHit_);
+    ACE_DestroyAnimGif(playerDeath_);
+    ACE_DestroyAnimGif(playerProjectile_);
 }
 
 void Player::HandleEvent(Keys key) {
@@ -113,7 +113,7 @@ void Player::HandleEvent(Keys key) {
 }
 
 // Update player position
-void Player::UpdateFixed(double dt, const bool* keys, TileMap& floorLayer_) {
+void Player::UpdateFixed(double dt, const bool* keys, ACE_TileMap& floorLayer_) {
 
     float vx = 0.0f;
     float vy = 0.0f;
@@ -168,32 +168,32 @@ void Player::UpdateFixed(double dt, const bool* keys, TileMap& floorLayer_) {
     set_x_px(get_x_px() + vx * get_speed_pixels() * (float)dt);
     set_y_px(get_y_px() + vy * get_speed_pixels() * (float)dt);
 
-    if (floorLayer_.IsSolidAt(get_x_px(), get_y_px(), GetTileCatalog())) {
-        if (floorLayer_.DoesDamageAt(get_x_px(), get_y_px(), GetTileCatalog())) {
+    if (floorLayer_.ACE_IsSolidAt(get_x_px(), get_y_px(), GetTileCatalog())) {
+        if (floorLayer_.ACE_DoesDamageAt(get_x_px(), get_y_px(), GetTileCatalog())) {
             setInvincibleTimer(getInvincibleDuration());
             takesDamage(1);
         }
         set_x_px(oldX);
         set_y_px(oldY);
     }
-    else if (floorLayer_.IsSolidAt(get_x_px() + 8, get_y_px(), GetTileCatalog())) {
-        if (floorLayer_.DoesDamageAt(get_x_px() + 8, get_y_px(), GetTileCatalog())) {
+    else if (floorLayer_.ACE_IsSolidAt(get_x_px() + 8, get_y_px(), GetTileCatalog())) {
+        if (floorLayer_.ACE_DoesDamageAt(get_x_px() + 8, get_y_px(), GetTileCatalog())) {
             setInvincibleTimer(getInvincibleDuration());
             takesDamage(1);
         }
         set_x_px(oldX);
         set_y_px(oldY);
     }
-    else if (floorLayer_.IsSolidAt(get_x_px(), get_y_px() + 36, GetTileCatalog())) {
-        if (floorLayer_.DoesDamageAt(get_x_px(), get_y_px() + 36, GetTileCatalog())) {
+    else if (floorLayer_.ACE_IsSolidAt(get_x_px(), get_y_px() + 36, GetTileCatalog())) {
+        if (floorLayer_.ACE_DoesDamageAt(get_x_px(), get_y_px() + 36, GetTileCatalog())) {
             setInvincibleTimer(getInvincibleDuration());
             takesDamage(1);
         }
         set_x_px(oldX);
         set_y_px(oldY);
     }
-    else if (floorLayer_.IsSolidAt(get_x_px()+ 8, get_y_px() + 36, GetTileCatalog())) {
-        if (floorLayer_.DoesDamageAt(get_x_px() + 8, get_y_px() + 36, GetTileCatalog())) {
+    else if (floorLayer_.ACE_IsSolidAt(get_x_px()+ 8, get_y_px() + 36, GetTileCatalog())) {
+        if (floorLayer_.ACE_DoesDamageAt(get_x_px() + 8, get_y_px() + 36, GetTileCatalog())) {
             setInvincibleTimer(getInvincibleDuration());
             takesDamage(1);
         }
@@ -352,7 +352,7 @@ void Player::UpdateFixed(double dt, const bool* keys) {
     }
 }
 
-void Player::UpdateFixed(double dt, const bool* keys, Map& curMap) {
+void Player::UpdateFixed(double dt, const bool* keys, ACE_Map& curMap) {
 
     float vx = 0.0f;
     float vy = 0.0f;
@@ -407,10 +407,10 @@ void Player::UpdateFixed(double dt, const bool* keys, Map& curMap) {
     set_x_px(get_x_px() + vx * get_speed_pixels() * (float)dt);
     set_y_px(get_y_px() + vy * get_speed_pixels() * (float)dt);
 
-    int tl = curMap.intGridType(get_x_px(), get_y_px());
-    int tr = curMap.intGridType(get_x_px() + 8, get_y_px());
-    int bl = curMap.intGridType(get_x_px(), get_y_px() + 36);
-    int br = curMap.intGridType(get_x_px() + 8, get_y_px() + 36);
+    int tl = curMap.ACE_intGridType(get_x_px(), get_y_px());
+    int tr = curMap.ACE_intGridType(get_x_px() + 8, get_y_px());
+    int bl = curMap.ACE_intGridType(get_x_px(), get_y_px() + 36);
+    int br = curMap.ACE_intGridType(get_x_px() + 8, get_y_px() + 36);
 
     if ((0 < tl && tl < 3) || (0 < tr && tr < 3) || (0 < bl && bl < 3) || (0 < br && br < 3)) {
         set_x_px(oldX);
@@ -472,33 +472,33 @@ void Player::UpdateFrame(uint64_t now_ms) {
 
         if (get_alive_state() == AliveState::IsAlive && invincibleTimer_ > 0) {
             invincibleTimer_ -= 1;
-            StopAnimGif(playerIdle_);
-            StopAnimGif(playerRun_);
-            StopAnimGif(playerAttack_);
-            StopAnimGif(playerCrouch_);
-            StopAnimGif(playerRoll_);
-            StopAnimGif(playerSlide_);
-            StopAnimGif(playerProjectile_);
+            ACE_StopAnimGif(playerIdle_);
+            ACE_StopAnimGif(playerRun_);
+            ACE_StopAnimGif(playerAttack_);
+            ACE_StopAnimGif(playerCrouch_);
+            ACE_StopAnimGif(playerRoll_);
+            ACE_StopAnimGif(playerSlide_);
+            ACE_StopAnimGif(playerProjectile_);
 
             if (!playerTakesHit_.playing) {
-                PlayAnimGif(playerTakesHit_, now_ms, false);
+                ACE_PlayAnimGif(playerTakesHit_, now_ms, false);
             }
         }
         // initiate a player action if button pressed
         else if (projectilePressed_) {
-            PlayAnimGif(playerProjectile_, now_ms, false);
+            ACE_PlayAnimGif(playerProjectile_, now_ms, false);
             projectilePressed_ = false;
         }
         else if (attackPressed_) {
-            PlayAnimGif(playerAttack_, now_ms, false);
+            ACE_PlayAnimGif(playerAttack_, now_ms, false);
             attackPressed_ = false;
         }
         else if (slidePressed_) {
-            PlayAnimGif(playerSlide_, now_ms, false);
+            ACE_PlayAnimGif(playerSlide_, now_ms, false);
             slidePressed_ = false;
         }
         else if (rollPressed_) {
-            PlayAnimGif(playerRoll_, now_ms, false);
+            ACE_PlayAnimGif(playerRoll_, now_ms, false);
             rollPressed_ = false;
         }
         else if (hammerPressed_) {
@@ -506,11 +506,11 @@ void Player::UpdateFrame(uint64_t now_ms) {
         }
 
         // Return to idle after player action ends
-        if (FinishedNonLoopingGif(playerProjectile_, now_ms))   StopAnimGif(playerProjectile_);
-        if (FinishedNonLoopingGif(playerAttack_, now_ms))       StopAnimGif(playerAttack_);
-        if (FinishedNonLoopingGif(playerSlide_, now_ms))        StopAnimGif(playerSlide_);
-        if (FinishedNonLoopingGif(playerRoll_, now_ms))         StopAnimGif(playerRoll_);
-        if (FinishedNonLoopingGif(playerTakesHit_, now_ms))     StopAnimGif(playerTakesHit_);
+        if (ACE_FinishedNonLoopingGif(playerProjectile_, now_ms))   ACE_StopAnimGif(playerProjectile_);
+        if (ACE_FinishedNonLoopingGif(playerAttack_, now_ms))       ACE_StopAnimGif(playerAttack_);
+        if (ACE_FinishedNonLoopingGif(playerSlide_, now_ms))        ACE_StopAnimGif(playerSlide_);
+        if (ACE_FinishedNonLoopingGif(playerRoll_, now_ms))         ACE_StopAnimGif(playerRoll_);
+        if (ACE_FinishedNonLoopingGif(playerTakesHit_, now_ms))     ACE_StopAnimGif(playerTakesHit_);
 
         if (!playerAttack_.playing && !playerSlide_.playing && !playerRoll_.playing 
             && !playerProjectile_.playing && !playerTakesHit_.playing) {
@@ -518,13 +518,13 @@ void Player::UpdateFrame(uint64_t now_ms) {
             static PlayerAnimState prevState = PlayerAnimState::Idle;
             if (playerAnimState_ != prevState) {
                 if (playerAnimState_ == PlayerAnimState::Idle) {
-                    PlayAnimGif(playerIdle_, now_ms, true);
-                    StopAnimGif(playerRun_);
+                    ACE_PlayAnimGif(playerIdle_, now_ms, true);
+                    ACE_StopAnimGif(playerRun_);
                     set_moving_state(MovingState::NotMoving);
                 }
                 else {
-                    PlayAnimGif(playerRun_, now_ms, true);
-                    StopAnimGif(playerIdle_);
+                    ACE_PlayAnimGif(playerRun_, now_ms, true);
+                    ACE_StopAnimGif(playerIdle_);
                 }
                 prevState = playerAnimState_;
             }
@@ -532,7 +532,7 @@ void Player::UpdateFrame(uint64_t now_ms) {
     }
 }
 
-void Player::Render(SDL_Renderer* appR, Camera2D& cam) const {
+void Player::Render(SDL_Renderer* appR, ACE_Camera2D& cam) const {
 
     const float halfW = playerIdle_.w * 0.5f;
     const float halfH = playerIdle_.h * 0.5f;
@@ -550,14 +550,14 @@ void Player::Render(SDL_Renderer* appR, Camera2D& cam) const {
 
     if (invincibleTimer_ > 0) flashRed = true;
 
-    if (playerTakesHit_.playing)        tex = CurrentFrameGif(playerTakesHit_, now_ms);
-    else if (playerProjectile_.playing) tex = CurrentFrameGif(playerProjectile_, now_ms);
+    if (playerTakesHit_.playing)        tex = ACE_CurrentFrameGif(playerTakesHit_, now_ms);
+    else if (playerProjectile_.playing) tex = ACE_CurrentFrameGif(playerProjectile_, now_ms);
 
-    else if (playerAttack_.playing)     tex = CurrentFrameGif(playerAttack_, now_ms);
-    else if (playerAnimState_ == PlayerAnimState::Run)      tex = CurrentFrameGif(playerRun_, now_ms);
-    else if (playerAnimState_ == PlayerAnimState::Slide)    tex = CurrentFrameGif(playerSlide_, now_ms);
-    else if (playerAnimState_ == PlayerAnimState::Roll)     tex = CurrentFrameGif(playerRoll_, now_ms);
-    else tex = CurrentFrameGif(playerIdle_, now_ms);
+    else if (playerAttack_.playing)     tex = ACE_CurrentFrameGif(playerAttack_, now_ms);
+    else if (playerAnimState_ == PlayerAnimState::Run)      tex = ACE_CurrentFrameGif(playerRun_, now_ms);
+    else if (playerAnimState_ == PlayerAnimState::Slide)    tex = ACE_CurrentFrameGif(playerSlide_, now_ms);
+    else if (playerAnimState_ == PlayerAnimState::Roll)     tex = ACE_CurrentFrameGif(playerRoll_, now_ms);
+    else tex = ACE_CurrentFrameGif(playerIdle_, now_ms);
 
     if (!tex) return;
 
@@ -565,7 +565,7 @@ void Player::Render(SDL_Renderer* appR, Camera2D& cam) const {
 
     if (flashRed) SDL_SetTextureColorModFloat(tex, 2.5f, 1.0f, 1.0f);
 
-    SDL_FRect screenDst = cam.WorldToScreen(dst);
+    SDL_FRect screenDst = cam.ACE_WorldToScreen(dst);
     SDL_RenderTextureRotated(appR, tex, nullptr, &screenDst, 0.0, nullptr, flip);
 
     if (flashRed) SDL_SetTextureColorModFloat(tex, 1.0f, 1.0f, 1.0f);

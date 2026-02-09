@@ -11,9 +11,9 @@ bool SwordWaveProjectile::Init( SDL_Renderer* r,
     set_x_px(playerX_px);
     set_y_px(playerY_px);
     projFacing = facing;
-    swordWaveProj_ = LoadAnimGif(r, animPath.c_str(), 70);
+    swordWaveProj_ = ACE_LoadAnimGif(r, animPath.c_str(), 70);
 
-    PlayAnimGif(swordWaveProj_, SDL_GetTicks(), true);
+    ACE_PlayAnimGif(swordWaveProj_, SDL_GetTicks(), true);
     ProjectileState = WeaponState::Move;
     existenceStartTime_ms = SDL_GetTicks();
 
@@ -24,7 +24,7 @@ bool SwordWaveProjectile::Init( SDL_Renderer* r,
 }
 
 void SwordWaveProjectile::Shutdown() {
-    DestroyAnimGif(swordWaveProj_);
+    ACE_DestroyAnimGif(swordWaveProj_);
 }
 
 void SwordWaveProjectile::HandleEvent(Keys key) {
@@ -83,22 +83,22 @@ void SwordWaveProjectile::UpdateFrame(uint64_t now_ms) {
 
     if (ProjectileState == WeaponState::Move) {
         if (get_x_px() + swordWaveProj_.w > get_world_w_pixels() + 30.0f || get_x_px() - 70.0f < 0) {
-            StopAnimGif(swordWaveProj_);
+            ACE_StopAnimGif(swordWaveProj_);
             ProjectileState = WeaponState::Inactive;
         }
         if (now_ms - existenceStartTime_ms >= existenceMaxTime_ms) {
-            StopAnimGif(swordWaveProj_);
+            ACE_StopAnimGif(swordWaveProj_);
             ProjectileState = WeaponState::Inactive;
         }
     }
 
     if (swordWaveProj_.playing && ProjectileState == WeaponState::Inactive) {
-        StopAnimGif(swordWaveProj_);
+        ACE_StopAnimGif(swordWaveProj_);
     }
 }
 
 
-void SwordWaveProjectile::Render(SDL_Renderer* appR, Camera2D& cam) const {
+void SwordWaveProjectile::Render(SDL_Renderer* appR, ACE_Camera2D& cam) const {
     if (ProjectileState == WeaponState::Move) {
         const float halfW = swordWaveProj_.w * scale_;
         const float halfH = swordWaveProj_.h * scale_;
@@ -114,14 +114,14 @@ void SwordWaveProjectile::Render(SDL_Renderer* appR, Camera2D& cam) const {
         SDL_Texture* tex = nullptr;
 
         if (swordWaveProj_.playing) {
-            tex = CurrentFrameGif(swordWaveProj_, now_ms);
+            tex = ACE_CurrentFrameGif(swordWaveProj_, now_ms);
         }
 
         if (!tex) return;
 
         SDL_FlipMode flip = (projFacing == Facing::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 
-        SDL_FRect screenDst = cam.WorldToScreen(dst);
+        SDL_FRect screenDst = cam.ACE_WorldToScreen(dst);
         SDL_RenderTextureRotated(appR, tex, nullptr, &screenDst, 0.0, nullptr, flip);
 
 

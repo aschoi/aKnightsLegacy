@@ -97,6 +97,6 @@ struct LDTK_Project {
 
 // levels -> layerInstances -> gridTiles
 
-LDTK_Project LoadProject(const char* ldtkPath);
+LDTK_Project ACE_LoadProject(const char* ldtkPath);
 
 

@@ -1,4 +1,7 @@
 #include "assets.h"
+#include <vector>
+#include <string>
+#include <unordered_map>
 
 /* 
 *  Artist Credits:

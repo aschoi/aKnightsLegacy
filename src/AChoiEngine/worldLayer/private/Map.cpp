@@ -8,11 +8,11 @@
 #include "assets.h"
 
 
-bool Map::Init(SDL_Renderer* appR, const char* jsonPath) {
+bool ACE_Map::ACE_Init(SDL_Renderer* appR, const char* jsonPath) {
+    
+    ldtk_project = ACE_LoadProject(jsonPath);
 
-    ldtk_project = LoadProject(jsonPath);
-
-    Shutdown();
+    ACE_Shutdown();
 
     tileSize_pixels_ = ldtk_project.layerInstances[1].gridSize;
     worldWidth_gridUnits_ = ldtk_project.layerInstances[1].world_gUnits_width;
@@ -32,13 +32,13 @@ bool Map::Init(SDL_Renderer* appR, const char* jsonPath) {
             SDL_Surface* surf = IMG_Load(imagePath.string().c_str());
             if (!surf) {
                 SDL_Log("BOOOOO HOOO (%s): %s", "tiles as surface failed to load", SDL_GetError());
-                Shutdown();
+                ACE_Shutdown();
                 return false;
             }
             SDL_Texture* tex = SDL_CreateTextureFromSurface(appR, surf);
             if (!tex) {
                 SDL_Log("BOOOOO HOOO (%s): %s", "Tiles as texture failed to load", SDL_GetError());
-                Shutdown();
+                ACE_Shutdown();
                 return false;
             }
             SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
@@ -49,12 +49,12 @@ bool Map::Init(SDL_Renderer* appR, const char* jsonPath) {
 
     // Kinda dangerous at the moment. I should make this more robust when I get a chance.
     solids_ = ldtk_project.project_intGrid[0].layer_intGrid;
-
+    
     return worldWidth_gridUnits_ > 0 && worldHeight_gridUnits_ > 0;
 }
 
 
-void Map::Shutdown() {
+void ACE_Map::ACE_Shutdown() {
     for (SDL_Texture* tex : tilesets_) {
         if (tex) SDL_DestroyTexture(tex);
     }
@@ -62,12 +62,12 @@ void Map::Shutdown() {
     worldWidth_gridUnits_ = worldHeight_gridUnits_ = 0;
 }
 
-void Map::Render(SDL_Renderer* appR, Camera2D& cam) const {
-
+void ACE_Map::ACE_Render(SDL_Renderer* appR, ACE_Camera2D& cam) const {
+    
     if (ldtk_project.layerInstances.size() != tilesets_.size()) {
         throw std::runtime_error("Vector size mismatch");
     }
-
+    
     for (size_t iLayer = 0; iLayer < ldtk_project.layerInstances.size(); ++iLayer) {
         if (ldtk_project.layerInstances[iLayer].l_type == LDTK_LayerType::IntGrid) {
             continue;
@@ -121,8 +121,88 @@ void Map::Render(SDL_Renderer* appR, Camera2D& cam) const {
     }
 }
 
+void ACE_Map::ACE_Render(SDL_Renderer* appR) const {
+
+    if (ldtk_project.layerInstances.size() != tilesets_.size()) {
+        throw std::runtime_error("Vector size mismatch");
+    }
+
+    for (size_t iLayer = 0; iLayer < ldtk_project.layerInstances.size(); ++iLayer) {
+        if (ldtk_project.layerInstances[iLayer].l_type == LDTK_LayerType::IntGrid) {
+            continue;
+        }
+
+        SDL_Texture* tex = tilesets_[iLayer];
+
+        for (int y = 0; y < worldHeight_gridUnits_; ++y) {
+            for (int x = 0; x < worldWidth_gridUnits_; ++x) {
+                const LDTK_levels_layerInstances_gridTiles& curGridTile
+                    = ldtk_project.layerInstances[iLayer].ldtk_gridTiles[y * worldWidth_gridUnits_ + x];
+                const SDL_FRect src{
+                        curGridTile.src_tileset_px.x_c_px,
+                        curGridTile.src_tileset_px.y_r_px,
+                        tileSize_pixels_,
+                        tileSize_pixels_
+                };
+
+                SDL_FRect dst{
+                    x * tileSize_pixels_,
+                    y * tileSize_pixels_,
+                    (float)tileSize_pixels_,
+                    (float)tileSize_pixels_
+                };
+
+                // Before rendering (or whenever you want to change opacity)
+                SDL_SetTextureAlphaMod(tex, 128);
+
+                SDL_RenderTexture(appR, tex, &src, &dst);
+            }
+        }
+    }
+}
+
+void ACE_Map::ACE_Render(SDL_Renderer* appR, int alpha) const {
+
+    if (ldtk_project.layerInstances.size() != tilesets_.size()) {
+        throw std::runtime_error("Vector size mismatch");
+    }
+    
+    for (size_t iLayer = 0; iLayer < ldtk_project.layerInstances.size(); ++iLayer) {
+        if (ldtk_project.layerInstances[iLayer].l_type == LDTK_LayerType::IntGrid) {
+            continue;
+        }
+
+        SDL_Texture* tex = tilesets_[iLayer];
+
+        for (int y = 0; y < worldHeight_gridUnits_; ++y) {
+            for (int x = 0; x < worldWidth_gridUnits_; ++x) {
+                const LDTK_levels_layerInstances_gridTiles& curGridTile
+                    = ldtk_project.layerInstances[iLayer].ldtk_gridTiles[y * worldWidth_gridUnits_ + x];
+                const SDL_FRect src{
+                        curGridTile.src_tileset_px.x_c_px,
+                        curGridTile.src_tileset_px.y_r_px,
+                        tileSize_pixels_,
+                        tileSize_pixels_
+                };
+
+                SDL_FRect dst{
+                    x * tileSize_pixels_,
+                    y * tileSize_pixels_,
+                    (float)tileSize_pixels_,
+                    (float)tileSize_pixels_
+                };
+
+                SDL_SetTextureAlphaMod(tex, alpha);
+                SDL_RenderTexture(appR, tex, &src, &dst);
+            }
+        }
+    }
+}
+
+
+
 // returns the int in the IntGridCSV at the specific coordinates
-int Map::intGridType(float worldX_pixel, float worldY_pixel) const {
+int ACE_Map::ACE_intGridType(float worldX_pixel, float worldY_pixel) const {
 
     int tx = static_cast<int>(worldX_pixel / tileSize_pixels_);
     int ty = static_cast<int>(worldY_pixel / tileSize_pixels_);
@@ -136,7 +216,7 @@ int Map::intGridType(float worldX_pixel, float worldY_pixel) const {
 
 }
 
-int Map::getWorldHeight_gridUnits() const { return worldHeight_gridUnits_; }
-int Map::getWorldWidth_gridUnits() const { return worldWidth_gridUnits_; }
-float Map::getWorldHeight_pixels() const { return worldHeight_pixels_; }
-float Map::getWorldWidth_pixels() const { return worldWidth_pixels_; }
+int ACE_Map::getWorldHeight_gridUnits() const { return worldHeight_gridUnits_; }
+int ACE_Map::getWorldWidth_gridUnits() const { return worldWidth_gridUnits_; }
+float ACE_Map::getWorldHeight_pixels() const { return worldHeight_pixels_; }
+float ACE_Map::getWorldWidth_pixels() const { return worldWidth_pixels_; }

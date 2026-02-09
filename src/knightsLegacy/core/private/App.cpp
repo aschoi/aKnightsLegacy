@@ -23,7 +23,7 @@ void App::Shutdown() {
 }
 
 int App::Run(GameManager& appNewGame) {
-	// 1) Initialize SDL Video and Audio with Error check
+	// 1) Initialize SDL Video, Audio, and Text
 	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize Video: %s", SDL_GetError());
 		return 3;
@@ -37,7 +37,7 @@ int App::Run(GameManager& appNewGame) {
 		return 3;
 	}
 
-	// 2) Initialize GAME WINDOW and RENDERER with error check
+	// 2) Create GAME WINDOW and RENDERER 
 	appWindow_ = SDL_CreateWindow(appTitle_.c_str(), appW_pixels_, appH_pixels_, 0);
 	if (!appWindow_) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create window in App.cpp: %s", SDL_GetError());
@@ -57,7 +57,7 @@ int App::Run(GameManager& appNewGame) {
 	}
 
 	audioManager = new AudioManager();
-	if (!audioManager->Init(appMixer_))
+	if (!audioManager->ACE_Init(appMixer_))
 		SDL_Log("Audio Manager Init Failed in App.cpp");
 
 	if (!appNewGame.Init(appRenderer_, appMixer_, audioManager, appW_pixels_, appH_pixels_, 16, 16.0f)) {
@@ -72,6 +72,7 @@ int App::Run(GameManager& appNewGame) {
 	uint64_t prevTimestamp = SDL_GetPerformanceCounter();
 	const uint64_t freq = SDL_GetPerformanceFrequency();
 
+	// MAIN GAME LOOP
 	bool appRunning = true;
 	while (appRunning) {
 		// Timing
@@ -94,6 +95,7 @@ int App::Run(GameManager& appNewGame) {
 		while (accumulator >= dt) {
 			const bool* kKeys = SDL_GetKeyboardState(nullptr);
 			appNewGame.UpdateFixed(dt, kKeys);
+
 			accumulator -= dt;
 		}
 
@@ -117,7 +119,7 @@ int App::Run(GameManager& appNewGame) {
 	#endif
 
 	// NEED SHUTDOWN LOGIC FOR AUDIO MANAGER
-	audioManager->Shutdown();
+	audioManager->ACE_Shutdown();
 
 	appNewGame.Shutdown();
 

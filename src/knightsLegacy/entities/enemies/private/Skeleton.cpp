@@ -38,52 +38,52 @@ bool Skeleton::Init(SDL_Renderer* appR, float spawnX_px, float spawnY_px, Facing
         30.0f,
         30.0f);
 
-    skeletonAttack_ = BuildAnimSprite(appR, skeletonAttack1Path.c_str(),    // renderer, imagePath, 
+    skeletonAttack_ = ACE_BuildAnimSprite(appR, skeletonAttack1Path.c_str(),    // renderer, imagePath, 
         16, 2, 2, 1.5,  // tileSize, tilesPerFrameW, tilesPerFrameH, scale, 
         0, 0, 9, 9,     // startCol, startRow, frameCount, colsInSheet, 
         1, 90, false);     // colSkipCount, frameMs, loop
 
-    skeletonIdle_ = BuildAnimSprite(appR, skeletonIdlePath.c_str(),
+    skeletonIdle_ = ACE_BuildAnimSprite(appR, skeletonIdlePath.c_str(),
         16, 2, 2, 1.5,
         0, 0, 6, 6,
         1, 90, true);
 
-    skeletonDead_ = BuildAnimSprite(appR, skeletonDeathPath.c_str(),
+    skeletonDead_ = ACE_BuildAnimSprite(appR, skeletonDeathPath.c_str(),
         16, 2, 2, 1.5,
         0, 0, 17, 17,
         1, 90, false);
 
-    skeletonTakesDamage_ = BuildAnimSprite(appR, skeletonTakesDmgPath.c_str(),
+    skeletonTakesDamage_ = ACE_BuildAnimSprite(appR, skeletonTakesDmgPath.c_str(),
         16, 2, 2, 1.5,
         0, 0, 5, 5,
         1, 90, false);
 
-    skeletonMove_ = BuildAnimSprite(appR, skeletonMovePath.c_str(),
+    skeletonMove_ = ACE_BuildAnimSprite(appR, skeletonMovePath.c_str(),
         16, 2, 2, 1.5,
         0, 0, 10, 10,
         1, 90, false);
 
-    skeletonAttack2_ = BuildAnimSprite(appR, skeletonAttack2Path.c_str(),
+    skeletonAttack2_ = ACE_BuildAnimSprite(appR, skeletonAttack2Path.c_str(),
         16, 2, 2, 1.5,
         0, 0, 15, 15,
         1, 90, false);
 
-    stunnedAnimation_ = LoadAnimGif(appR, ouch1Path.c_str(), 110);
+    stunnedAnimation_ = ACE_LoadAnimGif(appR, ouch1Path.c_str(), 110);
 
-    PlayAnimSprite(skeletonIdle_, SDL_GetTicks(), true);
+    ACE_PlayAnimSprite(skeletonIdle_, SDL_GetTicks(), true);
 
 
     return true;
 }
 
 void Skeleton::Shutdown() { 
-    DestroyAnimSprite(skeletonAttack_);
-    DestroyAnimSprite(skeletonIdle_);
-    DestroyAnimSprite(skeletonDead_);
-    DestroyAnimSprite(skeletonMove_);
-    DestroyAnimSprite(skeletonAttack2_);
-    DestroyAnimSprite(skeletonTakesDamage_);
-    DestroyAnimGif(stunnedAnimation_);
+    ACE_DestroyAnimSprite(skeletonAttack_);
+    ACE_DestroyAnimSprite(skeletonIdle_);
+    ACE_DestroyAnimSprite(skeletonDead_);
+    ACE_DestroyAnimSprite(skeletonMove_);
+    ACE_DestroyAnimSprite(skeletonAttack2_);
+    ACE_DestroyAnimSprite(skeletonTakesDamage_);
+    ACE_DestroyAnimGif(stunnedAnimation_);
 }
 
 void Skeleton::HandleEvent(const SDL_Event& event) {
@@ -159,52 +159,52 @@ void Skeleton::UpdateFrame(uint64_t now_ms) {
 
         if (invincibleTimer > 0) {
             invincibleTimer -= 1;
-            StopAnimSprite(skeletonIdle_);
-            StopAnimSprite(skeletonAttack_);
-            StopAnimSprite(skeletonMove_);
+            ACE_StopAnimSprite(skeletonIdle_);
+            ACE_StopAnimSprite(skeletonAttack_);
+            ACE_StopAnimSprite(skeletonMove_);
             if (!skeletonTakesDamage_.playing) {
-                PlayAnimSprite(skeletonTakesDamage_, now_ms, false);
+                ACE_PlayAnimSprite(skeletonTakesDamage_, now_ms, false);
             }
         }
         else if (get_stunned_state() == StunnedState::NotStunned && playerNearby && !skeletonAttack_.playing && !skeletonTakesDamage_.playing) {
 
-            StopAnimSprite(skeletonIdle_);
-            StopAnimSprite(skeletonMove_);
-            PlayAnimSprite(skeletonAttack_, now_ms, false); // one-shot
+            ACE_StopAnimSprite(skeletonIdle_);
+            ACE_StopAnimSprite(skeletonMove_);
+            ACE_PlayAnimSprite(skeletonAttack_, now_ms, false); // one-shot
         }
         else if (curMood == Mood::Pissed) {
             if (!skeletonMove_.playing) {
-                PlayAnimSprite(skeletonMove_, now_ms, true);
+                ACE_PlayAnimSprite(skeletonMove_, now_ms, true);
             }
         }
 
         if (get_stunned_state() == StunnedState::IsStunned) {
-            if (skeletonAttack_.playing) StopAnimSprite(skeletonAttack_);
-            if (skeletonIdle_.playing) StopAnimSprite(skeletonIdle_);
-            if (skeletonMove_.playing) StopAnimSprite(skeletonMove_);
+            if (skeletonAttack_.playing) ACE_StopAnimSprite(skeletonAttack_);
+            if (skeletonIdle_.playing) ACE_StopAnimSprite(skeletonIdle_);
+            if (skeletonMove_.playing) ACE_StopAnimSprite(skeletonMove_);
 
             if (!skeletonTakesDamage_.playing) {
-                PlayAnimSprite(skeletonTakesDamage_, now_ms, true);
+                ACE_PlayAnimSprite(skeletonTakesDamage_, now_ms, true);
             }
             if (!stunnedAnimation_.playing) {
-                PlayAnimGif(stunnedAnimation_, now_ms, true);
+                ACE_PlayAnimGif(stunnedAnimation_, now_ms, true);
             }
             if (now_ms - stunStartTimer_ms >= stunMaxTimer_ms) {
                 stunMaxTimer_ms = 0;
-                StopAnimGif(stunnedAnimation_);
-                PlayAnimSprite(skeletonIdle_, now_ms, true);
+                ACE_StopAnimGif(stunnedAnimation_);
+                ACE_PlayAnimSprite(skeletonIdle_, now_ms, true);
                 set_stunned_state(StunnedState::NotStunned);
             }
         }
     }
     else { 
         if (!skeletonDead_.playing && curEnemyState != EnemyState::Dead) {
-            StopAnimSprite(skeletonIdle_);
-            StopAnimSprite(skeletonAttack_);
-            StopAnimSprite(skeletonTakesDamage_);
-            StopAnimGif(stunnedAnimation_);
-            StopAnimSprite(skeletonMove_);
-            PlayAnimSprite(skeletonDead_, now_ms, false);
+            ACE_StopAnimSprite(skeletonIdle_);
+            ACE_StopAnimSprite(skeletonAttack_);
+            ACE_StopAnimSprite(skeletonTakesDamage_);
+            ACE_StopAnimGif(stunnedAnimation_);
+            ACE_StopAnimSprite(skeletonMove_);
+            ACE_PlayAnimSprite(skeletonDead_, now_ms, false);
             curEnemyState = EnemyState::Dead;
         }
     }
@@ -212,54 +212,54 @@ void Skeleton::UpdateFrame(uint64_t now_ms) {
 
     // ADVANCE animation, if needed
     if (skeletonDead_.playing) {
-        UpdateAnimSprite(skeletonDead_, now_ms);
-        if (FinishedNonLoopingSprite(skeletonDead_, now_ms)) {
-            StopAnimSprite(skeletonDead_);
+        ACE_UpdateAnimSprite(skeletonDead_, now_ms);
+        if (ACE_FinishedNonLoopingSprite(skeletonDead_, now_ms)) {
+            ACE_StopAnimSprite(skeletonDead_);
         }
     }
     else if (skeletonAttack_.playing) {
-        UpdateAnimSprite(skeletonAttack_, now_ms);
-        if (FinishedNonLoopingSprite(skeletonAttack_, now_ms)) {
-            StopAnimSprite(skeletonAttack_);
+        ACE_UpdateAnimSprite(skeletonAttack_, now_ms);
+        if (ACE_FinishedNonLoopingSprite(skeletonAttack_, now_ms)) {
+            ACE_StopAnimSprite(skeletonAttack_);
             if (!skeletonIdle_.playing) {
-                PlayAnimSprite(skeletonIdle_, now_ms, true);
+                ACE_PlayAnimSprite(skeletonIdle_, now_ms, true);
             }
         }
     }
     else if (skeletonTakesDamage_.playing) {
-        UpdateAnimSprite(skeletonTakesDamage_, now_ms);
-        if (FinishedNonLoopingSprite(skeletonTakesDamage_, now_ms)) {
-            if (get_stunned_state() == StunnedState::IsStunned) PlayAnimSprite(skeletonTakesDamage_, now_ms, false);
+        ACE_UpdateAnimSprite(skeletonTakesDamage_, now_ms);
+        if (ACE_FinishedNonLoopingSprite(skeletonTakesDamage_, now_ms)) {
+            if (get_stunned_state() == StunnedState::IsStunned) ACE_PlayAnimSprite(skeletonTakesDamage_, now_ms, false);
             else {
-                StopAnimSprite(skeletonTakesDamage_);
+                ACE_StopAnimSprite(skeletonTakesDamage_);
                 if (!skeletonIdle_.playing) {
-                    PlayAnimSprite(skeletonIdle_, now_ms, true);
+                    ACE_PlayAnimSprite(skeletonIdle_, now_ms, true);
                 }
             }
         }
     }
     else if (skeletonMove_.playing) {
-        UpdateAnimSprite(skeletonMove_, now_ms);
-        if (FinishedNonLoopingSprite(skeletonMove_, now_ms)) {
-            PlayAnimSprite(skeletonMove_, now_ms, true);
+        ACE_UpdateAnimSprite(skeletonMove_, now_ms);
+        if (ACE_FinishedNonLoopingSprite(skeletonMove_, now_ms)) {
+            ACE_PlayAnimSprite(skeletonMove_, now_ms, true);
         }
     }
     else {
         if (!skeletonIdle_.playing) {
-            PlayAnimSprite(skeletonIdle_, now_ms, true);
+            ACE_PlayAnimSprite(skeletonIdle_, now_ms, true);
         }
-        UpdateAnimSprite(skeletonIdle_, now_ms);
+        ACE_UpdateAnimSprite(skeletonIdle_, now_ms);
     }
 
 }
 
 
-void Skeleton::Render(SDL_Renderer* appR, Camera2D& cam) const {
+void Skeleton::Render(SDL_Renderer* appR, ACE_Camera2D& cam) const {
 
     const Uint32 now = SDL_GetTicks();
 
     // Choose which animation to render + any special-case flags
-    const AnimSprite* anim = nullptr;
+    const ACE_AnimSprite* anim = nullptr;
     bool flashRed = false;
     bool deadFreezeLastFrame = false;
 
@@ -281,7 +281,7 @@ void Skeleton::Render(SDL_Renderer* appR, Camera2D& cam) const {
         anim = &skeletonIdle_;
     }
 
-    const AnimSprite& a = *anim;
+    const ACE_AnimSprite& a = *anim;
 
     // Common destination rect
     const float rendW = a.frameW * a.scale;
@@ -299,26 +299,26 @@ void Skeleton::Render(SDL_Renderer* appR, Camera2D& cam) const {
 
     // Pick source frame (dead animation may freeze on last frame after completion)
     const SDL_FRect* src = nullptr;
-    if (deadFreezeLastFrame && FinishedNonLoopingSprite(a, now)) {
+    if (deadFreezeLastFrame && ACE_FinishedNonLoopingSprite(a, now)) {
         const int last = (int)a.frames.size() - 1;
         src = &a.frames[last];
     }
     else {
-        src = &CurrentFrameSprite(a);
+        src = &ACE_CurrentFrameSprite(a);
     }
 
     // Damage flash
     if (flashRed) SDL_SetTextureColorModFloat(a.tex, 2.5f, 1.0f, 1.0f);
 
-    SDL_FRect screenDst = cam.WorldToScreen(dst);
+    SDL_FRect screenDst = cam.ACE_WorldToScreen(dst);
     SDL_RenderTextureRotated(appR, a.tex, src, &screenDst, 0.0, nullptr, flip);
 
     if (flashRed) SDL_SetTextureColorModFloat(a.tex, 1.0f, 1.0f, 1.0f);
 
     if (get_stunned_state() == StunnedState::IsStunned) {
-        SDL_Texture* tex = CurrentFrameGif(stunnedAnimation_, now);
+        SDL_Texture* tex = ACE_CurrentFrameGif(stunnedAnimation_, now);
         SDL_FlipMode flip = (facing == Facing::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-        SDL_FRect screenOuchDst = cam.WorldToScreen(dst);
+        SDL_FRect screenOuchDst = cam.ACE_WorldToScreen(dst);
         SDL_RenderTextureRotated(appR, tex, nullptr, &screenOuchDst, 0.0, nullptr, flip);
     }
 
@@ -339,10 +339,10 @@ void Skeleton::Render(SDL_Renderer* appR, Camera2D& cam) const {
 }
 
 
-AnimSprite Skeleton::getIdle() {
+ACE_AnimSprite Skeleton::getIdle() {
     return skeletonIdle_;
 }
-AnimSprite Skeleton::getAttack() {
+ACE_AnimSprite Skeleton::getAttack() {
     return skeletonAttack_;
 }
 

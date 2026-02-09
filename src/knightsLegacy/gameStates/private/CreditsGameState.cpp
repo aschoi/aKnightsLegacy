@@ -6,14 +6,14 @@
 #include "assets.h"
 
 
-bool CreditsGameState::Init(SDL_Renderer* appR, float appW_pixels, float appH_pixels, int tileSizeAsInt, float tileSizeAsFloat) {
+bool CreditsGameState::ACE_Init(SDL_Renderer* appR, float appW_pixels, float appH_pixels, int tileSizeAsInt, float tileSizeAsFloat) {
     appW_pixels_ = appW_pixels;
     appH_pixels_ = appH_pixels;
     tileSizeAsInt_ = tileSizeAsInt;
     tileSizeAsFloat_ = tileSizeAsFloat;
     r_ = appR;
 
-    creditBaseLayer_.LoadTiles(appR, environmentTilesheets, ui1Path.c_str(), startMenuBase.c_str(), tileSizeAsFloat_);
+    creditBaseLayer_.ACE_LoadTiles(appR, environmentTilesheets, ui1Path.c_str(), startMenuBase.c_str(), tileSizeAsFloat_);
 
     boldFont = TTF_OpenFont(fontBold1Path.c_str(), 44);
     SDL_Color white{ 255, 255, 255, 255 };
@@ -80,7 +80,7 @@ bool CreditsGameState::Init(SDL_Renderer* appR, float appW_pixels, float appH_pi
         lines_.push_back(line);
     }
 
-    cam.SetViewport(appW_pixels_, appH_pixels_);
+    cam.ACE_SetViewport(appW_pixels_, appH_pixels_);
 
     TTF_CloseFont(boldFont);
     boldFont = nullptr;
@@ -89,7 +89,7 @@ bool CreditsGameState::Init(SDL_Renderer* appR, float appW_pixels, float appH_pi
 }
 
 
-void CreditsGameState::Shutdown() {
+void CreditsGameState::ACE_Shutdown() {
     for (auto& line : lines_) {
         SDL_DestroyTexture(line.tex);
         line.tex = nullptr;
@@ -104,18 +104,18 @@ void CreditsGameState::Shutdown() {
     r_ = nullptr;
 }
 
-void CreditsGameState::HandleEvent(Keys keyPressed) {
+void CreditsGameState::ACE_HandleEvent(Keys keyPressed) {
 }
 
-void CreditsGameState::UpdateFixed(double dt, const bool* keys) {
+void CreditsGameState::ACE_UpdateFixed(double dt, const bool* keys) {
     for (auto& line : lines_) {
         line.y -= scrollSpeed_ * (float)dt;
     }
 }
-void CreditsGameState::UpdateFrame(uint64_t now_ms) {
+void CreditsGameState::ACE_UpdateFrame(uint64_t now_ms) {
 }
 
-void CreditsGameState::Render(SDL_Renderer* r) {
+void CreditsGameState::ACE_Render(SDL_Renderer* r) {
     int winW, winH;
     SDL_GetRenderOutputSize(r, &winW, &winH);
     float startX = (winW - blockWidth) * 0.5f;

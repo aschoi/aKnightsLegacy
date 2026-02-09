@@ -3,8 +3,6 @@
 
 class CooldownComponent {
 
-
-
 public:
 
 	CooldownComponent(

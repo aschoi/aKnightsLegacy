@@ -1,30 +1,28 @@
 #pragma once
 #include "AChoiEngine/hudInterface/HudInterface.h"
 #include <SDL3/SDL.h>
-//#include <SDL3_ttf/SDL_ttf.h>
 #include <cstdint>
 #include <vector>
 #include <string>
 #include "AChoiEngine/input/public/Keyboard.h"
-//#include "AChoiEngine/camera/public/Camera.h"
-//#include "AChoiEngine/entities/player/public/Player.h"
 
-class Camera2D;
+
+class ACE_Camera2D;
 class Player;
 class TTF_Font;
 
-class Hud : public HudInterface {
+class Hud : public ACE_HudInterface {
 public:
 
-	bool Init(SDL_Renderer* r, float appW_pixels, float appH_pixels, Camera2D& cam) override;
-	bool Init(SDL_Renderer* r, float appW_pixels, float appH_pixels, Camera2D& cam, Player& p);
-	void Shutdown() override;
-	void HandleEvent(Keys key, SDL_Renderer* r) override;
-	void UpdateFixed(double dt, const bool* keys) override;
-	void UpdateFrame(uint64_t now_ms) override;
+	bool ACE_Init(SDL_Renderer* r, float appW_pixels, float appH_pixels, ACE_Camera2D& cam) override;
+	bool Init(SDL_Renderer* r, float appW_pixels, float appH_pixels, ACE_Camera2D& cam, Player& p);
+	void ACE_Shutdown() override;
+	void ACE_HandleEvent(Keys key, SDL_Renderer* r) override;
+	void ACE_UpdateFixed(double dt, const bool* keys) override;
+	void ACE_UpdateFrame(uint64_t now_ms) override;
 	void UpdateFrame(uint64_t now_ms, Player& p);
-	void Render(SDL_Renderer* r, Camera2D& cam) override;
-	void SetLineText(int i, const std::string& s) override;
+	void ACE_Render(SDL_Renderer* r, ACE_Camera2D& cam) override;
+	void ACE_SetLineText(int i, const std::string& s) override;
 
 	SDL_Renderer* appR = nullptr;
 
@@ -62,7 +60,7 @@ private:
 	uint64_t eCD_ = 0;
 	uint64_t rCD_ = 0;
 
-	std::vector<HudLine> hudLines_;
+	std::vector<ACE_HudLine> hudLines_;
 
 	float startY_pixels_ = 0.0f;
 

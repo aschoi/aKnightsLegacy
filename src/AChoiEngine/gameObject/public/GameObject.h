@@ -17,16 +17,16 @@ enum class WorldObjState { Idle, Move, Inactive };
 enum class HitboxType { BodyHitbox, AttackRange, StartAttackRange1, AwarenessRange, BroadHitbox, NarrowHitbox, DealDamageRange1, DealDamageRange2, UtilityRange1, UtilityRange2 };
 
 
-struct yxhw_px {
-    float y_px_;        // y coordinate based on PIXEL coordinate system
-    float x_px_;        // x coordinate based on PIXEL coordinate system
+struct ACE_yxhw_px {
+    float yPos_px_;        // y coordinate based on PIXEL coordinate system
+    float xPos_px_;        // x coordinate based on PIXEL coordinate system
     float h_pixels_;    // height of object based on PIXEL measurement system
     float w_pixels_;    // width of object based on PIXEL measurement system
 };
 
-struct yxhw_gu {
-    int obj_y_gu_ = 0;  // y coordinate based on GRID coordinate system
-    int obj_x_gu_ = 0;  // x coordinate based on GRID coordinate system
+struct ACE_yxhw_gu {
+    int obj_yPos_gu_;  // y coordinate based on GRID coordinate system
+    int obj_xPos_gu_;  // x coordinate based on GRID coordinate system
     int obj_h_gridUnits_;   // height of object based on GRID measurement system
     int obj_w_gridUnits_;   // width of object based on GRID measurement system
 };
@@ -44,7 +44,7 @@ struct Collisions {
 };
 
 // velocity vector
-struct VelVec {
+struct VelVec2D {
     float yComp;  // y Component (direciton aka sign, magnitude aka speed)
     float xComp;  // x Component (direciton aka sign, magnitude aka speed)
 };
@@ -67,7 +67,7 @@ constexpr std::array<std::pair<int, int>, 8> DIRS{ {
 };
 
 /*
-GameObject(
+ACE_GameObject(
     ObjectType type, AliveState aliveState,
     yxwh_px obj_yxwh_pixel, yxwh_gu obj_yxwh_gUnits, yxwh_px anim_yxwh_pixel,
     float app_w_pixels, float app_h_pixels, float world_w_pixels, float world_h_pixels,
@@ -81,9 +81,10 @@ GameObject(
 }
 */
 
-class GameObject {
+class ACE_GameObject {
 public:
-    GameObject(
+
+    ACE_GameObject(
         ObjectType type, AliveState aliveState,
         float obj_x_px, float obj_y_px, float obj_w_pixels, float obj_h_pixels,
         float app_w_pixels, float app_h_pixels, float world_w_pixels, float world_h_pixels, 
@@ -95,6 +96,7 @@ public:
             obj_w_gridUnits_(obj_w_gridUnits), obj_h_gridUnits_(obj_h_gridUnits), guSideLen_inPixels_(guSideLen_inPixels),
             speed_pixels_(speed_pixels), direction_(direction), health_(health), damage_(damage) {
     }
+
 
     // Getters
     ObjectType getType() const;
@@ -120,7 +122,7 @@ public:
     int get_world_w_gridUnits() const;
     int get_world_h_gridUnits() const;
     int get_singleGU_sideLen_inPixels() const;
-    VelVec get_velocity() const;
+    VelVec2D get_velocity() const;
     float get_mass() const;
     MovingState get_moving_state() const;
     AttackableState get_attackable_state() const;
@@ -161,7 +163,7 @@ public:
     void set_app_w_gridUnits(int new_app_w_gridUnits);
     void set_world_w_gridUnits(int new_world_w_gridUnits);
     void set_world_h_gridUnits(int new_world_h_gridUnits);
-    void set_velocity(VelVec new_velocity_vector);
+    void set_velocity(VelVec2D new_velocity_vector);
     void set_mass(float new_mass);
     void set_singleGU_sideLen_inPixels(int new_sideLen);
 
@@ -189,19 +191,19 @@ private:
     float obj_x_px_;        // x coordinate based on PIXEL coordinate system
     float obj_h_pixels_;    // height of object based on PIXEL measurement system
     float obj_w_pixels_;    // width of object based on PIXEL measurement system
-    yxhw_px obj_yxwh_pixel_ = { 0,0,0,0 };
+    ACE_yxhw_px obj_yxwh_pixel_ = { 0, 0, 0, 0 };
 
     int obj_y_gu_ = 0;  // y coordinate based on GRID coordinate system
     int obj_x_gu_ = 0;  // x coordinate based on GRID coordinate system
     int obj_h_gridUnits_;   // height of object based on GRID measurement system
     int obj_w_gridUnits_;   // width of object based on GRID measurement system
-    yxhw_gu obj_yxwh_gu_ = { 0,0,0,0 };
+    ACE_yxhw_gu obj_yxwh_gu_ = { 0, 0, 0, 0 };
 
     //float anim_y_px_;        
     //float anim_x_px_;        
     //float anim_h_pixels_;    
     //float anim_w_pixels_;
-    yxhw_px anim_yxwh_pixel_ = { 0,0,0,0 };
+    ACE_yxhw_px anim_yxwh_pixel_ = { 0, 0, 0, 0 };
 
     float app_h_pixels_;
     float app_w_pixels_;
@@ -219,7 +221,7 @@ private:
     float direction_;
     int health_;
     int damage_;
-    VelVec velocity_ = { 0, 0 }; // {y component, x component}
+    VelVec2D velocity_ = { 0, 0 }; // {y component, x component}
     float mass_ = 1;
     yxPos_px centerYX_px_{ 0, 0 };
 

@@ -1,34 +1,49 @@
-#pragma once
 #include "knightsLegacy/gameStates/public/StartMenuGameState.h"
 #include <string>
+#include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
-//#include <SDL3_mixer/SDL_mixer.h>
 #include "AChoiEngine/worldLayer/public/TxtMapLoader.h"
 #include "knightsLegacy/core/public/GameManager.h"
 #include "knightsLegacy/world/public/TileCatalog.h"
 #include "assets.h"
 
-bool Init(SDL_Renderer* r, AudioManager* audMan, float appW_pixels, float appH_pixels, int tileSizeAsInt, float tileSizeAsFloat) {
+
+bool StartMenuGameState::ACE_Init(SDL_Renderer* r, float appW_pixels, float appH_pixels, int tileSizeAsInt, float tileSizeAsFloat) {
     return false;
 }
 
-bool StartMenuGameState::Init(SDL_Renderer* appR, float appW_pixels, float appH_pixels, int tileSizeAsInt, float tileSizeAsFloat) {
+bool StartMenuGameState::Init(SDL_Renderer* appR, AudioManager* audMan, float appW_pixels, float appH_pixels, int tileSizeAsInt, float tileSizeAsFloat) {
     appW_pixels_ = appW_pixels;
     appH_pixels_ = appH_pixels;
     tileSizeAsInt_ = tileSizeAsInt;
     tileSizeAsFloat_ = tileSizeAsFloat;
     r_ = appR;
 
-    startMenuBaseLayer_.LoadTiles(appR, environmentTilesheets, ui1Path.c_str(), startMenuBase.c_str(), tileSizeAsFloat_); 
-    startMenuTextLayer_.LoadTiles(appR, environmentTilesheets, ui1Path.c_str(), startMenuTextV6.c_str(), tileSizeAsFloat_);
+    backgroundMapLayer.ACE_Init(appR, jsonStartMenu.c_str());
+
+    SDL_Surface* bgSurf = IMG_Load(backgroundCastle.c_str());
+    if (!bgSurf) {
+        SDL_Log("BOOOOO (%s): %s", "tiles as surface failed to load", SDL_GetError());
+        ACE_Shutdown();
+        return false;
+    }
+    backgroundTex = SDL_CreateTextureFromSurface(appR, bgSurf);
+    backgroundTexRect = {
+        0.0f,
+        350.0f,
+        (float)bgSurf->w,
+        (float)bgSurf->h - 509
+    };
+    SDL_DestroySurface(bgSurf);
+
 
     boldFont = TTF_OpenFont(fontBold1Path.c_str(), 44);
     
     const char* startGameMsg = "Start Game";
     const char* creditsMsg = "Credits";
 
-    SDL_Surface* startGameSurf = TTF_RenderText_Blended(boldFont, startGameMsg, SDL_strlen(startGameMsg), whiteColor);
-    SDL_Surface* creditsSurf = TTF_RenderText_Blended(boldFont, creditsMsg, SDL_strlen(creditsMsg), whiteColor);
+    SDL_Surface* startGameSurf = TTF_RenderText_Blended(boldFont, startGameMsg, SDL_strlen(startGameMsg), white2Color);
+    SDL_Surface* creditsSurf = TTF_RenderText_Blended(boldFont, creditsMsg, SDL_strlen(creditsMsg), white2Color);
 
     startGameTex = SDL_CreateTextureFromSurface(appR, startGameSurf);
     creditsTex = SDL_CreateTextureFromSurface(appR, creditsSurf);
@@ -55,42 +70,48 @@ bool StartMenuGameState::Init(SDL_Renderer* appR, float appW_pixels, float appH_
     const float rendH = selectionTL_.frameH * selectionTL_.scale;
 
 
-    selectionTL_ = BuildAnimSprite(appR, ui2Path.c_str(),       // renderer, imagePath, 
+    selectionTL_ = ACE_BuildAnimSprite(appR, ui2Path.c_str(),       // renderer, imagePath, 
                                     tileSizeAsInt_, 1, 1, 2.0f, // tileSize, tilesPerFrameW, tilesPerFrameH, scale, 
                                     0, 0, 4, 8,                 // startCol, startRow, frameCount, colsInSheet, 
                                     2, 300, true);              // colSkipCount, frameMs, loop
 
-    selectionTR_ = BuildAnimSprite(appR, ui2Path.c_str(),
+    selectionTR_ = ACE_BuildAnimSprite(appR, ui2Path.c_str(),
                                     tileSizeAsInt_, 1, 1, 2.0f,
                                     1, 0, 4, 8,
                                     2, 300, true);
-    selectionBL_ = BuildAnimSprite(appR, ui2Path.c_str(),
+    selectionBL_ = ACE_BuildAnimSprite(appR, ui2Path.c_str(),
                                     tileSizeAsInt_, 1, 1, 2.0f,
                                     0, 1, 4, 8,
                                     2, 300, true);
 
-    selectionBR_ = BuildAnimSprite(appR, ui2Path.c_str(),
+    selectionBR_ = ACE_BuildAnimSprite(appR, ui2Path.c_str(),
                                     tileSizeAsInt_, 1, 1, 2.0f,
                                     1, 1, 4, 8,
                                     2, 300, true);
 
-    PlayAnimSprite(selectionTL_, SDL_GetTicks(), true);
-    PlayAnimSprite(selectionTR_, SDL_GetTicks(), true);
-    PlayAnimSprite(selectionBL_, SDL_GetTicks(), true);
-    PlayAnimSprite(selectionBR_, SDL_GetTicks(), true);
+    ACE_PlayAnimSprite(selectionTL_, SDL_GetTicks(), true);
+    ACE_PlayAnimSprite(selectionTR_, SDL_GetTicks(), true);
+    ACE_PlayAnimSprite(selectionBL_, SDL_GetTicks(), true);
+    ACE_PlayAnimSprite(selectionBR_, SDL_GetTicks(), true);
 
-    cam.SetViewport(appW_pixels_, appH_pixels_);
+    cam.ACE_SetViewport(appW_pixels_, appH_pixels_);
+
+    audioManager_ = audMan;
+
+    audioManager_->ACE_LoadPlayMusic(BackgroundMusic::StartMenu);
+
     return true;
+
 }
 
 
-void StartMenuGameState::Shutdown() {
+void StartMenuGameState::ACE_Shutdown() {
     
-    startMenuBaseLayer_.Shutdown();
-    startMenuTextLayer_.Shutdown();
+    backgroundMapLayer.ACE_Shutdown();
 
     SDL_DestroyTexture(startGameTex);
     SDL_DestroyTexture(creditsTex);
+    SDL_DestroyTexture(backgroundTex);
     if (boldFont) {
         TTF_CloseFont(boldFont);
         boldFont = nullptr;
@@ -98,52 +119,59 @@ void StartMenuGameState::Shutdown() {
 
     startGameTex = nullptr;
     creditsTex = nullptr;
+    backgroundTex = nullptr;
 
-    DestroyAnimSprite(selectionTL_);
-    DestroyAnimSprite(selectionTR_);
-    DestroyAnimSprite(selectionBL_);
-    DestroyAnimSprite(selectionBR_);
+    ACE_DestroyAnimSprite(selectionTL_);
+    ACE_DestroyAnimSprite(selectionTR_);
+    ACE_DestroyAnimSprite(selectionBL_);
+    ACE_DestroyAnimSprite(selectionBR_);
+    audioManager_ = nullptr;
 
     r_ = nullptr;  
 }
 
-void StartMenuGameState::HandleEvent(Keys keyPressed) {
+void StartMenuGameState::ACE_HandleEvent(Keys keyPressed) {
 
     if (keyPressed == Keys::Up) {
         curOption = StartMenuOption::StartGame;
+        audioManager_->loadQ(SoundFX::Select);
     }
-    if (keyPressed == Keys::Down) {
+    else if (keyPressed == Keys::Down) {
         curOption = StartMenuOption::Credits;
+        audioManager_->loadQ(SoundFX::Select);
     }
-    
-    if (keyPressed == Keys::Confirm) {
+    else if (keyPressed == Keys::Confirm) {
         if (curOption == StartMenuOption::StartGame) {
             gameStartPressed = true;
         }
         else if (curOption == StartMenuOption::Credits) {
             creditsPressed = true;
         }
+        audioManager_->loadQ(SoundFX::Confirm);
     }
 }
 
-void StartMenuGameState::UpdateFixed(double dt, const bool* keys) {
+void StartMenuGameState::ACE_UpdateFixed(double dt, const bool* keys) {
 
 }
 
-void StartMenuGameState::UpdateFrame(uint64_t now_ms) {
+void StartMenuGameState::ACE_UpdateFrame(uint64_t now_ms) {
     (void)now_ms;
 
-    UpdateAnimSprite(selectionTL_, now_ms);
-    UpdateAnimSprite(selectionTR_, now_ms);
-    UpdateAnimSprite(selectionBL_, now_ms);
-    UpdateAnimSprite(selectionBR_, now_ms);
+    ACE_UpdateAnimSprite(selectionTL_, now_ms);
+    ACE_UpdateAnimSprite(selectionTR_, now_ms);
+    ACE_UpdateAnimSprite(selectionBL_, now_ms);
+    ACE_UpdateAnimSprite(selectionBR_, now_ms);
 
 }
 
-void StartMenuGameState::Render(SDL_Renderer* r) {
+void StartMenuGameState::ACE_Render(SDL_Renderer* r) {
     
-    startMenuBaseLayer_.Render(r, cam, GetTileCatalog());
-    startMenuTextLayer_.Render(r, cam, GetTileCatalog());
+    SDL_FRect bgDst{ 0.0f, 0.0f, appW_pixels_, appH_pixels_ };
+    SDL_RenderTexture(r, backgroundTex, &backgroundTexRect, &bgDst);
+    
+    backgroundMapLayer.ACE_Render(r, 160);
+    
     SDL_RenderTexture(r, startGameTex, nullptr, &startGameTexRect);
     SDL_RenderTexture(r, creditsTex, nullptr, &creditsTexRect);
 
@@ -155,38 +183,38 @@ void StartMenuGameState::Render(SDL_Renderer* r) {
     if (curOption == StartMenuOption::StartGame) {
         // START GAME
         const SDL_FRect dstTL{ 370.0f - rendW * 0.5f, 175.0f - rendH * 0.5f, rendW, rendH };
-        const SDL_FRect* srcTL = &CurrentFrameSprite(selectionTL_);;
+        const SDL_FRect* srcTL = &ACE_CurrentFrameSprite(selectionTL_);;
         SDL_RenderTextureRotated(r, selectionTL_.tex, srcTL, &dstTL, 0.0, nullptr, SDL_FLIP_NONE);
 
         const SDL_FRect dstTR{ 625.0f - rendW * 0.5f, 175.0f - rendH * 0.5f, rendW, rendH };
-        const SDL_FRect* srcTR = &CurrentFrameSprite(selectionTR_);;
+        const SDL_FRect* srcTR = &ACE_CurrentFrameSprite(selectionTR_);;
         SDL_RenderTextureRotated(r, selectionTR_.tex, srcTR, &dstTR, 0.0, nullptr, SDL_FLIP_NONE);
 
         const SDL_FRect dstBL{ 370.0f - rendW * 0.5f, 225.0f - rendH * 0.5f, rendW, rendH };
-        const SDL_FRect* srcBL = &CurrentFrameSprite(selectionBL_);;
+        const SDL_FRect* srcBL = &ACE_CurrentFrameSprite(selectionBL_);;
         SDL_RenderTextureRotated(r, selectionBL_.tex, srcBL, &dstBL, 0.0, nullptr, SDL_FLIP_NONE);
 
         const SDL_FRect dstBR{ 625.0f - rendW * 0.5f, 225.0f - rendH * 0.5f, rendW, rendH };
-        const SDL_FRect* srcBR = &CurrentFrameSprite(selectionBR_);;
+        const SDL_FRect* srcBR = &ACE_CurrentFrameSprite(selectionBR_);;
         SDL_RenderTextureRotated(r, selectionBR_.tex, srcBR, &dstBR, 0.0, nullptr, SDL_FLIP_NONE);
     }
 
     else if (curOption == StartMenuOption::Credits) {
         // CREDITS
         const SDL_FRect dstTL{ 370.0f - rendW * 0.5f, 275.0f - rendH * 0.5f, rendW, rendH };
-        const SDL_FRect* srcTL = &CurrentFrameSprite(selectionTL_);;
+        const SDL_FRect* srcTL = &ACE_CurrentFrameSprite(selectionTL_);;
         SDL_RenderTextureRotated(r, selectionTL_.tex, srcTL, &dstTL, 0.0, nullptr, SDL_FLIP_NONE);
 
         const SDL_FRect dstTR{ 625.0f - rendW * 0.5f, 275.0f - rendH * 0.5f, rendW, rendH };
-        const SDL_FRect* srcTR = &CurrentFrameSprite(selectionTR_);;
+        const SDL_FRect* srcTR = &ACE_CurrentFrameSprite(selectionTR_);;
         SDL_RenderTextureRotated(r, selectionTR_.tex, srcTR, &dstTR, 0.0, nullptr, SDL_FLIP_NONE);
 
         const SDL_FRect dstBL{ 370.0f - rendW * 0.5f, 325.0f - rendH * 0.5f, rendW, rendH };
-        const SDL_FRect* srcBL = &CurrentFrameSprite(selectionBL_);;
+        const SDL_FRect* srcBL = &ACE_CurrentFrameSprite(selectionBL_);;
         SDL_RenderTextureRotated(r, selectionBL_.tex, srcBL, &dstBL, 0.0, nullptr, SDL_FLIP_NONE);
 
         const SDL_FRect dstBR{ 625.0f - rendW * 0.5f, 325.0f - rendH * 0.5f, rendW, rendH };
-        const SDL_FRect* srcBR = &CurrentFrameSprite(selectionBR_);;
+        const SDL_FRect* srcBR = &ACE_CurrentFrameSprite(selectionBR_);;
         SDL_RenderTextureRotated(r, selectionBR_.tex, srcBR, &dstBR, 0.0, nullptr, SDL_FLIP_NONE);
     }
 

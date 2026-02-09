@@ -27,7 +27,7 @@ struct Array3Hash {
 };
 
 
-void followTargetSimple(GameObject& hunter, GameObject& target, Map& curMap, float speed) {
+void ACE_followTargetSimple(ACE_GameObject& hunter, ACE_GameObject& target, ACE_Map& curMap, float speed) {
     float xDiff = target.get_x_px() - hunter.get_x_px();
     float yDiff = target.get_y_px() - hunter.get_y_px();
 
@@ -55,10 +55,10 @@ void followTargetSimple(GameObject& hunter, GameObject& target, Map& curMap, flo
     hunter.set_y_px(hunter.get_y_px() + (dirY * followSpeed * dt));
     hunter.set_x_px(hunter.get_x_px() + (dirX * followSpeed * dt));
     
-    int tl = curMap.intGridType(hunter.get_x_px(), hunter.get_y_px());
-    int tr = curMap.intGridType(hunter.get_x_px() + 8, hunter.get_y_px());
-    int bl = curMap.intGridType(hunter.get_x_px(), hunter.get_y_px() + 36);
-    int br = curMap.intGridType(hunter.get_x_px() + 8, hunter.get_y_px() + 36);
+    int tl = curMap.ACE_intGridType(hunter.get_x_px(), hunter.get_y_px());
+    int tr = curMap.ACE_intGridType(hunter.get_x_px() + 8, hunter.get_y_px());
+    int bl = curMap.ACE_intGridType(hunter.get_x_px(), hunter.get_y_px() + 36);
+    int br = curMap.ACE_intGridType(hunter.get_x_px() + 8, hunter.get_y_px() + 36);
 
     if (tl > 0 || tr > 0 || bl > 0 || br > 0) {
         hunter.set_x_px(oldX);
@@ -72,7 +72,7 @@ void followTargetSimple(GameObject& hunter, GameObject& target, Map& curMap, flo
 }
 
 
-std::vector<std::vector<int>> CreateCostMap(Map& curMap, GameObject& player) {
+std::vector<std::vector<int>> ACE_CreateCostMap(ACE_Map& curMap, ACE_GameObject& player) {
 
     // 8 directions
     constexpr std::array<std::array<int, 2>, 8> dirs{ {{0, 1}, {0, -1}, {1, 0}, {-1, 0},
@@ -107,8 +107,8 @@ std::vector<std::vector<int>> CreateCostMap(Map& curMap, GameObject& player) {
             // specific numbers. Can modify this to adapt which numbers its avoids, but that how this is set up right now.
             if (nr >= 0 && nr < curMap.getWorldHeight_gridUnits()
                 && nc >= 0 && nc < curMap.getWorldWidth_gridUnits()
-                && (!(curMap.intGridType(nc * player.get_singleGU_sideLen_inPixels(), nr * player.get_singleGU_sideLen_inPixels()) == 1))
-                && (!(curMap.intGridType(nc * player.get_singleGU_sideLen_inPixels(), nr * player.get_singleGU_sideLen_inPixels()) == 2))
+                && (!(curMap.ACE_intGridType(nc * player.get_singleGU_sideLen_inPixels(), nr * player.get_singleGU_sideLen_inPixels()) == 1))
+                && (!(curMap.ACE_intGridType(nc * player.get_singleGU_sideLen_inPixels(), nr * player.get_singleGU_sideLen_inPixels()) == 2))
                 && !visited.contains({ nr, nc })) {
 
                 costMap[nr][nc] = curDist + 1;
@@ -123,7 +123,7 @@ std::vector<std::vector<int>> CreateCostMap(Map& curMap, GameObject& player) {
 
 
 // Vector Field for the entire map, utilizing the costMap as the source for target goal cell.
-std::vector<std::vector<std::pair<int, int>>> CreateVectorMap(Map& curMap, std::vector<std::vector<int>>& costMap) {
+std::vector<std::vector<std::pair<int, int>>> ACE_CreateVectorMap(ACE_Map& curMap, std::vector<std::vector<int>>& costMap) {
 
     // 8 Directions 
     constexpr std::array<std::array<int, 2>, 8> dirs{ {{0, 1}, {0, -1}, {1, 0}, {-1, 0},
@@ -175,7 +175,7 @@ std::vector<std::vector<std::pair<int, int>>> CreateVectorMap(Map& curMap, std::
 }
 
 
-void smartFollow(GameObject* hunter, Map& curMap, std::vector<std::vector<std::pair<int, int>>>& vecMap, std::vector<std::vector<int>>& costMap) {
+void ACE_smartFollow(ACE_GameObject* hunter, ACE_Map& curMap, std::vector<std::vector<std::pair<int, int>>>& vecMap, std::vector<std::vector<int>>& costMap) {
 
     const int y_gu = hunter->get_y_gu();
     const int x_gu = hunter->get_x_gu();
@@ -260,7 +260,7 @@ void smartFollow(GameObject* hunter, Map& curMap, std::vector<std::vector<std::p
 
 }
 
-void RenderArrows(SDL_Renderer* r, Camera2D& cam, std::vector<SDL_Texture*>& arrowTextures, Map& curMap, float tileSize_pixels, std::vector<std::vector<std::pair<int, int>>>& vecMap) {
+void ACE_RenderArrows(SDL_Renderer* r, ACE_Camera2D& cam, std::vector<SDL_Texture*>& arrowTextures, ACE_Map& curMap, float tileSize_pixels, std::vector<std::vector<std::pair<int, int>>>& vecMap) {
 
     // 8 Directions                                       
     constexpr std::array<std::pair<int, int>, 8> dirs{ {
@@ -320,7 +320,7 @@ void RenderArrows(SDL_Renderer* r, Camera2D& cam, std::vector<SDL_Texture*>& arr
 }
 
 
-void followTargetSimple(GameObject& hunter, GameObject& target, TileMap& curMap, float speed, const std::vector<TileDef>& catalog) {
+void ACE_followTargetSimple(ACE_GameObject& hunter, ACE_GameObject& target, ACE_TileMap& curMap, float speed, const std::vector<ACE_TileDef>& catalog) {
     float xDiff = target.get_x_px() - hunter.get_x_px();
     float yDiff = target.get_y_px() - hunter.get_y_px();
 
@@ -348,19 +348,19 @@ void followTargetSimple(GameObject& hunter, GameObject& target, TileMap& curMap,
     hunter.set_y_px(hunter.get_y_px() + (dirY * followSpeed * dt));
     hunter.set_x_px(hunter.get_x_px() + (dirX * followSpeed * dt));
 
-    if (curMap.IsSolidAt(hunter.get_x_px(), hunter.get_y_px(), catalog)) {
+    if (curMap.ACE_IsSolidAt(hunter.get_x_px(), hunter.get_y_px(), catalog)) {
         hunter.set_x_px(oldX);
         hunter.set_y_px(oldY);
     }
-    else if (curMap.IsSolidAt(hunter.get_x_px() + 8, hunter.get_y_px(), catalog)) {
+    else if (curMap.ACE_IsSolidAt(hunter.get_x_px() + 8, hunter.get_y_px(), catalog)) {
         hunter.set_x_px(oldX);
         hunter.set_y_px(oldY);
     }
-    else if (curMap.IsSolidAt(hunter.get_x_px(), hunter.get_y_px() + 36, catalog)) {
+    else if (curMap.ACE_IsSolidAt(hunter.get_x_px(), hunter.get_y_px() + 36, catalog)) {
         hunter.set_x_px(oldX);
         hunter.set_y_px(oldY);
     }
-    else if (curMap.IsSolidAt(hunter.get_x_px() + 8, hunter.get_y_px() + 36,catalog)) {
+    else if (curMap.ACE_IsSolidAt(hunter.get_x_px() + 8, hunter.get_y_px() + 36,catalog)) {
         hunter.set_x_px(oldX);
         hunter.set_y_px(oldY);
     }
@@ -372,7 +372,7 @@ void followTargetSimple(GameObject& hunter, GameObject& target, TileMap& curMap,
 }
 
 
-std::vector<std::vector<int>> CreateCostMap(TileMap& curMap, GameObject& player, const std::vector<TileDef>& catalog) {
+std::vector<std::vector<int>> ACE_CreateCostMap(ACE_TileMap& curMap, ACE_GameObject& player, const std::vector<ACE_TileDef>& catalog) {
 
     // 8 directions
     constexpr std::array<std::array<int, 2>, 8> dirs{ {{0, 1}, {0, -1}, {1, 0}, {-1, 0},
@@ -404,7 +404,7 @@ std::vector<std::vector<int>> CreateCostMap(TileMap& curMap, GameObject& player,
             int nc = curC + dc;
             if (nr >= 0 && nr < curMap.getWorldHeight_gridUnits()
                 && nc >= 0 && nc < curMap.getWorldWidth_gridUnits()
-                && !curMap.IsSolidAt(nc * player.get_singleGU_sideLen_inPixels(), nr * player.get_singleGU_sideLen_inPixels(), catalog)
+                && !curMap.ACE_IsSolidAt(nc * player.get_singleGU_sideLen_inPixels(), nr * player.get_singleGU_sideLen_inPixels(), catalog)
                 && !visited.contains({ nr, nc })) {
 
                 costMap[nr][nc] = curDist + 1;
@@ -419,7 +419,7 @@ std::vector<std::vector<int>> CreateCostMap(TileMap& curMap, GameObject& player,
 
 
 // Vector Field for the entire map, utilizing the costMap as the source for target goal cell.
-std::vector<std::vector<std::pair<int, int>>> CreateVectorMap(TileMap& curMap, std::vector<std::vector<int>>& costMap) {
+std::vector<std::vector<std::pair<int, int>>> ACE_CreateVectorMap(ACE_TileMap& curMap, std::vector<std::vector<int>>& costMap) {
     
     // 8 Directions 
     constexpr std::array<std::array<int, 2>, 8> dirs{ {{0, 1}, {0, -1}, {1, 0}, {-1, 0},
@@ -471,7 +471,7 @@ std::vector<std::vector<std::pair<int, int>>> CreateVectorMap(TileMap& curMap, s
 }
 
 
-void smartFollow(GameObject* hunter, TileMap& curMap, std::vector<std::vector<std::pair<int, int>>>& vecMap, std::vector<std::vector<int>>& costMap) {
+void ACE_smartFollow(ACE_GameObject* hunter, ACE_TileMap& curMap, std::vector<std::vector<std::pair<int, int>>>& vecMap, std::vector<std::vector<int>>& costMap) {
 
     const int y_gu = hunter->get_y_gu();
     const int x_gu = hunter->get_x_gu();

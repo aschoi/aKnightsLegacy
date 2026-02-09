@@ -14,20 +14,20 @@ struct CreditLine {
     float y = 0.0f;
 };
 
-class CreditsGameState : public GameStateInterface {
+class CreditsGameState : public ACE_GameStateInterface {
 
 public:
 
-    bool Init(SDL_Renderer* r, float appW_pixels, float appH_pixels, int tileSizeAsInt, float tileSizeAsFloat) override;
+    bool ACE_Init(SDL_Renderer* r, float appW_pixels, float appH_pixels, int tileSizeAsInt, float tileSizeAsFloat) override;
 
-    void Shutdown() override;
+    void ACE_Shutdown() override;
 
-    void HandleEvent(Keys key) override;
+    void ACE_HandleEvent(Keys key) override;
 
-    void UpdateFixed(double dt, const bool* keys) override;
-    void UpdateFrame(uint64_t now_ms) override;
+    void ACE_UpdateFixed(double dt, const bool* keys) override;
+    void ACE_UpdateFrame(uint64_t now_ms) override;
 
-    void Render(SDL_Renderer* r) override;
+    void ACE_Render(SDL_Renderer* r) override;
 
     float appW_pixels_ = 0;
     float appH_pixels_ = 0;
@@ -47,12 +47,12 @@ protected:
 
 private:
 
-    TileMap creditBaseLayer_;
+    ACE_TileMap creditBaseLayer_;
     std::vector<CreditLine> lines_;
     float scrollSpeed_ = 40.0f;   // pixels per second
     float startY_ = 0.0f;
 
-    Camera2D cam;
+    ACE_Camera2D cam;
 
 
 };

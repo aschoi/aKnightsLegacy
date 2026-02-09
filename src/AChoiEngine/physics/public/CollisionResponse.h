@@ -1,5 +1,6 @@
 #pragma once
-#include "AChoiEngine/gameObject/public/GameObject.h"
 #include <vector>
 
-void basicAllEntitiesCollisionResolution(std::vector<GameObject*>& gameObjects);
+class ACE_GameObject;
+
+void ACE_basicAllEntitiesCollisionResolution(std::vector<ACE_GameObject*>& gameObjects);

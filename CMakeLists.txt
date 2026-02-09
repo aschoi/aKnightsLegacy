@@ -25,8 +25,8 @@ add_executable(aKnightsLegacy
 	src/main.cpp
 	"src/AChoiEngine/gameObject/private/GameObject.cpp"
 	"src/AChoiEngine/gfx/private/AnimationComponent.cpp" 
-	"src/AChoiEngine/physics/private/CollisionDetectionComponent.cpp" 
-	"src/AChoiEngine/physics/private/CollisionResponse.cpp" 
+	"src/AChoiEngine/physics/private/OverlappingHitboxDetection.cpp" 
+	 "src/AChoiEngine/physics/private/CollisionResponse.cpp"
 	"src/AChoiEngine/utilities/private/Timer.cpp" 
 	"src/AChoiEngine/AI/private/aiComponent.cpp" 
 	"src/AChoiEngine/worldLayer/private/LdtkMapLoader.cpp" 
@@ -44,9 +44,8 @@ add_executable(aKnightsLegacy
 	"src/knightsLegacy/weapons/private/Projectile.cpp" 
 	"src/knightsLegacy/weapons/private/Stun.cpp" 
 	"src/knightsLegacy/hud/private/Hud.cpp" 
-	"src/knightsLegacy/gameStates/private/PauseGameState.cpp"
 	"src/knightsLegacy/audioManager/private/AudioManager.cpp"
-	"src/assets.cpp" )
+	"src/assets.cpp")
 
 
 target_compile_definitions(aKnightsLegacy PRIVATE SHOW_VECTOR_MAP=0)

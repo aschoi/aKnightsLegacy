@@ -11,21 +11,24 @@ enum class PlayerAudioState { QCast, WCast, ECast, RCast, Attack, Walking, Runni
 enum class SkeletonAudioState { Attack, Walking, Running, TakingDamage, Death };
 enum class HammerAudioState { InFlight };
 enum class ProjectileAudioState { Charging, InFlight, Impact };
+enum class SoundFX { Hammer, Splat, Ult, Swipe, Select, Confirm, Count};
+enum class BackgroundMusic { StartMenu, MainGameplay, Credits };
 
-enum class SoundFX { Hammer, Splat };
 
-class AudioManager : public AudioInterface {
+class AudioManager : public ACE_AudioInterface {
 public:
 	
-	bool Init(MIX_Mixer* mixer) override;
-	void Shutdown() override;
+	bool ACE_Init(MIX_Mixer* mixer) override;
+	void ACE_Shutdown() override;
 
-	bool LoadSfx(const std::string& id, const std::string& path) override;
-	bool LoadMusic(const std::string& id, const std::string& path) override;
+	bool ACE_LoadSfx(const std::string& id, const std::string& path) override;
+	bool ACE_LoadMusic(const std::string& id, const std::string& path) override;
 
-	void PlaySfx(const std::string& id) override;
-	void PlayMusic(const std::string& id) override;
-	void StopMusic(const std::string& id) override;
+	void ACE_LoadPlayMusic(BackgroundMusic bgMusic);
+
+	void ACE_PlaySfx(const std::string& id) override;
+	void ACE_PlayMusic(const std::string& id) override;
+	void ACE_StopMusic(const std::string& id) override;
 
 	void loadQ(SoundFX sfx);
 	void unloadQ();
@@ -38,6 +41,24 @@ private:
 
 	MIX_Audio* splatAudio = nullptr;
 	MIX_Track* splatTrack = nullptr;
+
+	MIX_Audio* ultAudio = nullptr;
+	MIX_Track* ultTrack = nullptr;
+
+	MIX_Audio* music1Audio = nullptr;
+	MIX_Track* music1Track = nullptr;
+
+	MIX_Audio* music2Audio = nullptr;
+	MIX_Track* music2Track = nullptr;
+
+	MIX_Audio* swipeAudio = nullptr;
+	MIX_Track* swipeTrack = nullptr;
+
+	MIX_Audio* confirmAudio = nullptr;
+	MIX_Track* confirmTrack = nullptr;
+
+	MIX_Audio* selectAudio = nullptr;
+	MIX_Track* selectTrack = nullptr;
 
 
 	std::queue<SoundFX> q;

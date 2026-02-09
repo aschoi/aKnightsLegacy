@@ -6,7 +6,7 @@
 #include <vector>
 
 
-bool TileMap::LoadLevelFromTxt(const char* kLevelPath,
+bool ACE_TileMap::ACE_LoadLevelFromTxt(const char* kLevelPath,
     int& ref_worldWidth_gridUnits,
     int& ref_worldHeight_gridUnits,
     std::vector<int>& outTiles) {
@@ -46,7 +46,7 @@ bool TileMap::LoadLevelFromTxt(const char* kLevelPath,
     return ref_worldWidth_gridUnits > 0 && ref_worldHeight_gridUnits > 0;
 }
 
-void TileMap::Shutdown() {
+void ACE_TileMap::ACE_Shutdown() {
     for (SDL_Texture* tex : tilesets_) {
         if (tex) SDL_DestroyTexture(tex);
     }
@@ -55,13 +55,13 @@ void TileMap::Shutdown() {
     worldWidth_gridUnits_ = worldHeight_gridUnits_ = 0;
 }
 
-bool TileMap::LoadTiles(SDL_Renderer* appR,
+bool ACE_TileMap::ACE_LoadTiles(SDL_Renderer* appR,
     const std::vector<std::string>& tilesetPaths,
     const char* animPath,
     const char* kLevelPath,
     float tileSizePixels) {
 
-    Shutdown();
+    ACE_Shutdown();
     tileSize_pixels_ = tileSizePixels;
 
     // Load all tilesheets
@@ -71,13 +71,13 @@ bool TileMap::LoadTiles(SDL_Renderer* appR,
         SDL_Surface* surf = IMG_Load(curTilePath.c_str());
         if (!surf) {
             SDL_Log("BOOOOO (%s): %s", "tiles as surface failed to load", SDL_GetError());
-            Shutdown();
+            ACE_Shutdown();
             return false;
         }
         SDL_Texture* tex = SDL_CreateTextureFromSurface(appR, surf);
         if (!tex) {
             SDL_Log("BOOOOO (%s): %s", "Tiles as texture failed to load", SDL_GetError());
-            Shutdown();
+            ACE_Shutdown();
             return false;
         }
         SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
@@ -85,16 +85,16 @@ bool TileMap::LoadTiles(SDL_Renderer* appR,
         tilesets_.push_back(tex);
     }
 
-    if (!LoadLevelFromTxt(kLevelPath, worldWidth_gridUnits_, worldHeight_gridUnits_, tileIDs_)) {
+    if (!ACE_LoadLevelFromTxt(kLevelPath, worldWidth_gridUnits_, worldHeight_gridUnits_, tileIDs_)) {
         SDL_Log("BOOOOO (%s): %s", "txt failed to load", SDL_GetError());
-        Shutdown();
+        ACE_Shutdown();
         return false;
     }
 
     return true;
 }
 
-void TileMap::Render(SDL_Renderer* appR, Camera2D& cam, const std::vector<TileDef>& catalog) const {
+void ACE_TileMap::ACE_Render(SDL_Renderer* appR, ACE_Camera2D& cam, const std::vector<ACE_TileDef>& catalog) const {
     
 
     int x0 = (int)std::floor(cam.x / tileSize_pixels_);
@@ -117,7 +117,7 @@ void TileMap::Render(SDL_Renderer* appR, Camera2D& cam, const std::vector<TileDe
 
             int curTileID = tileIDs_[ty * worldWidth_gridUnits_ + tx];
             if (curTileID < 0 || curTileID >= (int)catalog.size()) continue;
-            const TileDef& curTile = catalog[curTileID];
+            const ACE_TileDef& curTile = catalog[curTileID];
             SDL_Texture* tex = tilesets_[curTile.sheetIndex];
 
 
@@ -141,9 +141,7 @@ void TileMap::Render(SDL_Renderer* appR, Camera2D& cam, const std::vector<TileDe
 
 }
 
-bool TileMap::IsSolidAt(float worldX, float worldY, const std::vector<TileDef>& catalog) const {
-    //const auto& catalog = GetTileCatalog();
-
+bool ACE_TileMap::ACE_IsSolidAt(float worldX, float worldY, const std::vector<ACE_TileDef>& catalog) const {
     int tx = (int)(worldX / tileSize_pixels_);
     int ty = (int)(worldY / tileSize_pixels_);
 
@@ -157,9 +155,7 @@ bool TileMap::IsSolidAt(float worldX, float worldY, const std::vector<TileDef>& 
     return catalog[curTileID].isSolid;
 }
 
-bool TileMap::DoesDamageAt(float worldX, float worldY, const std::vector<TileDef>& catalog) const {
-    //const auto& catalog = GetTileCatalog();
-
+bool ACE_TileMap::ACE_DoesDamageAt(float worldX, float worldY, const std::vector<ACE_TileDef>& catalog) const {
     int tx = (int)(worldX / tileSize_pixels_);
     int ty = (int)(worldY / tileSize_pixels_);
 
@@ -175,16 +171,16 @@ bool TileMap::DoesDamageAt(float worldX, float worldY, const std::vector<TileDef
 
 
 
-int TileMap::getWorldHeight_gridUnits() {
+int ACE_TileMap::getWorldHeight_gridUnits() {
     return worldHeight_gridUnits_;
 }
-int TileMap::getWorldWidth_gridUnits() {
+int ACE_TileMap::getWorldWidth_gridUnits() {
     return worldWidth_gridUnits_;
 }
 
-float TileMap::getWorldHeight_pixels() {
+float ACE_TileMap::getWorldHeight_pixels() {
     return worldHeight_pixels_;
 }
-float TileMap::getWorldWidth_pixels() {
+float ACE_TileMap::getWorldWidth_pixels() {
     return worldWidth_pixels_;
 }

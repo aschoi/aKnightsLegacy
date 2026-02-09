@@ -15,9 +15,9 @@ bool Stun::Init(SDL_Renderer* r,
     set_x_px(playerX_px);
     set_y_px(playerY_px);
     stunFacing = facing;
-    stunHammer_ = LoadAnimGif(r, animPath.c_str(), 70);
+    stunHammer_ = ACE_LoadAnimGif(r, animPath.c_str(), 70);
 
-    PlayAnimGif(stunHammer_, SDL_GetTicks(), false);
+    ACE_PlayAnimGif(stunHammer_, SDL_GetTicks(), false);
     stunHammerState = WeaponState::Damage;
 
 
@@ -30,7 +30,7 @@ bool Stun::Init(SDL_Renderer* r,
 }
 
 void Stun::Shutdown() {
-    DestroyAnimGif(stunHammer_);
+    ACE_DestroyAnimGif(stunHammer_);
 }
 
 void Stun::HandleEvent(Keys key) {
@@ -65,14 +65,14 @@ void Stun::UpdateFixed(double dt, const bool* keys) {
     
 }
 void Stun::UpdateFrame(uint64_t now_ms) {
-    if (FinishedNonLoopingGif(stunHammer_, now_ms)) {
-        StopAnimGif(stunHammer_);
+    if (ACE_FinishedNonLoopingGif(stunHammer_, now_ms)) {
+        ACE_StopAnimGif(stunHammer_);
         stunHammerState = WeaponState::Idle;
     }
 }
 
 
-void Stun::Render(SDL_Renderer* appR, Camera2D& cam) const {
+void Stun::Render(SDL_Renderer* appR, ACE_Camera2D& cam) const {
     
     const float halfW = stunHammer_.w * 0.3f;
     const float halfH = stunHammer_.h * 0.3f;
@@ -93,14 +93,14 @@ void Stun::Render(SDL_Renderer* appR, Camera2D& cam) const {
     SDL_Texture* tex = nullptr;
 
     if (stunHammer_.playing) {
-        tex = CurrentFrameGif(stunHammer_, now_ms);
+        tex = ACE_CurrentFrameGif(stunHammer_, now_ms);
     }
 
     if (!tex) return;
 
     SDL_FlipMode flip = (stunFacing == Facing::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
     
-    SDL_FRect screenDst = cam.WorldToScreen(dst);
+    SDL_FRect screenDst = cam.ACE_WorldToScreen(dst);
     SDL_RenderTextureRotated(appR, tex, nullptr, &screenDst, 0.0, nullptr, flip);
 
 

@@ -21,7 +21,7 @@ namespace {
 
 // Level is not necessary safe behavior. This code assumes there's only one level.
 // would like to refactor, when given the chance. 
-LDTK_Project LoadProject(const char* ldtkPath) {
+LDTK_Project ACE_LoadProject(const char* ldtkPath) {
 
     LDTK_Project ldtk_project;
 

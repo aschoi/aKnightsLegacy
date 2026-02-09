@@ -1,6 +1,6 @@
 #include "knightsLegacy/world/public/TileCatalog.h"
 
-static const std::vector<TileDef> gTileCatalog = {
+static const std::vector<ACE_TileDef> gTileCatalog = {
     {0, 1.0, 6.0, false, false},   // 0 floor, open, light colored
     {0, 1.0, 7.0, false, false},   // 1 floor, bot border
 
@@ -249,6 +249,6 @@ static const std::vector<TileDef> gTileCatalog = {
 
 };
 
-const std::vector<TileDef>& GetTileCatalog() {
+const std::vector<ACE_TileDef>& GetTileCatalog() {
     return gTileCatalog;
 }

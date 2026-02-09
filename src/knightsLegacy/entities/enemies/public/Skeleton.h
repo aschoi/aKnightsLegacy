@@ -6,14 +6,14 @@
 enum class Mood{ Chill, Patrol, Following, Pissed };
 enum class Intelligence{ Smart, Dumb };
 
-class Skeleton : public GameObject{
+class Skeleton : public ACE_GameObject{
 
 public:
     Skeleton(   float posX_px, float posY_px, float w_pixels, float h_pixels,
                 float appW_pixels, float appH_pixels, float worldW_pixels, float worldH_pixels,
                 int obj_w_gridUnits, int obj_h_gridUnits, int guSideLen_inPixels,
                 float speed_pixels, float direction, int health, int damage)
-                : GameObject(ObjectType::Enemy, AliveState::IsAlive,
+                : ACE_GameObject(ObjectType::Enemy, AliveState::IsAlive,
                     posX_px, posY_px, w_pixels, h_pixels, 
                     appW_pixels, appH_pixels, worldW_pixels, worldH_pixels,
                     obj_w_gridUnits, obj_h_gridUnits, guSideLen_inPixels,
@@ -25,9 +25,9 @@ public:
     void HandleEvent(const SDL_Event& event);
     void UpdateFixed(double dt, const bool* keys);
     void UpdateFrame(uint64_t now_ms);
-    void Render(SDL_Renderer* appR, Camera2D& cam) const;
-    AnimSprite getIdle();
-    AnimSprite getAttack();
+    void Render(SDL_Renderer* appR, ACE_Camera2D& cam) const;
+    ACE_AnimSprite getIdle();
+    ACE_AnimSprite getAttack();
     void collisionResponse();
     void takesDamage(int dmgAmount);
     void takesStun(uint64_t now, uint64_t stunLength);
@@ -46,14 +46,14 @@ public:
 
 private:
 
-    AnimSprite skeletonIdle_;
-    AnimSprite skeletonAttack_;
-    AnimSprite skeletonDead_;
-    AnimSprite skeletonTakesDamage_;
-    AnimSprite skeletonAttack2_;
-    AnimSprite skeletonMove_;
+    ACE_AnimSprite skeletonIdle_;
+    ACE_AnimSprite skeletonAttack_;
+    ACE_AnimSprite skeletonDead_;
+    ACE_AnimSprite skeletonTakesDamage_;
+    ACE_AnimSprite skeletonAttack2_;
+    ACE_AnimSprite skeletonMove_;
 
-    AnimGif stunnedAnimation_;
+    ACE_AnimGif stunnedAnimation_;
 };
 
 

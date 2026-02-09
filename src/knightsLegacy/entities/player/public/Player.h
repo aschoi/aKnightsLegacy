@@ -6,10 +6,10 @@
 #include "AChoiEngine/camera/public/Camera.h"
 
 
-class Map;
-class TileMap;
+class ACE_Map;
+class ACE_TileMap;
 
-class Player : public GameObject {
+class Player : public ACE_GameObject {
 
 public:
     Player( 
@@ -18,7 +18,7 @@ public:
         int obj_w_gridUnits, int obj_h_gridUnits, int guSideLen_inPixels,
         float speed_pixels, float direction, int health, int damage)
         // obj type, x, y, w, h, appW, appH, worldW, worldH, isAlive, gravity
-        : GameObject(ObjectType::Player, AliveState::IsAlive,
+        : ACE_GameObject(ObjectType::Player, AliveState::IsAlive,
             posX_px, posY_px, obj_w_pixels, obj_h_pixels, 
             appW_pixels, appH_pixels, worldW_pixels, worldH_pixels, 
             obj_w_gridUnits, obj_h_gridUnits, guSideLen_inPixels,
@@ -28,12 +28,12 @@ public:
 
     void Shutdown();
     void HandleEvent(Keys key);
-    void UpdateFixed(double dt, const bool* keys, TileMap& m);
+    void UpdateFixed(double dt, const bool* keys, ACE_TileMap& m);
     void UpdateFixed(double dt, const bool* keys);
-    void UpdateFixed(double dt, const bool* keys, Map& solids);
+    void UpdateFixed(double dt, const bool* keys, ACE_Map& solids);
 
     void UpdateFrame(uint64_t now_ms);
-    void Render(SDL_Renderer* appR, Camera2D& cam) const;
+    void Render(SDL_Renderer* appR, ACE_Camera2D& cam) const;
     float getPx();
     float getPy();
     float getPlayerHeight();
@@ -57,7 +57,6 @@ private:
     // Base stats
     int health_ = 50;
     float BASE_SPEED_ = 160.0f;
-    //bool isAlive_ = true;
 
     // input flags
     bool attackPressed_ = false;
@@ -68,7 +67,6 @@ private:
     bool hammerPressed_ = false;
 
     // utility variables
-    //bool isMoving_ = false;
     bool crouchActivated_ = false;
 
     uint64_t INVINCIBLE_DURATION_ = 400;
@@ -98,14 +96,14 @@ private:
     // Animations
     enum class PlayerAnimState { Idle, Run, Attack, Crouch, Roll, Slide, TakesHit, Dead, Projectile };
     PlayerAnimState playerAnimState_ = PlayerAnimState::Idle;
-    AnimGif playerIdle_;
-    AnimGif playerRun_;
-    AnimGif playerAttack_;
-    AnimGif playerCrouch_;
-    AnimGif playerRoll_;
-    AnimGif playerSlide_;
-    AnimGif playerTakesHit_;
-    AnimGif playerDeath_;
-    AnimGif playerProjectile_;
+    ACE_AnimGif playerIdle_;
+    ACE_AnimGif playerRun_;
+    ACE_AnimGif playerAttack_;
+    ACE_AnimGif playerCrouch_;
+    ACE_AnimGif playerRoll_;
+    ACE_AnimGif playerSlide_;
+    ACE_AnimGif playerTakesHit_;
+    ACE_AnimGif playerDeath_;
+    ACE_AnimGif playerProjectile_;
 
 };

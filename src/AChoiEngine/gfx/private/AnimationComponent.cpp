@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cstdint>
 
-AnimSprite BuildAnimSprite(	SDL_Renderer* r,
+ACE_AnimSprite ACE_BuildAnimSprite(	SDL_Renderer* r,
 							const char* imagePath,
 							int tileSize,
 							int tilesPerFrameW,
@@ -18,7 +18,7 @@ AnimSprite BuildAnimSprite(	SDL_Renderer* r,
 							int frameMs,
 							bool loop) {
 
-	AnimSprite a{};
+	ACE_AnimSprite a{};
 
 	SDL_Surface* surf = IMG_Load(imagePath);
 	if (!surf) {
@@ -60,14 +60,14 @@ AnimSprite BuildAnimSprite(	SDL_Renderer* r,
 
 }
 
-void DestroyAnimSprite(AnimSprite& a) {
+void ACE_DestroyAnimSprite(ACE_AnimSprite& a) {
 	if (a.tex) {
 		SDL_DestroyTexture(a.tex);
 	}
-	a = AnimSprite{};
+	a = ACE_AnimSprite{};
 }
 
-void PlayAnimSprite(AnimSprite& a, uint64_t nowMs, bool loop) {
+void ACE_PlayAnimSprite(ACE_AnimSprite& a, uint64_t nowMs, bool loop) {
 	if (!a.tex || a.frames.empty()) return;
 
 	a.playing = true;
@@ -76,12 +76,12 @@ void PlayAnimSprite(AnimSprite& a, uint64_t nowMs, bool loop) {
 	a.iCurr = 0;
 }
 
-void StopAnimSprite(AnimSprite& a) { 
+void ACE_StopAnimSprite(ACE_AnimSprite& a) {
 	a.playing = false; 
 	a.loop = false;
 }
 
-bool FinishedNonLoopingSprite(const AnimSprite& a, uint64_t nowMs) {
+bool ACE_FinishedNonLoopingSprite(const ACE_AnimSprite& a, uint64_t nowMs) {
 	if (!a.playing || a.loop || a.frames.empty()) return false;
 	uint64_t elapsed = nowMs - a.startMs;
 	int idx = (a.frameMs > 0) ? (int)(elapsed / (uint64_t)a.frameMs) : 0;
@@ -89,7 +89,7 @@ bool FinishedNonLoopingSprite(const AnimSprite& a, uint64_t nowMs) {
 	return idx >= (int)a.frames.size();
 }
 
-const SDL_FRect& CurrentFrameSprite(const AnimSprite& a) {
+const SDL_FRect& ACE_CurrentFrameSprite(const ACE_AnimSprite& a) {
 	static SDL_FRect dummy{ 0, 0, 0, 0 };
 	if (a.frames.empty()) return dummy;
 
@@ -99,7 +99,7 @@ const SDL_FRect& CurrentFrameSprite(const AnimSprite& a) {
 	return a.frames[idx];
 }
 
-void UpdateAnimSprite(AnimSprite& a, uint64_t nowMs) {
+void ACE_UpdateAnimSprite(ACE_AnimSprite& a, uint64_t nowMs) {
 	if (!a.playing || a.frames.empty() || a.frameMs <= 0) return;
 
 	uint64_t elapsed = nowMs - a.startMs;
@@ -121,8 +121,8 @@ void UpdateAnimSprite(AnimSprite& a, uint64_t nowMs) {
 }
 
 
-AnimGif LoadAnimGif(SDL_Renderer* r, const char* kAssetPath, int frame_ms) {
-	AnimGif a{};
+ACE_AnimGif ACE_LoadAnimGif(SDL_Renderer* r, const char* kAssetPath, int frame_ms) {
+	ACE_AnimGif a{};
 	a.frame_ms = frame_ms;
 	IMG_Animation* gif = IMG_LoadAnimation(kAssetPath);
 	if (!gif) {
@@ -145,7 +145,7 @@ AnimGif LoadAnimGif(SDL_Renderer* r, const char* kAssetPath, int frame_ms) {
 	return a;
 }
 
-void DestroyAnimGif(AnimGif& a) {
+void ACE_DestroyAnimGif(ACE_AnimGif& a) {
 	for (auto* t : a.frames) {
 		SDL_DestroyTexture(t);
 	}
@@ -154,15 +154,15 @@ void DestroyAnimGif(AnimGif& a) {
 	a.h = 0;
 }
 
-void PlayAnimGif(AnimGif& a, uint64_t now_ms, bool loop) {
+void ACE_PlayAnimGif(ACE_AnimGif& a, uint64_t now_ms, bool loop) {
 	a.playing = true;
 	a.loop = loop;
 	a.start_ms = now_ms;
 }
 
-void StopAnimGif(AnimGif& a) { a.playing = false; }
+void ACE_StopAnimGif(ACE_AnimGif& a) { a.playing = false; }
 
-SDL_Texture* CurrentFrameGif(const AnimGif& kA, uint64_t now_ms) {
+SDL_Texture* ACE_CurrentFrameGif(const ACE_AnimGif& kA, uint64_t now_ms) {
 	if (kA.frames.empty()) return nullptr;
 	if (!kA.playing) return kA.frames[0];
 
@@ -175,7 +175,7 @@ SDL_Texture* CurrentFrameGif(const AnimGif& kA, uint64_t now_ms) {
 	return kA.frames[idx];
 }
 
-bool FinishedNonLoopingGif(const AnimGif& kA, uint64_t now_ms) {
+bool ACE_FinishedNonLoopingGif(const ACE_AnimGif& kA, uint64_t now_ms) {
 	if (!kA.playing || kA.loop || kA.frames.empty()) return false;
 	uint64_t elapsed = now_ms - kA.start_ms;
 	int idx = (int)(elapsed / (uint64_t)kA.frame_ms);

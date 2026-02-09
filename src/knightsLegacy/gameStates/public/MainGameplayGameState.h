@@ -6,7 +6,7 @@
 #include "AChoiEngine/worldLayer/public/Map.h"
 #include "AChoiEngine/worldLayer/public/TxtMapLoader.h"
 
-class GameObject;
+class ACE_GameObject;
 class AudioManager;
 class Skeleton;
 class Player;
@@ -15,18 +15,18 @@ class Hud;
 class SwordWaveProjectile;
 
 
-class MainGameplayGameState : public GameStateInterface {
+class MainGameplayGameState : public ACE_GameStateInterface {
 
 public:
 
-    bool Init(SDL_Renderer* r, float appW, float appH, int tileSizeAsInt, float tileSizeAsFloat) override;
+    bool ACE_Init(SDL_Renderer* r, float appW, float appH, int tileSizeAsInt, float tileSizeAsFloat) override;
     bool Init(SDL_Renderer* appR, AudioManager* audMan, float appW, float appH, int tileSizeAsInt, float tileSizeAsFloat);
 
-    void Shutdown() override;
-    void HandleEvent(Keys key) override;
-    void UpdateFixed(double dt, const bool* keys) override;
-    void UpdateFrame(uint64_t now_ms) override;
-    void Render(SDL_Renderer* r) override;
+    void ACE_Shutdown() override;
+    void ACE_HandleEvent(Keys key) override;
+    void ACE_UpdateFixed(double dt, const bool* keys) override;
+    void ACE_UpdateFrame(uint64_t now_ms) override;
+    void ACE_Render(SDL_Renderer* r) override;
 
     void SkeletonBehavior(Skeleton* curSkeleton_);
     
@@ -56,7 +56,7 @@ private:
 
     //TileMap baseLayer_;
     //TileMap floorLayer_;  
-    Map newMapLayer_;
+    ACE_Map newMapLayer_;
 
     Player* playerLayer_ = nullptr;
     SwordWaveProjectile* projectileLayer_ = nullptr;
@@ -71,11 +71,11 @@ private:
     Skeleton* skeletonSeven_ = nullptr;
     
     Hud* hudLayer_ = nullptr;
-    Camera2D cam;
+    ACE_Camera2D cam;
     
     std::vector<std::vector<int>> costMap;
     std::vector<std::vector<std::pair<int, int>>> vectorMap;
 
-    std::vector<GameObject*> entitiesList_;
+    std::vector<ACE_GameObject*> entitiesList_;
 
 };  

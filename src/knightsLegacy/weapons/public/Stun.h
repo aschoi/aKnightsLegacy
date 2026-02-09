@@ -6,7 +6,7 @@
 #include "AChoiEngine/camera/public/Camera.h"
 
 
-class Stun : public GameObject {
+class Stun : public ACE_GameObject {
 
 public:
     Stun(
@@ -14,7 +14,7 @@ public:
         float appW_pixels, float appH_pixels, float worldW_pixels, float worldH_pixels,
         int obj_w_gridUnits, int obj_h_gridUnits, int guSideLen_inPixels,
         float speed_pixels, float direction, int health, int damage)
-        : GameObject(ObjectType::Weapon, AliveState::NotAlive,
+        : ACE_GameObject(ObjectType::Weapon, AliveState::NotAlive,
             posX_px, posY_px, obj_w_pixels, obj_h_pixels, 
             appW_pixels, appH_pixels, worldW_pixels, worldH_pixels, 
             obj_w_gridUnits, obj_h_gridUnits, guSideLen_inPixels,
@@ -25,7 +25,7 @@ public:
     void HandleEvent(Keys key);
     void UpdateFixed(double dt, const bool* keys);
     void UpdateFrame(uint64_t now_ms);
-    void Render(SDL_Renderer* appR, Camera2D& cam) const;
+    void Render(SDL_Renderer* appR, ACE_Camera2D& cam) const;
 
     Facing stunFacing = Facing::Right;
     WeaponState stunHammerState = WeaponState::Idle;
@@ -37,7 +37,7 @@ public:
 private:
 
     float scale_ = 1.0f;
-    AnimGif stunHammer_;
+    ACE_AnimGif stunHammer_;
 
 };
 

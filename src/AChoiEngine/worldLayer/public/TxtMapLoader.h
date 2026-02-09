@@ -3,7 +3,7 @@
 #include <string>
 #include "AChoiEngine/camera/public/Camera.h"
 
-struct TileDef {
+struct ACE_TileDef {
     int sheetIndex;
     float sheetX;
     float sheetY;
@@ -12,22 +12,22 @@ struct TileDef {
 };
 
 
-class TileMap {
+class ACE_TileMap {
 public:
-	bool LoadTiles(SDL_Renderer* appR,
+	bool ACE_LoadTiles(SDL_Renderer* appR,
 		const std::vector<std::string>& tilesetPaths,
 		const char* animPath,
 		const char* kLevelPath,
 		float tileSizePixels);
 
-	bool LoadLevelFromTxt(const char* kLevelPath,
+	bool ACE_LoadLevelFromTxt(const char* kLevelPath,
 		int& worldWidth_gridUnits,
 		int& worldHeight_gridUnits,
 		std::vector<int>& outTiles);
-	void Shutdown();
-	void Render(SDL_Renderer* appR, Camera2D& cam, const std::vector<TileDef>& catalog) const;
-	bool IsSolidAt(float worldX_pixel, float worldY_pixel, const std::vector<TileDef>& catalog) const;
-	bool DoesDamageAt(float worldX_pixel, float worldY_pixel, const std::vector<TileDef>& catalog) const;
+	void ACE_Shutdown();
+	void ACE_Render(SDL_Renderer* appR, ACE_Camera2D& cam, const std::vector<ACE_TileDef>& catalog) const;
+	bool ACE_IsSolidAt(float worldX_pixel, float worldY_pixel, const std::vector<ACE_TileDef>& catalog) const;
+	bool ACE_DoesDamageAt(float worldX_pixel, float worldY_pixel, const std::vector<ACE_TileDef>& catalog) const;
 
 	int getWorldHeight_gridUnits();
 	int getWorldWidth_gridUnits();

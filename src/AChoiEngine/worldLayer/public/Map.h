@@ -4,15 +4,19 @@
 #include <string>
 #include "AChoiEngine/worldLayer/public/LdtkMapLoader.h"
 
-class Camera2D;
+class ACE_Camera2D;
 
-class Map {
+class ACE_Map {
 public:
 
-	bool Init(SDL_Renderer* appR, const char* jsonPath);
-	void Shutdown();
-	void Render(SDL_Renderer* appR, Camera2D& cam) const;
-	int intGridType(float worldX_pixel, float worldY_pixel) const;
+	bool ACE_Init(SDL_Renderer* appR, const char* jsonPath);
+	void ACE_Shutdown();
+	void ACE_Render(SDL_Renderer* appR, ACE_Camera2D& cam) const;
+	void ACE_Render(SDL_Renderer* appR) const;
+	void ACE_Render(SDL_Renderer* appR, int alpha) const;
+
+
+	int ACE_intGridType(float worldX_pixel, float worldY_pixel) const;
 
 	int getWorldHeight_gridUnits() const;
 	int getWorldWidth_gridUnits() const;

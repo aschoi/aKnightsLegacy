@@ -4,7 +4,7 @@
 
 // struct for a 2D camera that centers on the player
 // everything is in pixels.
-struct Camera2D {
+struct ACE_Camera2D {
     float x = 0.0f;   // top-left in WORLD space
     float y = 0.0f;
     float w = 0.0f;   // viewport size (screen size)  
@@ -14,17 +14,17 @@ struct Camera2D {
     float worldW = 0.0f;
     float worldH = 0.0f;
 
-    void SetViewport(float viewW, float viewH) { 
+    void ACE_SetViewport(float viewW, float viewH) { 
         w = viewW; 
         h = viewH; 
     }
 
-    void SetWorldBounds(float ww, float wh) { 
+    void ACE_SetWorldBounds(float ww, float wh) {
         worldW = ww; 
         worldH = wh; 
     }
 
-    void Follow(float targetX, float targetY) {
+    void ACE_Follow(float targetX, float targetY) {
         // center camera on target
         x = targetX - w * 0.5f;
         y = targetY - h * 0.5f;
@@ -37,14 +37,14 @@ struct Camera2D {
     }
 
     // Convert world -> screen
-    SDL_FRect WorldToScreen(const SDL_FRect& worldRect) const {
+    SDL_FRect ACE_WorldToScreen(const SDL_FRect& worldRect) const {
         SDL_FRect out = worldRect;
         out.x -= x;
         out.y -= y;
         return out;
     }
 
-    SDL_FPoint WorldToScreenPoint(float wx, float wy) const {
+    SDL_FPoint ACE_WorldToScreenPoint(float wx, float wy) const {
         return SDL_FPoint{ wx - x, wy - y };
     }
 };

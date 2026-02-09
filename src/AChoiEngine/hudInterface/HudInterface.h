@@ -4,9 +4,9 @@
 #include <string>
 #include "AChoiEngine/input/public/Keyboard.h"
 
-class Camera2D;
+class ACE_Camera2D;
 
-struct HudLine {
+struct ACE_HudLine {
 	SDL_Texture* tex = nullptr;
 	SDL_FRect dst{};
 	float w_pixels = 0;
@@ -15,22 +15,22 @@ struct HudLine {
 };
 
 
-class HudInterface {
+class ACE_HudInterface {
 
 public:
-	virtual ~HudInterface() = default;
+	virtual ~ACE_HudInterface() = default;
 
-	virtual bool Init(SDL_Renderer* r, float appW_pixels, float appH_pixels, Camera2D& cam) = 0;
-	virtual void Shutdown() = 0;
+	virtual bool ACE_Init(SDL_Renderer* r, float appW_pixels, float appH_pixels, ACE_Camera2D& cam) = 0;
+	virtual void ACE_Shutdown() = 0;
 
-	virtual void HandleEvent(Keys key, SDL_Renderer* r) = 0;
+	virtual void ACE_HandleEvent(Keys key, SDL_Renderer* r) = 0;
 
-	virtual void UpdateFixed(double dt, const bool* keys) = 0;
-	virtual void UpdateFrame(uint64_t now_ms) = 0;
+	virtual void ACE_UpdateFixed(double dt, const bool* keys) = 0;
+	virtual void ACE_UpdateFrame(uint64_t now_ms) = 0;
 
-	virtual void Render(SDL_Renderer* r, Camera2D& cam) = 0;
+	virtual void ACE_Render(SDL_Renderer* r, ACE_Camera2D& cam) = 0;
 
-	virtual void SetLineText(int i, const std::string& s) = 0;
+	virtual void ACE_SetLineText(int i, const std::string& s) = 0;
 
 
 protected:

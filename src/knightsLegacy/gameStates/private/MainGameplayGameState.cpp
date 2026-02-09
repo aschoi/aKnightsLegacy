@@ -5,7 +5,7 @@
 #include <string>
 #include <cstdint>
 #include <vector>
-#include "AChoiEngine/physics/public/CollisionDetectionComponent.h"
+#include "AChoiEngine/physics/public/OverlappingHitboxDetection.h"
 #include "AChoiEngine/physics/public/CollisionResponse.h"
 #include "AChoiEngine/ai/public/aiComponent.h"
 #include "AChoiEngine/input/public/Keyboard.h"
@@ -21,7 +21,7 @@
 #include "assets.h"
 
 
-bool MainGameplayGameState::Init(SDL_Renderer* appR, float appW_pixels, float appH_pixels, int tileSizeAsInt, float tileSizeAsFloat) {
+bool MainGameplayGameState::ACE_Init(SDL_Renderer* appR, float appW_pixels, float appH_pixels, int tileSizeAsInt, float tileSizeAsFloat) {
     return false;
 }
 
@@ -34,10 +34,10 @@ bool MainGameplayGameState::Init(SDL_Renderer* appR, AudioManager* audMan, float
     r_ = appR;
     audioManager_ = audMan;
 
-    //baseLayer_.LoadTiles(appR, environmentTilesheets, doorChestAnimPath.c_str(), dungeon1Base.c_str(), tileSizeAsFloat_);
-    //floorLayer_.LoadTiles(appR, environmentTilesheets, doorChestAnimPath.c_str(), map1.c_str(), tileSizeAsFloat_);
+    //baseLayer_.ACE_LoadTiles(appR, environmentTilesheets, doorChestAnimPath.c_str(), dungeon1Base.c_str(), tileSizeAsFloat_);
+    //floorLayer_.ACE_LoadTiles(appR, environmentTilesheets, doorChestAnimPath.c_str(), map1.c_str(), tileSizeAsFloat_);
              
-    newMapLayer_.Init(appR, jsonLevel1v2.c_str());
+    newMapLayer_.ACE_Init(appR, jsonLevel1v2.c_str());
     world_level1_w_ = newMapLayer_.getWorldWidth_pixels();
     world_level1_h_ = newMapLayer_.getWorldHeight_pixels();
     
@@ -91,8 +91,8 @@ bool MainGameplayGameState::Init(SDL_Renderer* appR, AudioManager* audMan, float
                             8, 8, tileSizeAsInt_, 0, 0, 0, 1);
 
     // Set Camera parameters
-    cam.SetViewport(appW_pixels_, appH_pixels_);
-    cam.SetWorldBounds(world_level1_w_, world_level1_h_);
+    cam.ACE_SetViewport(appW_pixels_, appH_pixels_);
+    cam.ACE_SetWorldBounds(world_level1_w_, world_level1_h_);
 
     // Instantiate hud and init with parameters
     hudLayer_ = new Hud();
@@ -107,6 +107,8 @@ bool MainGameplayGameState::Init(SDL_Renderer* appR, AudioManager* audMan, float
     entitiesList_.push_back(skeletonSix_);
     entitiesList_.push_back(skeletonSeven_);
     entitiesList_.push_back(playerLayer_);
+
+    audioManager_->ACE_LoadPlayMusic(BackgroundMusic::MainGameplay);
     
 
     #if SHOW_VECTOR_MAP
@@ -117,11 +119,11 @@ bool MainGameplayGameState::Init(SDL_Renderer* appR, AudioManager* audMan, float
 }
 
 
-void MainGameplayGameState::Shutdown() {
+void MainGameplayGameState::ACE_Shutdown() {
 
-    //baseLayer_.Shutdown();
-    //floorLayer_.Shutdown();
-    newMapLayer_.Shutdown();
+    //baseLayer_.ACE_Shutdown();
+    //floorLayer_.ACE_Shutdown();
+    newMapLayer_.ACE_Shutdown();
 
     if (projectileLayer_) { 
         projectileLayer_->Shutdown(); 
@@ -176,7 +178,7 @@ void MainGameplayGameState::Shutdown() {
         playerLayer_ = nullptr; 
     }
     if (hudLayer_) {
-        hudLayer_->Shutdown();
+        hudLayer_->ACE_Shutdown();
         delete hudLayer_;
         hudLayer_ = nullptr;
     }
@@ -186,24 +188,36 @@ void MainGameplayGameState::Shutdown() {
 
 }
 
-void MainGameplayGameState::HandleEvent(Keys keyPress) {
+void MainGameplayGameState::ACE_HandleEvent(Keys keyPress) {
 
-    if (keyPress == Keys::Space) playerLayer_->HandleEvent(Keys::Space);
-    else if (keyPress == Keys::Q) playerLayer_->HandleEvent(Keys::Q);
+    if (keyPress == Keys::Space) {
+        playerLayer_->HandleEvent(Keys::Space);
+        audioManager_->loadQ(SoundFX::Swipe);
+    }
+    else if (keyPress == Keys::Q) {
+        playerLayer_->HandleEvent(Keys::Q);
+
+    }
     else if (keyPress == Keys::W && playerLayer_->getHammerTimer() <= 0) {
         playerLayer_->HandleEvent(Keys::W);
         stunLayer_->HandleEvent(Keys::W);       
     }
-    else if (keyPress == Keys::E) playerLayer_->HandleEvent(Keys::E);
+    else if (keyPress == Keys::E) {
+        playerLayer_->HandleEvent(Keys::E);
+
+    }
+
     else if (keyPress == Keys::R && playerLayer_->getProjectileTimer() <= 0) {
         playerLayer_->HandleEvent(Keys::R);
         projectileLayer_->HandleEvent(Keys::R);
+        audioManager_->loadQ(SoundFX::Ult);
+
     }
 }
 
-void MainGameplayGameState::UpdateFixed(double dt, const bool* kKeys) {
+void MainGameplayGameState::ACE_UpdateFixed(double dt, const bool* kKeys) {
 
-    basicAllEntitiesCollisionResolution(entitiesList_);
+    ACE_basicAllEntitiesCollisionResolution(entitiesList_);
 
     SkeletonBehavior(skeletonOne_);
     SkeletonBehavior(skeletonTwo_);
@@ -222,8 +236,8 @@ void MainGameplayGameState::UpdateFixed(double dt, const bool* kKeys) {
         audioManager_->loadQ(SoundFX::Hammer);
     }
     // IF projectile hits edge of map or a wall
-    if (checkBodyMapedgeCollision(*projectileLayer_) 
-        || checkAttackWallCollision(*projectileLayer_, newMapLayer_)) {
+    if (ACE_checkBodyMapedgeCollision(*projectileLayer_)
+        || ACE_checkAttackWallCollision(*projectileLayer_, newMapLayer_)) {
         if (projectileLayer_->ProjectileState == WeaponState::Move) {
             projectileLayer_->ProjectileState = WeaponState::Inactive;
         }
@@ -242,31 +256,31 @@ void MainGameplayGameState::UpdateFixed(double dt, const bool* kKeys) {
 
     projectileLayer_->UpdateFixed(dt, kKeys);
     stunLayer_->UpdateFixed(dt, kKeys);
-    hudLayer_->UpdateFixed(dt, kKeys);
+    hudLayer_->ACE_UpdateFixed(dt, kKeys);
 
-    cam.Follow(playerLayer_->get_x_px(), playerLayer_->get_y_px());
+    cam.ACE_Follow(playerLayer_->get_x_px(), playerLayer_->get_y_px());
 
     tempTimer -= 1;
     if (tempTimer <= 0) {
         tempTimer = 30;
         //costMap = CreateCostMap(floorLayer_, *playerLayer_, GetTileCatalog());
         //vectorMap = CreateVectorMap(floorLayer_, costMap);
-        costMap = CreateCostMap(newMapLayer_, *playerLayer_);
-        vectorMap = CreateVectorMap(newMapLayer_, costMap);
+        costMap = ACE_CreateCostMap(newMapLayer_, *playerLayer_);
+        vectorMap = ACE_CreateVectorMap(newMapLayer_, costMap);
     }
     
 
-    if (newMapLayer_.intGridType(playerLayer_->get_x_px(), playerLayer_->get_y_px()) == 4) {
+    if (newMapLayer_.ACE_intGridType(playerLayer_->get_x_px(), playerLayer_->get_y_px()) == 4) {
         skeletonSeven_->curMood = Mood::Pissed;
     }
-    if (newMapLayer_.intGridType(playerLayer_->get_x_px(), playerLayer_->get_y_px()) == 5) {
+    if (newMapLayer_.ACE_intGridType(playerLayer_->get_x_px(), playerLayer_->get_y_px()) == 5) {
         skeletonFive_->curMood = Mood::Pissed;
         skeletonSix_->curMood = Mood::Pissed;
     }
 
 }
 
-void MainGameplayGameState::UpdateFrame(uint64_t now_ms) {
+void MainGameplayGameState::ACE_UpdateFrame(uint64_t now_ms) {
     (void)now_ms;
 
     playerLayer_->UpdateFrame(SDL_GetTicks());
@@ -285,11 +299,11 @@ void MainGameplayGameState::UpdateFrame(uint64_t now_ms) {
 
 }
 
-void MainGameplayGameState::Render(SDL_Renderer* appR) {
-    //baseLayer_.Render(appR, cam);
-    //floorLayer_.Render(appR, cam);
+void MainGameplayGameState::ACE_Render(SDL_Renderer* appR) {
+    //baseLayer_.ACE_Render(appR, cam);
+    //floorLayer_.ACE_Render(appR, cam);
 
-    newMapLayer_.Render(appR, cam);
+    newMapLayer_.ACE_Render(appR, cam);
     
     skeletonOne_->Render(appR, cam);
     skeletonTwo_->Render(appR, cam);
@@ -302,10 +316,10 @@ void MainGameplayGameState::Render(SDL_Renderer* appR) {
     stunLayer_->Render(appR, cam);
     playerLayer_->Render(appR, cam);
     projectileLayer_->Render(appR, cam);
-    hudLayer_->Render(appR, cam);
+    hudLayer_->ACE_Render(appR, cam);
 
     #if SHOW_VECTOR_MAP
-        RenderArrows(appR, cam, arrowTexures, newMapLayer_, tileSizeAsFloat_, vectorMap);
+        ACE_RenderArrows(appR, cam, arrowTexures, newMapLayer_, tileSizeAsFloat_, vectorMap);
     #endif
 
 }
@@ -316,14 +330,14 @@ void MainGameplayGameState::SkeletonBehavior(Skeleton* curSkeleton_) {
     if (curSkeleton_->get_alive_state() == AliveState::IsAlive) {
 
         // IF Player hits Skeleton
-        if (checkAttackBodyCollision(*playerLayer_, *curSkeleton_) && curSkeleton_->invincibleTimer <= 0) {
+        if (ACE_checkAttackBodyCollision(*playerLayer_, *curSkeleton_) && curSkeleton_->invincibleTimer <= 0) {
             curSkeleton_->invincibleTimer = curSkeleton_->INVINCIBLE_DURATION;
             curSkeleton_->takesDamage(1);
             audioManager_->loadQ(SoundFX::Splat);
             if (curSkeleton_->iq_ == Intelligence::Smart) curSkeleton_->curMood = Mood::Pissed;
         }
         // IF Projectile hits Skeleton
-        if (checkAttackBodyCollision(*projectileLayer_, *curSkeleton_)) {
+        if (ACE_checkAttackBodyCollision(*projectileLayer_, *curSkeleton_)) {
             if (playerLayer_->get_x_px() > curSkeleton_->get_x_px()) curSkeleton_->facing = Facing::Right;
             else curSkeleton_->facing = Facing::Left;
 
@@ -334,7 +348,7 @@ void MainGameplayGameState::SkeletonBehavior(Skeleton* curSkeleton_) {
             }
         }
         // IF Stun hits Skeleton
-        if (checkAttackBodyCollision(*stunLayer_, *curSkeleton_)) {
+        if (ACE_checkAttackBodyCollision(*stunLayer_, *curSkeleton_)) {
             if (curSkeleton_->get_stunned_state() == StunnedState::NotStunned)
                 audioManager_->loadQ(SoundFX::Splat);
             curSkeleton_->takesStun(SDL_GetTicks(), stunLayer_->stunMaxTime_ms);
@@ -344,7 +358,7 @@ void MainGameplayGameState::SkeletonBehavior(Skeleton* curSkeleton_) {
         if (curSkeleton_->get_stunned_state() == StunnedState::NotStunned) {
 
             // IF Player is within skeleton's Awareness zone
-            if (checkBodyAwarenessCollision(*playerLayer_, *curSkeleton_)) {
+            if (ACE_checkBodyAwarenessCollision(*playerLayer_, *curSkeleton_)) {
                 curSkeleton_->playerNearby = true;
                 if (playerLayer_->get_x_px() > curSkeleton_->get_x_px()) curSkeleton_->facing = Facing::Right;
                 else curSkeleton_->facing = Facing::Left;
@@ -352,12 +366,12 @@ void MainGameplayGameState::SkeletonBehavior(Skeleton* curSkeleton_) {
                 // Slightly adjusted get_speed() to ensure skeleton doesn't follow TOO fast.
                 float speed = curSkeleton_->get_speed_pixels();
                 if (curSkeleton_->curMood == Mood::Pissed) speed *= 0.3;
-                followTargetSimple(*curSkeleton_, *playerLayer_, newMapLayer_, speed);
+                ACE_followTargetSimple(*curSkeleton_, *playerLayer_, newMapLayer_, speed);
 
             }
 
             // IF Skeleton hits Player
-            if (checkCollision(*curSkeleton_, HitboxType::AttackRange, *playerLayer_, HitboxType::BodyHitbox) && playerLayer_->getInvincibleTimer() <= 0) {
+            if (ACE_checkCollision(*curSkeleton_, HitboxType::AttackRange, *playerLayer_, HitboxType::BodyHitbox) && playerLayer_->getInvincibleTimer() <= 0) {
                 playerLayer_->setInvincibleTimer(playerLayer_->getInvincibleDuration());
                 playerLayer_->takesDamage(1);
             }
@@ -365,14 +379,14 @@ void MainGameplayGameState::SkeletonBehavior(Skeleton* curSkeleton_) {
             if (curSkeleton_->curMood == Mood::Pissed) {
                 if (playerLayer_->get_x_px() > curSkeleton_->get_x_px()) curSkeleton_->facing = Facing::Right;
                 else curSkeleton_->facing = Facing::Left;
-                //smartFollow(curSkeleton_, floorLayer_, vectorMap, costMap);
-                smartFollow(curSkeleton_, newMapLayer_, vectorMap, costMap);
+                //ACE_smartFollow(curSkeleton_, floorLayer_, vectorMap, costMap);
+                ACE_smartFollow(curSkeleton_, newMapLayer_, vectorMap, costMap);
                 
             }
         }
     }
 
-    if (!checkBodyAwarenessCollision(*playerLayer_, *curSkeleton_)) {
+    if (!ACE_checkBodyAwarenessCollision(*playerLayer_, *curSkeleton_)) {
         curSkeleton_->playerNearby = false;
     }
 }

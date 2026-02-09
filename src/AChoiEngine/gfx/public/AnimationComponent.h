@@ -3,7 +3,7 @@
 #include <vector>
 #include <cstdint>
 
-struct AnimSprite {
+struct ACE_AnimSprite {
 	SDL_Texture* tex = nullptr;
 	std::vector<SDL_FRect> frames;
 	float frameW = 0.0f;
@@ -16,7 +16,7 @@ struct AnimSprite {
 	float scale = 1.0f;
 };
 
-struct AnimGif {  // for already animated gifs
+struct ACE_AnimGif {  // for already animated gifs
 	std::vector<SDL_Texture*> frames;
 	float w = 0;
 	float h = 0;
@@ -27,7 +27,7 @@ struct AnimGif {  // for already animated gifs
 	float scale = 1.0f;
 };
 
-AnimSprite BuildAnimSprite(	SDL_Renderer* r,
+ACE_AnimSprite ACE_BuildAnimSprite(	SDL_Renderer* r,
 							const char* imagePath,
 							int tileSize,
 							int tilesPerFrameW,
@@ -41,17 +41,17 @@ AnimSprite BuildAnimSprite(	SDL_Renderer* r,
 							int frameMs,
 							bool loop);
 
-void DestroyAnimSprite(AnimSprite& a);
-void PlayAnimSprite(AnimSprite& a, uint64_t nowMs, bool loop);
-void StopAnimSprite(AnimSprite& a);
-bool FinishedNonLoopingSprite(const AnimSprite& a, uint64_t nowMs);
-const SDL_FRect& CurrentFrameSprite(const AnimSprite& a);
-void UpdateAnimSprite(AnimSprite& a, uint64_t nowMs);
+void ACE_DestroyAnimSprite(ACE_AnimSprite& a);
+void ACE_PlayAnimSprite(ACE_AnimSprite& a, uint64_t nowMs, bool loop);
+void ACE_StopAnimSprite(ACE_AnimSprite& a);
+bool ACE_FinishedNonLoopingSprite(const ACE_AnimSprite& a, uint64_t nowMs);
+const SDL_FRect& ACE_CurrentFrameSprite(const ACE_AnimSprite& a);
+void ACE_UpdateAnimSprite(ACE_AnimSprite& a, uint64_t nowMs);
 
 
-AnimGif LoadAnimGif(SDL_Renderer* r, const char* kAssetPath, int frame_ms);
-void DestroyAnimGif(AnimGif& a);
-void PlayAnimGif(AnimGif& a, uint64_t now_ms, bool loop);
-void StopAnimGif(AnimGif& a);
-SDL_Texture* CurrentFrameGif(const AnimGif& kA, uint64_t now_ms);
-bool FinishedNonLoopingGif(const AnimGif& kA, uint64_t now_ms);
+ACE_AnimGif ACE_LoadAnimGif(SDL_Renderer* r, const char* kAssetPath, int frame_ms);
+void ACE_DestroyAnimGif(ACE_AnimGif& a);
+void ACE_PlayAnimGif(ACE_AnimGif& a, uint64_t now_ms, bool loop);
+void ACE_StopAnimGif(ACE_AnimGif& a);
+SDL_Texture* ACE_CurrentFrameGif(const ACE_AnimGif& kA, uint64_t now_ms);
+bool ACE_FinishedNonLoopingGif(const ACE_AnimGif& kA, uint64_t now_ms);

@@ -1,12 +1,12 @@
 #pragma once
 
 
-class Timer {
+class ACE_Timer {
 	float length;
 	float time;
 	bool timeout;
 public:
-	Timer(float length) : length(length), time(0), timeout(false) {}
+	ACE_Timer(float length) : length(length), time(0), timeout(false) {}
 	void step(float deltaTime) {
 		time += deltaTime;
 		if (time >= length) {
