@@ -1,6 +1,6 @@
 #pragma once
 #include "AChoiEngine/gameObject/public/GameObject.h"
-#include "AChoiEngine/gfx/public/AnimationComponent.h"
+#include "AChoiEngine/gfx/public/AnimationSys.h"
 #include "AChoiEngine/camera/public/Camera.h"
 
 enum class Mood{ Chill, Patrol, Following, Pissed };

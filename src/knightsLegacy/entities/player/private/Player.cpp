@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 #include "AChoiEngine/input/public/Keyboard.h"
-#include "AChoiEngine/physics/public/OverlappingHitboxDetection.h"
-#include "AChoiEngine/worldLayer/public/Map.h"
+#include "AChoiEngine/physics/public/OverlappingHitboxDetectionSys.h"
+#include "AChoiEngine/worldLayer/public/MapObject.h"
 #include "AChoiEngine/worldLayer/public/TxtMapLoader.h"
 #include "knightsLegacy/weapons/public/Projectile.h"
 #include "knightsLegacy/world/public/TileCatalog.h"
@@ -352,7 +352,7 @@ void Player::UpdateFixed(double dt, const bool* keys) {
     }
 }
 
-void Player::UpdateFixed(double dt, const bool* keys, ACE_Map& curMap) {
+void Player::UpdateFixed(double dt, const bool* keys, ACE_MapObject& curMap) {
 
     float vx = 0.0f;
     float vy = 0.0f;

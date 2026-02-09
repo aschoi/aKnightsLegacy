@@ -1,8 +1,8 @@
-#include "AChoiEngine/physics/public/OverlappingHitboxDetection.h"
+#include "AChoiEngine/physics/public/OverlappingHitboxDetectionSys.h"
 #include <cmath>
 #include <vector>
 #include "AChoiEngine/gameObject/public/GameObject.h"
-#include "AChoiEngine/worldLayer/public/Map.h"
+#include "AChoiEngine/worldLayer/public/MapObject.h"
 
 
 bool ACE_checkCollision(ACE_GameObject& a, HitboxType aHitboxType, ACE_GameObject& b, HitboxType bHitboxType) {
@@ -270,7 +270,7 @@ bool ACE_checkBodyMapedgeCollision(ACE_GameObject& a) {
 	return false;
 }
 
-bool ACE_checkAttackWallCollision(ACE_GameObject& a, ACE_Map& m) {
+bool ACE_checkAttackWallCollision(ACE_GameObject& a, ACE_MapObject& m) {
 	float aX_west = a.get_hitbox_x_px(HitboxType::AttackRange);
 	float aX_east = a.get_hitbox_x_px(HitboxType::AttackRange) + a.get_hitbox_w_pixels(HitboxType::AttackRange);
 

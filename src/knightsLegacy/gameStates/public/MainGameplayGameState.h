@@ -3,7 +3,7 @@
 #include <vector>
 #include "AChoiEngine/input/public/Keyboard.h"
 #include "AChoiEngine/worldLayer/public/LdtkMapLoader.h"
-#include "AChoiEngine/worldLayer/public/Map.h"
+#include "AChoiEngine/worldLayer/public/MapObject.h"
 #include "AChoiEngine/worldLayer/public/TxtMapLoader.h"
 
 class ACE_GameObject;
@@ -56,7 +56,7 @@ private:
 
     //TileMap baseLayer_;
     //TileMap floorLayer_;  
-    ACE_Map newMapLayer_;
+    ACE_MapObject newMapLayer_;
 
     Player* playerLayer_ = nullptr;
     SwordWaveProjectile* projectileLayer_ = nullptr;

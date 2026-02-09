@@ -1,6 +1,6 @@
 #include "knightsLegacy/entities/enemies/public/skeleton.h"
 #include <string>
-#include "AChoiEngine/ai/public/aiComponent.h"
+#include "AChoiEngine/ai/public/aiSys.h"
 #include "assets.h"
 
 bool Skeleton::Init(SDL_Renderer* appR, float spawnX_px, float spawnY_px, Facing spawnDirection, Intelligence iq, int health) {

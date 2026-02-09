@@ -1,12 +1,12 @@
 #pragma once
 #include "AChoiEngine/gameObject/public/GameObject.h"
 #include <cstdint>
-#include "AChoiEngine/gfx/public/AnimationComponent.h"
+#include "AChoiEngine/gfx/public/AnimationSys.h"
 #include "AChoiEngine/input/public/Keyboard.h"
 #include "AChoiEngine/camera/public/Camera.h"
 
 
-class ACE_Map;
+class ACE_MapObject;
 class ACE_TileMap;
 
 class Player : public ACE_GameObject {
@@ -30,7 +30,7 @@ public:
     void HandleEvent(Keys key);
     void UpdateFixed(double dt, const bool* keys, ACE_TileMap& m);
     void UpdateFixed(double dt, const bool* keys);
-    void UpdateFixed(double dt, const bool* keys, ACE_Map& solids);
+    void UpdateFixed(double dt, const bool* keys, ACE_MapObject& solids);
 
     void UpdateFrame(uint64_t now_ms);
     void Render(SDL_Renderer* appR, ACE_Camera2D& cam) const;

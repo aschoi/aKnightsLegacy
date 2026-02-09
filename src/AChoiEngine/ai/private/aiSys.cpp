@@ -1,4 +1,4 @@
-#include "AChoiEngine/ai/public/aiComponent.h"
+#include "AChoiEngine/ai/public/aiSys.h"
 #include <array>
 #include <vector>
 #include <queue>
@@ -7,7 +7,7 @@
 #include "AChoiEngine/gameObject/public/GameObject.h"
 #include "AChoiEngine/worldLayer/public/LdtkMapLoader.h"
 #include "AChoiEngine/worldLayer/public/TxtMapLoader.h"
-#include "AChoiEngine/worldLayer/public/Map.h"
+#include "AChoiEngine/worldLayer/public/MapObject.h"
 
 
 struct PairHash {
@@ -27,7 +27,7 @@ struct Array3Hash {
 };
 
 
-void ACE_followTargetSimple(ACE_GameObject& hunter, ACE_GameObject& target, ACE_Map& curMap, float speed) {
+void ACE_followTargetSimple(ACE_GameObject& hunter, ACE_GameObject& target, ACE_MapObject& curMap, float speed) {
     float xDiff = target.get_x_px() - hunter.get_x_px();
     float yDiff = target.get_y_px() - hunter.get_y_px();
 
@@ -72,7 +72,7 @@ void ACE_followTargetSimple(ACE_GameObject& hunter, ACE_GameObject& target, ACE_
 }
 
 
-std::vector<std::vector<int>> ACE_CreateCostMap(ACE_Map& curMap, ACE_GameObject& player) {
+std::vector<std::vector<int>> ACE_CreateCostMap(ACE_MapObject& curMap, ACE_GameObject& player) {
 
     // 8 directions
     constexpr std::array<std::array<int, 2>, 8> dirs{ {{0, 1}, {0, -1}, {1, 0}, {-1, 0},
@@ -123,7 +123,7 @@ std::vector<std::vector<int>> ACE_CreateCostMap(ACE_Map& curMap, ACE_GameObject&
 
 
 // Vector Field for the entire map, utilizing the costMap as the source for target goal cell.
-std::vector<std::vector<std::pair<int, int>>> ACE_CreateVectorMap(ACE_Map& curMap, std::vector<std::vector<int>>& costMap) {
+std::vector<std::vector<std::pair<int, int>>> ACE_CreateVectorMap(ACE_MapObject& curMap, std::vector<std::vector<int>>& costMap) {
 
     // 8 Directions 
     constexpr std::array<std::array<int, 2>, 8> dirs{ {{0, 1}, {0, -1}, {1, 0}, {-1, 0},
@@ -175,7 +175,7 @@ std::vector<std::vector<std::pair<int, int>>> ACE_CreateVectorMap(ACE_Map& curMa
 }
 
 
-void ACE_smartFollow(ACE_GameObject* hunter, ACE_Map& curMap, std::vector<std::vector<std::pair<int, int>>>& vecMap, std::vector<std::vector<int>>& costMap) {
+void ACE_smartFollow(ACE_GameObject* hunter, ACE_MapObject& curMap, std::vector<std::vector<std::pair<int, int>>>& vecMap, std::vector<std::vector<int>>& costMap) {
 
     const int y_gu = hunter->get_y_gu();
     const int x_gu = hunter->get_x_gu();
@@ -260,7 +260,7 @@ void ACE_smartFollow(ACE_GameObject* hunter, ACE_Map& curMap, std::vector<std::v
 
 }
 
-void ACE_RenderArrows(SDL_Renderer* r, ACE_Camera2D& cam, std::vector<SDL_Texture*>& arrowTextures, ACE_Map& curMap, float tileSize_pixels, std::vector<std::vector<std::pair<int, int>>>& vecMap) {
+void ACE_RenderArrows(SDL_Renderer* r, ACE_Camera2D& cam, std::vector<SDL_Texture*>& arrowTextures, ACE_MapObject& curMap, float tileSize_pixels, std::vector<std::vector<std::pair<int, int>>>& vecMap) {
 
     // 8 Directions                                       
     constexpr std::array<std::pair<int, int>, 8> dirs{ {

@@ -6,7 +6,7 @@
 
 class ACE_Camera2D;
 
-class ACE_Map {
+class ACE_MapObject {
 public:
 
 	bool ACE_Init(SDL_Renderer* appR, const char* jsonPath);

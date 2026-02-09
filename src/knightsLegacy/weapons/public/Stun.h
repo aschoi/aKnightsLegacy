@@ -1,7 +1,7 @@
 #pragma once
 #include "AChoiEngine/gameObject/public/GameObject.h"
 #include <string>
-#include "AChoiEngine/gfx/public/AnimationComponent.h"
+#include "AChoiEngine/gfx/public/AnimationSys.h"
 #include "AChoiEngine/input/public/Keyboard.h"
 #include "AChoiEngine/camera/public/Camera.h"
 

@@ -1,4 +1,4 @@
-#include "AChoiEngine/gfx/public/AnimationComponent.h"
+#include "AChoiEngine/gfx/public/AnimationSys.h"
 #include <SDL3/sdl.h>
 #include <SDL3_image/SDL_image.h>
 #include <cmath>

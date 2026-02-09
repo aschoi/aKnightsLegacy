@@ -1,4 +1,4 @@
-#include "AChoiEngine/worldLayer/public/Map.h"
+#include "AChoiEngine/worldLayer/public/MapObject.h"
 #include "AChoiEngine/worldLayer/public/LdtkMapLoader.h"
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
@@ -8,7 +8,7 @@
 #include "assets.h"
 
 
-bool ACE_Map::ACE_Init(SDL_Renderer* appR, const char* jsonPath) {
+bool ACE_MapObject::ACE_Init(SDL_Renderer* appR, const char* jsonPath) {
     
     ldtk_project = ACE_LoadProject(jsonPath);
 
@@ -54,7 +54,7 @@ bool ACE_Map::ACE_Init(SDL_Renderer* appR, const char* jsonPath) {
 }
 
 
-void ACE_Map::ACE_Shutdown() {
+void ACE_MapObject::ACE_Shutdown() {
     for (SDL_Texture* tex : tilesets_) {
         if (tex) SDL_DestroyTexture(tex);
     }
@@ -62,7 +62,7 @@ void ACE_Map::ACE_Shutdown() {
     worldWidth_gridUnits_ = worldHeight_gridUnits_ = 0;
 }
 
-void ACE_Map::ACE_Render(SDL_Renderer* appR, ACE_Camera2D& cam) const {
+void ACE_MapObject::ACE_Render(SDL_Renderer* appR, ACE_Camera2D& cam) const {
     
     if (ldtk_project.layerInstances.size() != tilesets_.size()) {
         throw std::runtime_error("Vector size mismatch");
@@ -121,7 +121,7 @@ void ACE_Map::ACE_Render(SDL_Renderer* appR, ACE_Camera2D& cam) const {
     }
 }
 
-void ACE_Map::ACE_Render(SDL_Renderer* appR) const {
+void ACE_MapObject::ACE_Render(SDL_Renderer* appR) const {
 
     if (ldtk_project.layerInstances.size() != tilesets_.size()) {
         throw std::runtime_error("Vector size mismatch");
@@ -161,7 +161,7 @@ void ACE_Map::ACE_Render(SDL_Renderer* appR) const {
     }
 }
 
-void ACE_Map::ACE_Render(SDL_Renderer* appR, int alpha) const {
+void ACE_MapObject::ACE_Render(SDL_Renderer* appR, int alpha) const {
 
     if (ldtk_project.layerInstances.size() != tilesets_.size()) {
         throw std::runtime_error("Vector size mismatch");
@@ -202,7 +202,7 @@ void ACE_Map::ACE_Render(SDL_Renderer* appR, int alpha) const {
 
 
 // returns the int in the IntGridCSV at the specific coordinates
-int ACE_Map::ACE_intGridType(float worldX_pixel, float worldY_pixel) const {
+int ACE_MapObject::ACE_intGridType(float worldX_pixel, float worldY_pixel) const {
 
     int tx = static_cast<int>(worldX_pixel / tileSize_pixels_);
     int ty = static_cast<int>(worldY_pixel / tileSize_pixels_);
@@ -216,7 +216,7 @@ int ACE_Map::ACE_intGridType(float worldX_pixel, float worldY_pixel) const {
 
 }
 
-int ACE_Map::getWorldHeight_gridUnits() const { return worldHeight_gridUnits_; }
-int ACE_Map::getWorldWidth_gridUnits() const { return worldWidth_gridUnits_; }
-float ACE_Map::getWorldHeight_pixels() const { return worldHeight_pixels_; }
-float ACE_Map::getWorldWidth_pixels() const { return worldWidth_pixels_; }
+int ACE_MapObject::getWorldHeight_gridUnits() const { return worldHeight_gridUnits_; }
+int ACE_MapObject::getWorldWidth_gridUnits() const { return worldWidth_gridUnits_; }
+float ACE_MapObject::getWorldHeight_pixels() const { return worldHeight_pixels_; }
+float ACE_MapObject::getWorldWidth_pixels() const { return worldWidth_pixels_; }

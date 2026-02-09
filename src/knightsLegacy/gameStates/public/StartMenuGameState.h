@@ -3,9 +3,9 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include "AChoiEngine/input/public/Keyboard.h"
 #include "AChoiEngine/worldLayer/public/LdtkMapLoader.h"
-#include "AChoiEngine/worldLayer/public/Map.h"
+#include "AChoiEngine/worldLayer/public/MapObject.h"
 #include "AChoiEngine/worldLayer/public/TxtMapLoader.h"
-#include "AChoiEngine/gfx/public/AnimationComponent.h"
+#include "AChoiEngine/gfx/public/AnimationSys.h"
 
 class AudioManager;
 
@@ -45,7 +45,7 @@ public:
     SDL_FRect creditsTexRect = { 0 };
     bool creditsPressed = false;
 
-    ACE_Map backgroundMapLayer;
+    ACE_MapObject backgroundMapLayer;
 
     SDL_Texture* backgroundTex = nullptr;
     SDL_FRect backgroundTexRect = { 0 };

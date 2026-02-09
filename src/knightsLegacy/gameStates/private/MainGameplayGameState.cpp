@@ -5,9 +5,9 @@
 #include <string>
 #include <cstdint>
 #include <vector>
-#include "AChoiEngine/physics/public/OverlappingHitboxDetection.h"
-#include "AChoiEngine/physics/public/CollisionResponse.h"
-#include "AChoiEngine/ai/public/aiComponent.h"
+#include "AChoiEngine/physics/public/OverlappingHitboxDetectionSys.h"
+#include "AChoiEngine/physics/public/CollisionResponseSys.h"
+#include "AChoiEngine/ai/public/aiSys.h"
 #include "AChoiEngine/input/public/Keyboard.h"
 #include "AChoiEngine/camera/public/Camera.h"
 #include "knightsLegacy/core/public/GameManager.h"

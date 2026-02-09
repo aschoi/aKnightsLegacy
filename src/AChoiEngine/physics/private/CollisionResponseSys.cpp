@@ -1,5 +1,5 @@
-#include "AChoiEngine/physics/public/CollisionResponse.h"
-#include "AChoiEngine/physics/public/OverlappingHitboxDetection.h"
+#include "AChoiEngine/physics/public/CollisionResponseSys.h"
+#include "AChoiEngine/physics/public/OverlappingHitboxDetectionSys.h"
 #include "AChoiEngine/gameObject/public/GameObject.h"
 #include <vector>
 
