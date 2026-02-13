@@ -5,7 +5,7 @@
 
 class SDL_Renderer;
 
-enum class GameState {StartMenu, MainGameplay, Credits, Pause, CustomStateOne, CustomStateTwo, CustomStateThree};
+enum class GameState {StartMenu, MainGameplay, Credits, Pause, Test1, Test2, Test3, CustomStateOne, CustomStateTwo, CustomStateThree};
 
 class ACE_GameStateInterface {
 

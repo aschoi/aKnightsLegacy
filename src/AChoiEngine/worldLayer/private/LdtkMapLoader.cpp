@@ -1,4 +1,5 @@
 #include "AChoiEngine/worldLayer/public/LdtkMapLoader.h"
+#include <SDL3/SDL.h>
 #include <fstream>
 #include <stdexcept>
 #include <nlohmann/json.hpp>
@@ -24,12 +25,12 @@ namespace {
 LDTK_Project ACE_LoadProject(const char* ldtkPath) {
 
     LDTK_Project ldtk_project;
-
+    
     json j_project = LoadJsonFromFile(ldtkPath);
 
     ldtk_project.jsonVersion = j_project.value("jsonVersion", "");
 
-
+    
     json j_levels = j_project.value("levels", std::vector<json>{});
     for (const auto& j_lvl : j_levels) {
         

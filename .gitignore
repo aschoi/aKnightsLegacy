@@ -4,6 +4,11 @@ Build/
 build-*/
 cmake-build-*/
 
+# Third party
+third_party/    
+build_tracy/
+build_tracy/viewer
+
 # CMake generated files
 CMakeFiles/
 CMakeCache.txt

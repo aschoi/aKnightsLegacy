@@ -3,11 +3,12 @@
 #include <cstdint>
 #include "AChoiEngine/gfx/public/AnimationSys.h"
 #include "AChoiEngine/input/public/Keyboard.h"
-#include "AChoiEngine/camera/public/Camera.h"
 
 
 class ACE_MapObject;
 class ACE_TileMap;
+class ACE_Camera2D;
+class ACE_Camera2D_Center;
 
 class Player : public ACE_GameObject {
 
@@ -34,11 +35,8 @@ public:
 
     void UpdateFrame(uint64_t now_ms);
     void Render(SDL_Renderer* appR, ACE_Camera2D& cam) const;
-    float getPx();
-    float getPy();
-    float getPlayerHeight();
-    float getPlayerWidth();
-    bool canFire(float& duration, float& timer, float deltaTime);
+    void Render(SDL_Renderer* appR, ACE_Camera2D_Center& cam) const;
+
     uint64_t getSlideTimer();
     uint64_t getRollTimer();
     uint64_t getProjectileTimer();
@@ -49,6 +47,12 @@ public:
 
     void setInvincibleTimer(uint64_t newTime);
     void takesDamage(int dmgAmount);
+
+    uint64_t getSlide_remainCD();
+    uint64_t getRollCD_remainCD();
+    uint64_t getProjectile_remainCD();
+    uint64_t getInvincible_remainCD();
+    uint64_t getHammer_remainCD() const;
 
     Facing facing = Facing::Right;
     uint64_t stunnedTimer = 0;
@@ -69,28 +73,28 @@ private:
     // utility variables
     bool crouchActivated_ = false;
 
-    uint64_t INVINCIBLE_DURATION_ = 400;
-    uint64_t invincibleTimer_ = 0;
+    uint64_t INVINCIBLE_DURATION_ = 800;
+    uint64_t invincibleFinishTime_ = 0;
 
     // SLIDE rules
     float SLIDE_SPEED_ = 400.0f;
     uint64_t SLIDE_DURATION_ = 600;
-    uint64_t slideTimer_ = 0;
+    uint64_t slideAvailTime_ = 0;
 
     // STUN HAMMER rules
     float HAMMER_SPEED_ = 0.0f;
     uint64_t HAMMER_DURATION_ = 2000;
-    uint64_t hammerTimer_ = 0;
+    uint64_t hammerAvailTime_ = 0;
 
     // ROLL rules
     float ROLL_SPEED_ = 350.0f;
     uint64_t ROLL_DURATION_ = 1000;
-    uint64_t rollTimer_ = 0;
+    uint64_t rollAvailTime_ = 0;
 
     // PROJECTILE rules
     float PROJECTILE_SPEED_ = 0.0f;
     uint64_t PROJECTILE_DURATION_ = 3000;
-    uint64_t projectileTimer_ = 0;
+    uint64_t projectileAvailTime_ = 0;
 
 
     // Animations

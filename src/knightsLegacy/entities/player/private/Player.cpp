@@ -1,3 +1,5 @@
+#include "knightsLegacy/configs/configs.h"
+
 #include "knightsLegacy/entities/player/public/Player.h"
 #include <iostream>
 #include <string>
@@ -6,6 +8,8 @@
 #include "AChoiEngine/physics/public/OverlappingHitboxDetectionSys.h"
 #include "AChoiEngine/worldLayer/public/MapObject.h"
 #include "AChoiEngine/worldLayer/public/TxtMapLoader.h"
+#include "AChoiEngine/camera/public/CameraObject.h"
+#include "AChoiEngine/camera/public/CameraSys.h"
 #include "knightsLegacy/weapons/public/Projectile.h"
 #include "knightsLegacy/world/public/TileCatalog.h"
 #include "assets.h"
@@ -86,29 +90,30 @@ void Player::Shutdown() {
 }
 
 void Player::HandleEvent(Keys key) {
+    uint64_t now = SDL_GetTicks();
 
     if (key == Keys::Space) {
         attackPressed_ = true;
         playerAnimState_ = PlayerAnimState::Attack;
     }
-    if (key == Keys::Q && slideTimer_ <= 0) {
+    else if (key == Keys::Q && now >= slideAvailTime_) {
         slidePressed_ = true;
         playerAnimState_ = PlayerAnimState::Slide;
-        slideTimer_ = SLIDE_DURATION_;
+        slideAvailTime_ = now + SLIDE_DURATION_;
     }
-    if (key == Keys::W && hammerTimer_ <= 0) {
+    else if (key == Keys::W && now >= hammerAvailTime_) {
         hammerPressed_ = true;
-        hammerTimer_ = HAMMER_DURATION_;
+        hammerAvailTime_ = now + HAMMER_DURATION_;
     }
-    if (key == Keys::E && rollTimer_ <= 0) {
+    else if (key == Keys::E && now >= rollAvailTime_) {
         rollPressed_ = true;
         playerAnimState_ = PlayerAnimState::Roll;
-        rollTimer_ = ROLL_DURATION_;
+        rollAvailTime_ = now + ROLL_DURATION_;
     }
-    if (key == Keys::R && projectileTimer_ <= 0) {
+    else if (key == Keys::R && now >= projectileAvailTime_) {
         projectilePressed_ = true;
         playerAnimState_ = PlayerAnimState::Projectile;
-        projectileTimer_ = PROJECTILE_DURATION_;
+        projectileAvailTime_ =  now + PROJECTILE_DURATION_;
     } 
 }
 
@@ -356,6 +361,7 @@ void Player::UpdateFixed(double dt, const bool* keys, ACE_MapObject& curMap) {
 
     float vx = 0.0f;
     float vy = 0.0f;
+    uint64_t now = SDL_GetTicks();
 
     if (playerAnimState_ == PlayerAnimState::Slide) {
         set_speed_pixels(SLIDE_SPEED_);
@@ -407,6 +413,7 @@ void Player::UpdateFixed(double dt, const bool* keys, ACE_MapObject& curMap) {
     set_x_px(get_x_px() + vx * get_speed_pixels() * (float)dt);
     set_y_px(get_y_px() + vy * get_speed_pixels() * (float)dt);
 
+#ifdef PERF_TEST_OFF
     int tl = curMap.ACE_intGridType(get_x_px(), get_y_px());
     int tr = curMap.ACE_intGridType(get_x_px() + 8, get_y_px());
     int bl = curMap.ACE_intGridType(get_x_px(), get_y_px() + 36);
@@ -416,12 +423,14 @@ void Player::UpdateFixed(double dt, const bool* keys, ACE_MapObject& curMap) {
         set_x_px(oldX);
         set_y_px(oldY);
         if (tl == 2 || tr == 2 || bl == 2 || br == 2) {
-            if (getInvincibleTimer() <= 0) {
+            if (now >= getInvincibleTimer()) {
                 takesDamage(3);
                 setInvincibleTimer(getInvincibleDuration());
             }
         }
     }
+#endif
+
     set_center_px();
 
     set_x_gu(static_cast<int>(std::floor(get_x_px() / get_singleGU_sideLen_inPixels())));
@@ -456,22 +465,8 @@ void Player::UpdateFixed(double dt, const bool* keys, ACE_MapObject& curMap) {
 void Player::UpdateFrame(uint64_t now_ms) {
 
     if (get_alive_state() == AliveState::IsAlive) {
-        if (slideTimer_ > 0) {
-            slideTimer_ -= 1;
-        }
-        if (rollTimer_ > 0) {
-            rollTimer_ -= 1;
-        }
-        if (projectileTimer_ > 0) {
-            projectileTimer_ -= 1;
-        }
-        if (hammerTimer_ > 0) {
-            hammerTimer_ -= 1;
-        }
 
-
-        if (get_alive_state() == AliveState::IsAlive && invincibleTimer_ > 0) {
-            invincibleTimer_ -= 1;
+        if (invincibleFinishTime_ >= now_ms + INVINCIBLE_DURATION_) {
             ACE_StopAnimGif(playerIdle_);
             ACE_StopAnimGif(playerRun_);
             ACE_StopAnimGif(playerAttack_);
@@ -548,7 +543,8 @@ void Player::Render(SDL_Renderer* appR, ACE_Camera2D& cam) const {
     uint64_t now_ms = SDL_GetTicks();
     SDL_Texture* tex = nullptr;
 
-    if (invincibleTimer_ > 0) flashRed = true;
+    if (now_ms < invincibleFinishTime_ && invincibleFinishTime_ <= now_ms + INVINCIBLE_DURATION_)
+        flashRed = true;
 
     if (playerTakesHit_.playing)        tex = ACE_CurrentFrameGif(playerTakesHit_, now_ms);
     else if (playerProjectile_.playing) tex = ACE_CurrentFrameGif(playerProjectile_, now_ms);
@@ -586,15 +582,71 @@ void Player::Render(SDL_Renderer* appR, ACE_Camera2D& cam) const {
 
 }
 
-uint64_t Player::getSlideTimer() { return slideTimer_; }
-uint64_t Player::getRollTimer() { return rollTimer_; }
-uint64_t Player::getProjectileTimer() { return projectileTimer_; }
-uint64_t Player::getInvincibleTimer() { return invincibleTimer_; }
+void Player::Render(SDL_Renderer* appR, ACE_Camera2D_Center& cam) const {
+    const float halfW = playerIdle_.w * 0.5f;
+    const float halfH = playerIdle_.h * 0.5f;
+    bool flashRed = false;
+
+    SDL_FRect dst{
+        (get_x_px() - halfW),
+        (get_y_px() - halfH),
+        playerIdle_.w,
+        playerIdle_.h
+    };
+
+    uint64_t now_ms = SDL_GetTicks();
+    SDL_Texture* tex = nullptr;
+
+    if (now_ms < invincibleFinishTime_ && invincibleFinishTime_ <= now_ms + INVINCIBLE_DURATION_)
+        flashRed = true;
+
+    if (playerTakesHit_.playing)        tex = ACE_CurrentFrameGif(playerTakesHit_, now_ms);
+    else if (playerProjectile_.playing) tex = ACE_CurrentFrameGif(playerProjectile_, now_ms);
+
+    else if (playerAttack_.playing)     tex = ACE_CurrentFrameGif(playerAttack_, now_ms);
+    else if (playerAnimState_ == PlayerAnimState::Run)      tex = ACE_CurrentFrameGif(playerRun_, now_ms);
+    else if (playerAnimState_ == PlayerAnimState::Slide)    tex = ACE_CurrentFrameGif(playerSlide_, now_ms);
+    else if (playerAnimState_ == PlayerAnimState::Roll)     tex = ACE_CurrentFrameGif(playerRoll_, now_ms);
+    else tex = ACE_CurrentFrameGif(playerIdle_, now_ms);
+
+    if (!tex) return;
+
+    SDL_FlipMode flip = (facing == Facing::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+
+    if (flashRed) SDL_SetTextureColorModFloat(tex, 2.5f, 1.0f, 1.0f);
+
+    SDL_FRect screenDst = ACE_Cam_WorldToScreen(cam, dst);
+    SDL_RenderTextureRotated(appR, tex, nullptr, &screenDst, 0.0, nullptr, flip);
+
+    if (flashRed) SDL_SetTextureColorModFloat(tex, 1.0f, 1.0f, 1.0f);
+
+
+    // DEBUG COLLISIONS
+    /*SDL_FRect hitboxHighlightDst{ get_hitbox_x_px(HitboxType::UtilityRange1), get_hitbox_y_px(HitboxType::UtilityRange1),
+                                  get_hitbox_w_pixels(HitboxType::UtilityRange1), get_hitbox_h_pixels(HitboxType::UtilityRange1) };
+    SDL_FRect screenHitboxDst = cam.WorldToScreen(hitboxHighlightDst);
+    SDL_SetRenderDrawColor(appR, 0, 255, 0, 40);
+    SDL_RenderFillRect(appR, &screenHitboxDst);*/
+
+    /*SDL_FRect hitboxHighlight2Dst{ get_hitbox_x_px(HitboxType::BodyHitbox), get_hitbox_y_px(HitboxType::BodyHitbox),
+                              get_hitbox_w_pixels(HitboxType::BodyHitbox), get_hitbox_h_pixels(HitboxType::BodyHitbox) };
+    SDL_FRect screenHitbox2Dst = cam.WorldToScreen(hitboxHighlight2Dst);
+    SDL_SetRenderDrawColor(appR, 0, 0, 255, 40);
+    SDL_RenderFillRect(appR, &screenHitbox2Dst);*/
+}
+
+
+uint64_t Player::getSlideTimer() { return slideAvailTime_; }
+uint64_t Player::getRollTimer() { return rollAvailTime_; }
+uint64_t Player::getProjectileTimer() { return projectileAvailTime_; }
+uint64_t Player::getInvincibleTimer() { return invincibleFinishTime_; }
 uint64_t Player::getInvincibleDuration() { return INVINCIBLE_DURATION_; }
-uint64_t Player::getHammerTimer() const { return hammerTimer_; }
+uint64_t Player::getHammerTimer() const { return hammerAvailTime_; }
 int Player::getPlayerHealth() const { return health_; }
 
-void Player::setInvincibleTimer(uint64_t newTime) { invincibleTimer_ = newTime; }
+
+void Player::setInvincibleTimer(uint64_t duration) { invincibleFinishTime_ = SDL_GetTicks() + duration; }
+
 
 void Player::takesDamage(int dmgAmount) {
     health_ -= dmgAmount;
@@ -604,5 +656,29 @@ void Player::takesDamage(int dmgAmount) {
 }
 
 
-
+uint64_t Player::getSlide_remainCD() {
+    uint64_t now = SDL_GetTicks();
+    if (now >= slideAvailTime_) return 0;
+    return slideAvailTime_ - now;
+}   
+uint64_t Player::getRollCD_remainCD() {
+    uint64_t now = SDL_GetTicks();
+    if (now >= rollAvailTime_) return 0;
+    return rollAvailTime_ - now;
+}
+uint64_t Player::getProjectile_remainCD() {
+    uint64_t now = SDL_GetTicks();
+    if (now >= projectileAvailTime_) return 0;
+    return projectileAvailTime_ - now;
+}
+uint64_t Player::getInvincible_remainCD() {
+    uint64_t now = SDL_GetTicks();
+    if (now >= invincibleFinishTime_) return 0;
+    return invincibleFinishTime_ - now;
+}
+uint64_t Player::getHammer_remainCD() const {
+    uint64_t now = SDL_GetTicks();
+    if (now >= hammerAvailTime_) return 0;
+    return hammerAvailTime_ - now;
+}
     

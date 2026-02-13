@@ -5,6 +5,10 @@
 #include "AChoiEngine/worldLayer/public/LdtkMapLoader.h"
 #include "AChoiEngine/worldLayer/public/MapObject.h"
 #include "AChoiEngine/worldLayer/public/TxtMapLoader.h"
+#include "AChoiEngine/camera/public/CameraObject.h"
+#include "AChoiEngine/camera/public/CameraSys.h"
+#include "AChoiEngine/camera/public/Camera.h"
+
 
 class ACE_GameObject;
 class AudioManager;
@@ -46,6 +50,8 @@ public:
     SDL_Color blackColor{ 0, 0, 0, 255 };
     std::vector<SDL_Texture*> arrowTexures;
     
+    int entityCount = 0;
+    int skeletonCount = 0;
 
 protected:
 
@@ -72,10 +78,16 @@ private:
     
     Hud* hudLayer_ = nullptr;
     ACE_Camera2D cam;
+    ACE_Camera2D_Center camCenter;
     
     std::vector<std::vector<int>> costMap;
     std::vector<std::vector<std::pair<int, int>>> vectorMap;
 
+    
     std::vector<ACE_GameObject*> entitiesList_;
+
+    std::vector<Skeleton*> skeletonsList_;
+
+
 
 };  

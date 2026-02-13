@@ -18,8 +18,8 @@ enum class HitboxType { BodyHitbox, AttackRange, StartAttackRange1, AwarenessRan
 
 
 struct ACE_yxhw_px {
-    float yPos_px_;        // y coordinate based on PIXEL coordinate system
-    float xPos_px_;        // x coordinate based on PIXEL coordinate system
+    float yPos_px_;     // y coordinate based on PIXEL coordinate system
+    float xPos_px_;     // x coordinate based on PIXEL coordinate system
     float h_pixels_;    // height of object based on PIXEL measurement system
     float w_pixels_;    // width of object based on PIXEL measurement system
 };
@@ -66,20 +66,6 @@ constexpr std::array<std::pair<int, int>, 8> DIRS{ {
     {-1, -1}} // NW
 };
 
-/*
-ACE_GameObject(
-    ObjectType type, AliveState aliveState,
-    yxwh_px obj_yxwh_pixel, yxwh_gu obj_yxwh_gUnits, yxwh_px anim_yxwh_pixel,
-    float app_w_pixels, float app_h_pixels, float world_w_pixels, float world_h_pixels,
-    int guSideLen_inPixels,
-    float speed_pixels = 0, float direction = 1, int health = 0, int damage = 0)
-    : type_(type), aliveState_(aliveState),
-    obj_x_px_(obj_x_px), obj_y_px_(obj_y_px), obj_w_pixels_(obj_w_pixels), obj_h_pixels_(obj_h_pixels),
-    app_w_pixels_(app_w_pixels), app_h_pixels_(app_h_pixels), world_w_pixels_(world_w_pixels), world_h_pixels_(world_h_pixels),
-    obj_w_gridUnits_(obj_w_gridUnits), obj_h_gridUnits_(obj_h_gridUnits), guSideLen_inPixels_(guSideLen_inPixels),
-    speed_pixels_(speed_pixels), direction_(direction), health_(health), damage_(damage) {
-}
-*/
 
 class ACE_GameObject {
 public:

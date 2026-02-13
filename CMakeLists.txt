@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.24)
 project(aKnightsLegacy LANGUAGES CXX)
+include(FetchContent)
+
+option(ENABLE_TRACY "Enable Tracy profiling" OFF)
 
 if (MSVC)
   set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
@@ -26,13 +29,13 @@ add_executable(aKnightsLegacy
 	"src/AChoiEngine/gameObject/private/GameObject.cpp"
 	"src/AChoiEngine/gfx/private/AnimationSys.cpp" 
 	"src/AChoiEngine/physics/private/OverlappingHitboxDetectionSys.cpp" 
-	 "src/AChoiEngine/physics/private/CollisionResponseSys.cpp"
-	"src/AChoiEngine/utilities/private/Timer.cpp" 
-	"src/AChoiEngine/AI/private/aiSys.cpp" 
+	"src/AChoiEngine/physics/private/CollisionResponseSys.cpp"
+	"src/AChoiEngine/AI/private/aiPathfindingSys.cpp" 
 	"src/AChoiEngine/worldLayer/private/LdtkMapLoader.cpp" 
 	"src/AChoiEngine/worldLayer/private/MapObject.cpp" 
 	"src/AChoiEngine/worldLayer/private/TxtMapLoader.cpp"
 	"src/AChoiEngine/render/private/RenderSys.cpp"
+	"src/AChoiEngine/camera/private/CameraSys.cpp"
 	"src/knightsLegacy/core/private/App.cpp"
 	"src/knightsLegacy/core/private/GameManager.cpp"
 	"src/knightsLegacy/gameStates/private/CreditsGameState.cpp"
@@ -46,7 +49,23 @@ add_executable(aKnightsLegacy
 	"src/knightsLegacy/weapons/private/Stun.cpp" 
 	"src/knightsLegacy/hud/private/Hud.cpp" 
 	"src/knightsLegacy/audioManager/private/AudioManager.cpp"
+	"src/knightsLegacy/perfTests/TestplayGameState.cpp"  
+	"src/knightsLegacy/entities/enemies/private/SkeletonBehavior.cpp"
+	"src/knightsLegacy/entities/player/private/PlayerMovementSys.cpp"
 	"src/assets.cpp")
+
+
+if(ENABLE_TRACY)
+	FetchContent_Declare(tracy
+		GIT_REPOSITORY https://github.com/wolfpld/tracy.git
+		GIT_TAG master
+		GIT_SHALLOW TRUE
+		GIT_PROGRESS TRUE
+	)
+	FetchContent_MakeAvailable(tracy)	
+	target_link_libraries(aKnightsLegacy PRIVATE TracyClient)
+	target_compile_definitions(aKnightsLegacy PRIVATE TRACY_ENABLE)	
+endif()
 
 
 target_compile_definitions(aKnightsLegacy PRIVATE SHOW_VECTOR_MAP=0)
@@ -60,23 +79,24 @@ target_link_libraries(aKnightsLegacy PRIVATE
 	nlohmann_json::nlohmann_json
 )
 
-if (SDL3_mixer_FOUND)
-  target_link_libraries(aKnightsLegacy PRIVATE SDL3_mixer::SDL3_mixer)
-else()
-  include(FetchContent)
-  FetchContent_Declare(SDL3_mixer_src
-    GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
-    GIT_TAG prerelease-3.1.2
-  )
-  FetchContent_MakeAvailable(SDL3_mixer_src)
 
-  target_link_libraries(aKnightsLegacy PRIVATE SDL3_mixer::SDL3_mixer)
+
+if (SDL3_mixer_FOUND)
+  	target_link_libraries(aKnightsLegacy PRIVATE SDL3_mixer::SDL3_mixer)
+else()
+  	FetchContent_Declare(SDL3_mixer_src
+    		GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
+    		GIT_TAG prerelease-3.1.2
+  	)
+  	FetchContent_MakeAvailable(SDL3_mixer_src)
+  	target_link_libraries(aKnightsLegacy PRIVATE SDL3_mixer::SDL3_mixer)
 endif()
 
+
 if (WIN32)
-  add_custom_command(TARGET aKnightsLegacy POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:aKnightsLegacy>
+	add_custom_command(TARGET aKnightsLegacy POST_BUILD
+    	COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:aKnightsLegacy>
             $<TARGET_RUNTIME_DLLS:aKnightsLegacy>
-    COMMAND_EXPAND_LISTS
-  )
+    	COMMAND_EXPAND_LISTS
+  	)
 endif()

@@ -5,6 +5,8 @@
 #include "AChoiEngine/worldLayer/public/TxtMapLoader.h"
 #include "knightsLegacy/core/public/GameManager.h"
 #include "knightsLegacy/world/public/TileCatalog.h"
+#include "AChoiEngine/camera/public/CameraObject.h"
+#include "AChoiEngine/camera/public/CameraSys.h"
 #include "assets.h"
 
 

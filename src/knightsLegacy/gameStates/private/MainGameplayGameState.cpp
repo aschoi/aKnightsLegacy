@@ -1,15 +1,21 @@
-#pragma once
+#include "knightsLegacy/configs/configs.h"
+
 #include "knightsLegacy/gameStates/public/MainGameplayGameState.h"
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <string>
 #include <cstdint>
 #include <vector>
+#include <random>
+#include <unordered_set>
+#include <stdexcept>
 #include "AChoiEngine/physics/public/OverlappingHitboxDetectionSys.h"
 #include "AChoiEngine/physics/public/CollisionResponseSys.h"
-#include "AChoiEngine/ai/public/aiSys.h"
+#include "AChoiEngine/ai/public/aiPathfindingSys.h"
 #include "AChoiEngine/input/public/Keyboard.h"
 #include "AChoiEngine/camera/public/Camera.h"
+#include "AChoiEngine/camera/public/CameraSys.h"
+#include "AChoiEngine/camera/public/CameraObject.h"
 #include "knightsLegacy/core/public/GameManager.h"
 #include "knightsLegacy/audioManager/public/audioManager.h"
 #include "knightsLegacy/entities/player/public/Player.h"
@@ -19,6 +25,13 @@
 #include "knightsLegacy/hud/public/Hud.h"
 #include "knightsLegacy/world/public/TileCatalog.h"
 #include "assets.h"
+
+#ifdef PERF_TEST_OFF
+
+static uint64_t packXY(int x, int y) {
+    // Pack two 32-bit signed ints into 64-bit key (stable for hashing).
+    return (uint64_t)(uint32_t)x << 32 | (uint32_t)y;
+}
 
 
 bool MainGameplayGameState::ACE_Init(SDL_Renderer* appR, float appW_pixels, float appH_pixels, int tileSizeAsInt, float tileSizeAsFloat) {
@@ -49,7 +62,72 @@ bool MainGameplayGameState::Init(SDL_Renderer* appR, AudioManager* audMan, float
     playerLayer_ = new Player(appW_pixels_ * 0.5f, appH_pixels_ * 0.5f, 3.0f, 3.0f, appW_pixels_, appH_pixels_, world_level1_w_, world_level1_h_,
                                 7, 5, tileSizeAsInt_, 0, 0, 5, 1);
     playerLayer_->Init(appR, appW_pixels_ *0.5f, appH_pixels_ *0.5f);
+    entityCount += 1;
+    
+#ifdef RANDOM_ENEMY_SPAWN_ON
+    // INSTANTIATE SKELETON AND INTIS
+    skeletonCount = 20;
+    entityCount += skeletonCount;
+    
+    uint32_t seed = std::random_device{}();
+    std::mt19937 rng(seed);
+    std::uniform_int_distribution<int> distX(2, newMapLayer_.getWorldWidth_gridUnits() - 5);
+    std::uniform_int_distribution<int> distY(2, newMapLayer_.getWorldHeight_gridUnits() - 5);
+    std::unordered_set<uint64_t> usedGrids;
+    usedGrids.reserve((size_t)skeletonCount * 2);
 
+    for (int r = playerLayer_->get_y_gu() - 3; r < playerLayer_->get_y_gu() + playerLayer_->get_h_gridUnits() + 3; r++) {
+        for (int c = playerLayer_->get_x_gu() - 3; c < playerLayer_->get_x_gu() + playerLayer_->get_w_gridUnits() + 3; c++) {
+            uint64_t key = packXY(c, r);
+            usedGrids.insert(key);
+        }
+    }
+
+    int curCount = 0;
+    const int maxAttempts = skeletonCount * 200; // tune as you like
+    int attempts = 0;
+    while (curCount < skeletonCount && attempts < maxAttempts) {
+        ++attempts;
+
+        int tx = distX(rng);
+        int ty = distY(rng);
+
+        bool goodToGo = true;
+        for (int r = ty; r < ty + 2; ++r) {
+            for (int c = tx; c < tx + 2; ++c) {
+                if (newMapLayer_.ACE_intGridType(c * tileSizeAsFloat_, r * tileSizeAsFloat_) == 1
+                    || usedGrids.contains(packXY(c, r))) {
+                    goodToGo = false;
+                    break;
+                }
+            }
+        }
+        if (!goodToGo) continue;
+        for (int r = ty; r < ty + 2; ++r) {
+            for (int c = tx; c < tx + 2; ++c) {
+                uint64_t key = packXY(c, r);
+                usedGrids.insert(key);
+            }
+        }
+
+        Skeleton* skeleton_ = new Skeleton(tx * tileSizeAsFloat, ty * tileSizeAsFloat, 2.0f, 2.0f, appW_pixels_, appH_pixels_, world_level1_w_, world_level1_h_,
+            2, 2, tileSizeAsInt_, 0, 0, 5, 1);    
+        std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+        Intelligence iq = Intelligence::Dumb;
+        if (dist(rng) < 0.30f) {
+            iq = Intelligence::Smart;
+        }
+        skeleton_->Init(appR, tx * tileSizeAsFloat, ty * tileSizeAsFloat, Facing::Right, iq, 4);
+        
+        if (dist(rng) < 0.10f) {
+            skeleton_->curMood = Mood::Pissed;
+        }
+        skeletonsList_.push_back(skeleton_);
+        ++curCount;
+    }
+#endif
+
+#ifdef RANDOM_ENEMY_SPAWN_OFF
     // INSTANTIATE SKELETON AND INTIS
     // One skely in top left room - Dumb AI
     skeletonOne_ = new Skeleton(appW_pixels_ * 5.0f, appH_pixels_ * 5.0f, 2.0f, 2.0f, appW_pixels_, appH_pixels_, world_level1_w_, world_level1_h_, 
@@ -82,6 +160,8 @@ bool MainGameplayGameState::Init(SDL_Renderer* appR, AudioManager* audMan, float
     skeletonSeven_ = new Skeleton(appW_pixels_ * 5.0f, appH_pixels_ * 5.0f, 2.0f, 2.0f, appW_pixels_, appH_pixels_, world_level1_w_, world_level1_h_,
         2, 2, tileSizeAsInt_, 0, 0, 5, 1);
     skeletonSeven_->Init(appR, appW_pixels_ * 1.13f, appH_pixels_ * 2.23f, Facing::Left, Intelligence::Smart, 7);
+    entityCount += 7;
+#endif
 
     // INSTANTIATE ULT
     projectileLayer_ = new SwordWaveProjectile(0, 0, 3.0f, 3.0f, appW_pixels_, appH_pixels_, world_level1_w_, world_level1_h_, 
@@ -91,14 +171,29 @@ bool MainGameplayGameState::Init(SDL_Renderer* appR, AudioManager* audMan, float
                             8, 8, tileSizeAsInt_, 0, 0, 0, 1);
 
     // Set Camera parameters
+
     cam.ACE_SetViewport(appW_pixels_, appH_pixels_);
     cam.ACE_SetWorldBounds(world_level1_w_, world_level1_h_);
 
+    ACE_Cam_SetScreenSize(camCenter, appW_pixels_, appH_pixels_);
+
+    ACE_Cam_SetViewport(camCenter, appW_pixels_, appH_pixels_);
+    ACE_Cam_SetWorldBounds(camCenter, world_level1_w_, world_level1_h_);
+
     // Instantiate hud and init with parameters
     hudLayer_ = new Hud();
-    hudLayer_->Init(appR, appW_pixels_, appH_pixels_, cam, *playerLayer_);
+    //hudLayer_->Init(appR, appW_pixels_, appH_pixels_, cam, *playerLayer_);
+    hudLayer_->Init(appR, appW_pixels_, appH_pixels_, camCenter, *playerLayer_);
 
-    entitiesList_.reserve(16);
+#ifdef RANDOM_ENEMY_SPAWN_ON
+    entitiesList_.reserve(entityCount * 2);
+    for (Skeleton* s : skeletonsList_) {
+        entitiesList_.push_back(s);
+    }
+#endif
+
+#ifdef RANDOM_ENEMY_SPAWN_OFF
+    entitiesList_.reserve(entityCount * 2);
     entitiesList_.push_back(skeletonOne_);
     entitiesList_.push_back(skeletonTwo_);
     entitiesList_.push_back(skeletonThree_);
@@ -106,14 +201,16 @@ bool MainGameplayGameState::Init(SDL_Renderer* appR, AudioManager* audMan, float
     entitiesList_.push_back(skeletonFive_);
     entitiesList_.push_back(skeletonSix_);
     entitiesList_.push_back(skeletonSeven_);
+#endif
+
     entitiesList_.push_back(playerLayer_);
 
     audioManager_->ACE_LoadPlayMusic(BackgroundMusic::MainGameplay);
     
 
-    #if SHOW_VECTOR_MAP
-        buildArrows();
-    #endif
+#if SHOW_VECTOR_MAP
+    buildArrows();
+#endif
 
     return true;
 }
@@ -136,6 +233,7 @@ void MainGameplayGameState::ACE_Shutdown() {
         stunLayer_ = nullptr; 
     }
 
+#ifdef RANDOM_ENEMY_SPAWN_OFF
     if (skeletonOne_) {
         skeletonOne_->Shutdown();
         delete skeletonOne_;
@@ -171,6 +269,17 @@ void MainGameplayGameState::ACE_Shutdown() {
         delete skeletonSeven_;
         skeletonSeven_ = nullptr;
     }
+#endif
+
+#ifdef RANDOM_ENEMY_SPAWN_ON
+    for (Skeleton* s : skeletonsList_) {
+        if (s) {
+            s->Shutdown();
+            delete s;
+            s = nullptr;
+        }
+    }
+#endif
 
     if (playerLayer_) { 
         playerLayer_->Shutdown(); 
@@ -190,28 +299,26 @@ void MainGameplayGameState::ACE_Shutdown() {
 
 void MainGameplayGameState::ACE_HandleEvent(Keys keyPress) {
 
+    uint64_t now = SDL_GetTicks();
+
     if (keyPress == Keys::Space) {
         playerLayer_->HandleEvent(Keys::Space);
         audioManager_->loadQ(SoundFX::Swipe);
     }
     else if (keyPress == Keys::Q) {
         playerLayer_->HandleEvent(Keys::Q);
-
     }
-    else if (keyPress == Keys::W && playerLayer_->getHammerTimer() <= 0) {
+    else if (keyPress == Keys::W && now >= playerLayer_->getHammerTimer()) {
         playerLayer_->HandleEvent(Keys::W);
         stunLayer_->HandleEvent(Keys::W);       
     }
     else if (keyPress == Keys::E) {
         playerLayer_->HandleEvent(Keys::E);
-
     }
-
-    else if (keyPress == Keys::R && playerLayer_->getProjectileTimer() <= 0) {
+    else if (keyPress == Keys::R && now >= playerLayer_->getProjectileTimer()) {
         playerLayer_->HandleEvent(Keys::R);
         projectileLayer_->HandleEvent(Keys::R);
         audioManager_->loadQ(SoundFX::Ult);
-
     }
 }
 
@@ -219,6 +326,7 @@ void MainGameplayGameState::ACE_UpdateFixed(double dt, const bool* kKeys) {
 
     ACE_basicAllEntitiesCollisionResolution(entitiesList_);
 
+#ifdef RANDOM_ENEMY_SPAWN_OFF
     SkeletonBehavior(skeletonOne_);
     SkeletonBehavior(skeletonTwo_);
     SkeletonBehavior(skeletonThree_);
@@ -226,6 +334,13 @@ void MainGameplayGameState::ACE_UpdateFixed(double dt, const bool* kKeys) {
     SkeletonBehavior(skeletonFive_);   
     SkeletonBehavior(skeletonSix_);
     SkeletonBehavior(skeletonSeven_);  
+#endif
+
+#ifdef RANDOM_ENEMY_SPAWN_ON
+    for (Skeleton* s : skeletonsList_) {
+        SkeletonBehavior(s);
+    }
+#endif
 
     // Projectile is charged, Animation starts
     if (projectileLayer_->ProjectileState == WeaponState::ReadyForLaunch) {
@@ -246,6 +361,7 @@ void MainGameplayGameState::ACE_UpdateFixed(double dt, const bool* kKeys) {
     //playerLayer_->UpdateFixed(dt, kKeys, floorLayer_);
     playerLayer_->UpdateFixed(dt, kKeys, newMapLayer_);
 
+#ifdef RANDOM_ENEMY_SPAWN_OFF
     skeletonOne_->UpdateFixed(dt, kKeys);
     skeletonTwo_->UpdateFixed(dt, kKeys);
     skeletonThree_->UpdateFixed(dt, kKeys);
@@ -253,23 +369,31 @@ void MainGameplayGameState::ACE_UpdateFixed(double dt, const bool* kKeys) {
     skeletonFive_->UpdateFixed(dt, kKeys);
     skeletonSix_->UpdateFixed(dt, kKeys);
     skeletonSeven_->UpdateFixed(dt, kKeys);
+#endif
+
+#ifdef RANDOM_ENEMY_SPAWN_ON
+    for (Skeleton* s : skeletonsList_) {
+        s->UpdateFixed(dt, kKeys);
+    }
+#endif
 
     projectileLayer_->UpdateFixed(dt, kKeys);
     stunLayer_->UpdateFixed(dt, kKeys);
     hudLayer_->ACE_UpdateFixed(dt, kKeys);
 
-    cam.ACE_Follow(playerLayer_->get_x_px(), playerLayer_->get_y_px());
+    //cam.ACE_Follow(playerLayer_->get_x_px(), playerLayer_->get_y_px());
+    ACE_Cam_FollowCenter(camCenter, *playerLayer_);
 
     tempTimer -= 1;
     if (tempTimer <= 0) {
         tempTimer = 30;
         //costMap = CreateCostMap(floorLayer_, *playerLayer_, GetTileCatalog());
         //vectorMap = CreateVectorMap(floorLayer_, costMap);
-        costMap = ACE_CreateCostMap(newMapLayer_, *playerLayer_);
-        vectorMap = ACE_CreateVectorMap(newMapLayer_, costMap);
+        costMap = ACE_createCostMap(newMapLayer_, *playerLayer_);
+        vectorMap = ACE_createVectorMap(newMapLayer_, costMap);
     }
-    
 
+#ifdef RANDOM_ENEMY_SPAWN_OFF
     if (newMapLayer_.ACE_intGridType(playerLayer_->get_x_px(), playerLayer_->get_y_px()) == 4) {
         skeletonSeven_->curMood = Mood::Pissed;
     }
@@ -277,6 +401,7 @@ void MainGameplayGameState::ACE_UpdateFixed(double dt, const bool* kKeys) {
         skeletonFive_->curMood = Mood::Pissed;
         skeletonSix_->curMood = Mood::Pissed;
     }
+#endif
 
 }
 
@@ -285,6 +410,7 @@ void MainGameplayGameState::ACE_UpdateFrame(uint64_t now_ms) {
 
     playerLayer_->UpdateFrame(SDL_GetTicks());
 
+#ifdef RANDOM_ENEMY_SPAWN_OFF
     skeletonOne_->UpdateFrame(SDL_GetTicks());
     skeletonTwo_->UpdateFrame(SDL_GetTicks());
     skeletonThree_->UpdateFrame(SDL_GetTicks());
@@ -292,6 +418,13 @@ void MainGameplayGameState::ACE_UpdateFrame(uint64_t now_ms) {
     skeletonFive_->UpdateFrame(SDL_GetTicks());
     skeletonSix_->UpdateFrame(SDL_GetTicks());
     skeletonSeven_->UpdateFrame(SDL_GetTicks());
+#endif
+
+#ifdef RANDOM_ENEMY_SPAWN_ON
+    for (Skeleton* s : skeletonsList_) {
+        s->UpdateFrame(SDL_GetTicks());
+    }
+#endif
 
     projectileLayer_->UpdateFrame(SDL_GetTicks());
     stunLayer_->UpdateFrame(SDL_GetTicks());
@@ -303,30 +436,41 @@ void MainGameplayGameState::ACE_Render(SDL_Renderer* appR) {
     //baseLayer_.ACE_Render(appR, cam);
     //floorLayer_.ACE_Render(appR, cam);
 
-    newMapLayer_.ACE_Render(appR, cam);
-    
-    skeletonOne_->Render(appR, cam);
-    skeletonTwo_->Render(appR, cam);
-    skeletonThree_->Render(appR, cam);
-    skeletonFour_->Render(appR, cam);
-    skeletonFive_->Render(appR, cam);
-    skeletonSix_->Render(appR, cam);
-    skeletonSeven_->Render(appR, cam);
+    newMapLayer_.ACE_Render(appR, camCenter);
 
-    stunLayer_->Render(appR, cam);
-    playerLayer_->Render(appR, cam);
-    projectileLayer_->Render(appR, cam);
-    hudLayer_->ACE_Render(appR, cam);
+#ifdef RANDOM_ENEMY_SPAWN_OFF
+    skeletonOne_->Render(appR, camCenter);
+    skeletonTwo_->Render(appR, camCenter);
+    skeletonThree_->Render(appR, camCenter);
+    skeletonFour_->Render(appR, camCenter);
+    skeletonFive_->Render(appR, camCenter);
+    skeletonSix_->Render(appR, camCenter);
+    skeletonSeven_->Render(appR, camCenter);
+#endif
 
-    #if SHOW_VECTOR_MAP
-        ACE_RenderArrows(appR, cam, arrowTexures, newMapLayer_, tileSizeAsFloat_, vectorMap);
-    #endif
+#ifdef RANDOM_ENEMY_SPAWN_ON
+    for (Skeleton* s : skeletonsList_) {
+        s->Render(appR, camCenter);
+    }
+#endif
+
+    stunLayer_->Render(appR, camCenter);
+    playerLayer_->Render(appR, camCenter);
+    projectileLayer_->Render(appR, camCenter);
+    hudLayer_->ACE_Render(appR, camCenter);
+
+
+#if SHOW_VECTOR_MAP
+    ACE_renderArrows(appR, cam, arrowTexures, newMapLayer_, tileSizeAsFloat_, vectorMap);
+#endif
 
 }
 
 
 void MainGameplayGameState::SkeletonBehavior(Skeleton* curSkeleton_) {
     
+    uint64_t now = SDL_GetTicks();
+
     if (curSkeleton_->get_alive_state() == AliveState::IsAlive) {
 
         // IF Player hits Skeleton
@@ -371,16 +515,18 @@ void MainGameplayGameState::SkeletonBehavior(Skeleton* curSkeleton_) {
             }
 
             // IF Skeleton hits Player
-            if (ACE_checkCollision(*curSkeleton_, HitboxType::AttackRange, *playerLayer_, HitboxType::BodyHitbox) && playerLayer_->getInvincibleTimer() <= 0) {
+            if (ACE_checkCollision(*curSkeleton_, HitboxType::AttackRange, *playerLayer_, HitboxType::BodyHitbox) && now >= playerLayer_->getInvincibleTimer()) {
                 playerLayer_->setInvincibleTimer(playerLayer_->getInvincibleDuration());
                 playerLayer_->takesDamage(1);
             }
+
+
             // IF you ulted the skeleton, it will follow you forever.
             if (curSkeleton_->curMood == Mood::Pissed) {
                 if (playerLayer_->get_x_px() > curSkeleton_->get_x_px()) curSkeleton_->facing = Facing::Right;
                 else curSkeleton_->facing = Facing::Left;
                 //ACE_smartFollow(curSkeleton_, floorLayer_, vectorMap, costMap);
-                ACE_smartFollow(curSkeleton_, newMapLayer_, vectorMap, costMap);
+                ACE_smartFollow_vecField(curSkeleton_, newMapLayer_, vectorMap, costMap);
                 
             }
         }
@@ -409,3 +555,4 @@ void MainGameplayGameState::buildArrows() {
     }
 }
 
+#endif

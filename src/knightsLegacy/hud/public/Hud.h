@@ -8,6 +8,7 @@
 
 
 class ACE_Camera2D;
+class ACE_Camera2D_Center;
 class Player;
 class TTF_Font;
 
@@ -15,6 +16,8 @@ class Hud : public ACE_HudInterface {
 public:
 
 	bool ACE_Init(SDL_Renderer* r, float appW_pixels, float appH_pixels, ACE_Camera2D& cam) override;
+	bool Init(SDL_Renderer* r, float appW_pixels, float appH_pixels, ACE_Camera2D_Center& cam, Player& p);
+
 	bool Init(SDL_Renderer* r, float appW_pixels, float appH_pixels, ACE_Camera2D& cam, Player& p);
 	void ACE_Shutdown() override;
 	void ACE_HandleEvent(Keys key, SDL_Renderer* r) override;
@@ -22,6 +25,8 @@ public:
 	void ACE_UpdateFrame(uint64_t now_ms) override;
 	void UpdateFrame(uint64_t now_ms, Player& p);
 	void ACE_Render(SDL_Renderer* r, ACE_Camera2D& cam) override;
+	void ACE_Render(SDL_Renderer* r, ACE_Camera2D_Center& cam) override;
+
 	void ACE_SetLineText(int i, const std::string& s) override;
 
 	SDL_Renderer* appR = nullptr;

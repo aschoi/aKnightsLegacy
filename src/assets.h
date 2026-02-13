@@ -75,6 +75,13 @@ const std::string map1 = "assets/levels/level_1/map1.txt";
 const std::string jsonLevel1 = "assets/levels/level_1/Level1.ldtk";
 const std::string jsonLevel1v2 = "assets/levels/level_1/level1_v2.ldtk";
 
+// PERF TEST MAPS
+const std::string emptyMap1824x1824 = "assets/levels/perf_tests/1824x1824_empty_map.ldtk";
+const std::string emptyMap3008x3008 = "assets/levels/perf_tests/3008x3008_empty_map.ldtk";
+const std::string wallsMap3008x3008 = "assets/levels/perf_tests/3008x3008_walls_map.ldtk";
+const std::string emptyMap4096x4096 = "assets/levels/perf_tests/4096x4096_empty_map.ldtk";
+
+
 // SFX
 const std::string sfxSwipe = "assets/audio/swipe.wav";
 const std::string uiConfirm = "assets/audio/sci_fi_confirm.wav";
@@ -86,6 +93,9 @@ const std::string sfxSplatPath = "assets/audio/crunch_splat.wav";
 // MUSIC
 const std::string music1 = "assets/audio/music/Action_1_(Loop).wav";
 const std::string music2 = "assets/audio/music/Action_3_(Loop).wav";
+
+
+
 
 
 const std::vector<std::string> arrowPaths{

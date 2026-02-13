@@ -6,6 +6,7 @@
 #include "AChoiEngine/worldLayer/public/MapObject.h"
 #include "AChoiEngine/worldLayer/public/TxtMapLoader.h"
 #include "AChoiEngine/gfx/public/AnimationSys.h"
+#include "AChoiEngine/camera/public/Camera.h"
 
 class AudioManager;
 

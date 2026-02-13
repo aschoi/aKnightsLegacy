@@ -12,7 +12,6 @@
 #include "knightsLegacy/audioManager/public/AudioManager.h"
 
 
-// If you store pointers to game states:
 class MainGameplayGameState;
 
 class GameManager {

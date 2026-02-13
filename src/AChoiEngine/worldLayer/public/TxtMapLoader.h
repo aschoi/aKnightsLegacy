@@ -3,6 +3,8 @@
 #include <string>
 #include "AChoiEngine/camera/public/Camera.h"
 
+class ACE_Camera2D;
+
 struct ACE_TileDef {
     int sheetIndex;
     float sheetX;

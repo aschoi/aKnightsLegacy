@@ -5,6 +5,7 @@
 #include "AChoiEngine/input/public/Keyboard.h"
 
 class ACE_Camera2D;
+class ACE_Camera2D_Center;
 
 struct ACE_HudLine {
 	SDL_Texture* tex = nullptr;
@@ -29,6 +30,8 @@ public:
 	virtual void ACE_UpdateFrame(uint64_t now_ms) = 0;
 
 	virtual void ACE_Render(SDL_Renderer* r, ACE_Camera2D& cam) = 0;
+	virtual void ACE_Render(SDL_Renderer* r, ACE_Camera2D_Center& cam) = 0;
+
 
 	virtual void ACE_SetLineText(int i, const std::string& s) = 0;
 

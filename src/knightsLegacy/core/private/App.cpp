@@ -1,11 +1,17 @@
+#include "knightsLegacy/configs/configs.h"
+
 #include "knightsLegacy/core/public/App.h"
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <SDL3_mixer/SDL_mixer.h>
 #include <cstdint>
 #include "knightsLegacy/core/public/GameManager.h"
-#include "knightsLegacy/debug/DebugConfigGame.h"
 #include "assets.h"
+
+#if defined(TRACY_ENABLE)
+#include <tracy/Tracy.hpp>
+#endif
+
 
 App::App(int appWidthPixels, int appHeightPixels, std::string appTitle)
 	:appW_pixels_(appWidthPixels), appH_pixels_(appHeightPixels), appTitle_(std::move(appTitle)) { }
@@ -75,6 +81,12 @@ int App::Run(GameManager& appNewGame) {
 	// MAIN GAME LOOP
 	bool appRunning = true;
 	while (appRunning) {
+
+// Used for performance testing
+#if defined(TRACY_ENABLE)
+		ZoneScoped;
+#endif
+
 		// Timing
 		uint64_t currTimestamp = SDL_GetPerformanceCounter();
 		double frameTime = static_cast<double>(currTimestamp - prevTimestamp) / static_cast<double>(freq);
@@ -112,11 +124,17 @@ int App::Run(GameManager& appNewGame) {
 		appNewGame.Render(appRenderer_);
 
 		SDL_RenderPresent(appRenderer_);
+
+// Used for performance testing
+#if defined(TRACY_ENABLE)
+		FrameMark;
+#endif
+
 	}
 
-	#if DEBUG_GAME
-		SDL_Log("App.cpp - Game Manager Shutdown Start");
-	#endif
+#if DEBUG_GAME
+	SDL_Log("App.cpp - Game Manager Shutdown Start");
+#endif
 
 	// NEED SHUTDOWN LOGIC FOR AUDIO MANAGER
 	audioManager->ACE_Shutdown();
@@ -124,9 +142,9 @@ int App::Run(GameManager& appNewGame) {
 	appNewGame.Shutdown();
 
 
-	#if DEBUG_GAME
-		SDL_Log("App.cpp - Game Manager Shutdown End");
-	#endif
+#if DEBUG_GAME
+	SDL_Log("App.cpp - Game Manager Shutdown End");
+#endif
 
 	return 0;
 }		

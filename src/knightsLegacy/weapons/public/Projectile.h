@@ -6,6 +6,7 @@
 #include "AChoiEngine/input/public/Keyboard.h"
 #include "AChoiEngine/camera/public/Camera.h"
 
+class ACE_Camera2D_Center;
 
 class SwordWaveProjectile : public ACE_GameObject{
 
@@ -27,6 +28,8 @@ public:
     void UpdateFixed(double dt, const bool* keys);
     void UpdateFrame(uint64_t now_ms);
     void Render(SDL_Renderer* appR, ACE_Camera2D& cam) const;
+    void Render(SDL_Renderer* appR, ACE_Camera2D_Center& cam) const;
+
 
 
 	WeaponState ProjectileState = WeaponState::Inactive;

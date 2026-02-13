@@ -1,3 +1,5 @@
+#include "knightsLegacy/configs/configs.h"
+
 #include "knightsLegacy/core/public/GameManager.h"
 #include <string>
 #include <iostream>

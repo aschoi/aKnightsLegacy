@@ -1,3 +1,5 @@
+#include "AChoiEngine/camera/public/CameraObject.h"
+#include "AChoiEngine/camera/public/CameraSys.h"
 #include "knightsLegacy/weapons/public/Stun.h"
 #include "knightsLegacy/core/public/GameManager.h"
 #include "assets.h"
@@ -101,6 +103,47 @@ void Stun::Render(SDL_Renderer* appR, ACE_Camera2D& cam) const {
     SDL_FlipMode flip = (stunFacing == Facing::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
     
     SDL_FRect screenDst = cam.ACE_WorldToScreen(dst);
+    SDL_RenderTextureRotated(appR, tex, nullptr, &screenDst, 0.0, nullptr, flip);
+
+
+    // DEBUG COLLISIONS
+    //SDL_FRect hitboxHighlightDst{ get_hitbox_x_px(HitboxType::AttackRange), get_hitbox_y_px(HitboxType::AttackRange),
+    //                get_hitbox_w_pixels(HitboxType::AttackRange), get_hitbox_h_pixels(HitboxType::AttackRange) };
+    //SDL_FRect screenHitboxDst = cam.WorldToScreen(hitboxHighlightDst);
+    //SDL_SetRenderDrawColor(appR, 0, 0, 255, 40);
+    //SDL_RenderFillRect(appR, &screenHitboxDst);
+
+}
+
+void Stun::Render(SDL_Renderer* appR, ACE_Camera2D_Center& cam) const {
+
+    const float halfW = stunHammer_.w * 0.3f;
+    const float halfH = stunHammer_.h * 0.3f;
+    float dstX = get_x_px() - halfW;
+    float dstY = get_y_px() - halfH;
+
+    if (stunFacing == Facing::Left) dstX -= 75.0f;
+    else dstX += 50.0f;
+
+    SDL_FRect dst{
+        dstX,
+        dstY,
+        stunHammer_.w * scale_,
+        stunHammer_.h * scale_
+    };
+
+    uint64_t now_ms = SDL_GetTicks();
+    SDL_Texture* tex = nullptr;
+
+    if (stunHammer_.playing) {
+        tex = ACE_CurrentFrameGif(stunHammer_, now_ms);
+    }
+
+    if (!tex) return;
+
+    SDL_FlipMode flip = (stunFacing == Facing::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+
+    SDL_FRect screenDst = ACE_Cam_WorldToScreen(cam, dst);
     SDL_RenderTextureRotated(appR, tex, nullptr, &screenDst, 0.0, nullptr, flip);
 
 

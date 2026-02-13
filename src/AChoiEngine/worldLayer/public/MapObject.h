@@ -5,6 +5,7 @@
 #include "AChoiEngine/worldLayer/public/LdtkMapLoader.h"
 
 class ACE_Camera2D;
+class ACE_Camera2D_Center;
 
 class ACE_MapObject {
 public:
@@ -12,6 +13,8 @@ public:
 	bool ACE_Init(SDL_Renderer* appR, const char* jsonPath);
 	void ACE_Shutdown();
 	void ACE_Render(SDL_Renderer* appR, ACE_Camera2D& cam) const;
+	void ACE_Render(SDL_Renderer* appR, ACE_Camera2D_Center& cam) const;
+
 	void ACE_Render(SDL_Renderer* appR) const;
 	void ACE_Render(SDL_Renderer* appR, int alpha) const;
 

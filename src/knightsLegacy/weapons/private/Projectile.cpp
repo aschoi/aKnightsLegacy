@@ -1,4 +1,6 @@
 #include "knightsLegacy/weapons/public/projectile.h"
+#include "AChoiEngine/camera/public/CameraObject.h"
+#include "AChoiEngine/camera/public/CameraSys.h"
 
 bool SwordWaveProjectile::Init( SDL_Renderer* r,
                                 Facing facing,
@@ -135,4 +137,43 @@ void SwordWaveProjectile::Render(SDL_Renderer* appR, ACE_Camera2D& cam) const {
     }
 
 }
+
+void SwordWaveProjectile::Render(SDL_Renderer* appR, ACE_Camera2D_Center& cam) const {
+    if (ProjectileState == WeaponState::Move) {
+        const float halfW = swordWaveProj_.w * scale_;
+        const float halfH = swordWaveProj_.h * scale_;
+
+        SDL_FRect dst{
+            (get_x_px() - halfW - 20.0f),
+            (get_y_px() - halfH),
+            swordWaveProj_.w,
+            swordWaveProj_.h
+        };
+
+        uint64_t now_ms = SDL_GetTicks();
+        SDL_Texture* tex = nullptr;
+
+        if (swordWaveProj_.playing) {
+            tex = ACE_CurrentFrameGif(swordWaveProj_, now_ms);
+        }
+
+        if (!tex) return;
+
+        SDL_FlipMode flip = (projFacing == Facing::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+
+        SDL_FRect screenDst = ACE_Cam_WorldToScreen(cam, dst);
+        SDL_RenderTextureRotated(appR, tex, nullptr, &screenDst, 0.0, nullptr, flip);
+
+
+        // DEBUG COLLISIONS
+        //SDL_FRect hitboxHighlightDst{ get_hitbox_x_px(HitboxType::AttackRange), get_hitbox_y_px(HitboxType::AttackRange),
+        //                get_hitbox_w_pixels(HitboxType::AttackRange), get_hitbox_h_pixels(HitboxType::AttackRange) };
+        //SDL_FRect screenHitboxDst = cam.WorldToScreen(hitboxHighlightDst);
+        //SDL_SetRenderDrawColor(appR, 0, 0, 255, 40);
+        //SDL_RenderFillRect(appR, &screenHitboxDst);
+
+    }
+
+}
+
 

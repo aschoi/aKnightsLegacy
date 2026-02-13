@@ -1,7 +1,10 @@
 #include "knightsLegacy/entities/enemies/public/skeleton.h"
+#include "AChoiEngine/camera/public/CameraSys.h"
+#include "AChoiEngine/camera/public/CameraObject.h"
+#include "AChoiEngine/camera/public/Camera.h"
 #include <string>
-#include "AChoiEngine/ai/public/aiSys.h"
 #include "assets.h"
+
 
 bool Skeleton::Init(SDL_Renderer* appR, float spawnX_px, float spawnY_px, Facing spawnDirection, Intelligence iq, int health) {
 
@@ -71,7 +74,6 @@ bool Skeleton::Init(SDL_Renderer* appR, float spawnX_px, float spawnY_px, Facing
     stunnedAnimation_ = ACE_LoadAnimGif(appR, ouch1Path.c_str(), 110);
 
     ACE_PlayAnimSprite(skeletonIdle_, SDL_GetTicks(), true);
-
 
     return true;
 }
@@ -337,6 +339,89 @@ void Skeleton::Render(SDL_Renderer* appR, ACE_Camera2D& cam) const {
     SDL_RenderFillRect(appR, &screenHitbox2Dst);*/
 
 }
+
+void Skeleton:: Render(SDL_Renderer* appR, ACE_Camera2D_Center& cam) const {
+    const Uint32 now = SDL_GetTicks();
+
+    // Choose which animation to render + any special-case flags
+    const ACE_AnimSprite* anim = nullptr;
+    bool flashRed = false;
+    bool deadFreezeLastFrame = false;
+
+    if (get_alive_state() == AliveState::NotAlive) {
+        anim = &skeletonDead_;
+        deadFreezeLastFrame = true;
+    }
+    else if (invincibleTimer > 0) {
+        anim = &skeletonTakesDamage_;
+        flashRed = true;
+    }
+    else if (skeletonAttack_.playing) {
+        anim = &skeletonAttack_;
+    }
+    else if (skeletonMove_.playing) {            // or: else if (isMoving)
+        anim = &skeletonMove_;
+    }
+    else {
+        anim = &skeletonIdle_;
+    }
+
+    const ACE_AnimSprite& a = *anim;
+
+    // Common destination rect
+    const float rendW = a.frameW * a.scale;
+    const float rendH = a.frameH * a.scale;
+
+    const SDL_FRect dst{
+        get_x_px() - rendW * 0.5f,
+        get_y_px() - rendH * 0.5f,
+        rendW,
+        rendH
+    };
+
+    // Common flip
+    const SDL_FlipMode flip = (facing == Facing::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+
+    // Pick source frame (dead animation may freeze on last frame after completion)
+    const SDL_FRect* src = nullptr;
+    if (deadFreezeLastFrame && ACE_FinishedNonLoopingSprite(a, now)) {
+        const int last = (int)a.frames.size() - 1;
+        src = &a.frames[last];
+    }
+    else {
+        src = &ACE_CurrentFrameSprite(a);
+    }
+
+    // Damage flash
+    if (flashRed) SDL_SetTextureColorModFloat(a.tex, 2.5f, 1.0f, 1.0f);
+
+    SDL_FRect screenDst = ACE_Cam_WorldToScreen(cam, dst);
+    SDL_RenderTextureRotated(appR, a.tex, src, &screenDst, 0.0, nullptr, flip);
+
+    if (flashRed) SDL_SetTextureColorModFloat(a.tex, 1.0f, 1.0f, 1.0f);
+
+    if (get_stunned_state() == StunnedState::IsStunned) {
+        SDL_Texture* tex = ACE_CurrentFrameGif(stunnedAnimation_, now);
+        SDL_FlipMode flip = (facing == Facing::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+        SDL_FRect screenOuchDst = ACE_Cam_WorldToScreen(cam, dst);
+        SDL_RenderTextureRotated(appR, tex, nullptr, &screenOuchDst, 0.0, nullptr, flip);
+    }
+
+
+    // DEBUG COLLISIONS
+    //SDL_FRect hitboxHighlightDst{ get_hitbox_x_px(HitboxType::AttackRange), get_hitbox_y_px(HitboxType::AttackRange),
+    //                              get_hitbox_w_pixels(HitboxType::AttackRange), get_hitbox_h_pixels(HitboxType::AttackRange) };
+    //SDL_FRect screenHitboxDst = cam.WorldToScreen(hitboxHighlightDst);
+    //SDL_SetRenderDrawColor(appR, 0, 255, 0, 40);
+    //SDL_RenderFillRect(appR, &screenHitboxDst);
+
+    /*SDL_FRect hitboxHighlight2Dst{ get_hitbox_x_px(HitboxType::BodyHitbox), get_hitbox_y_px(HitboxType::BodyHitbox),
+                          get_hitbox_w_pixels(HitboxType::BodyHitbox), get_hitbox_h_pixels(HitboxType::BodyHitbox) };
+    SDL_FRect screenHitbox2Dst = cam.WorldToScreen(hitboxHighlight2Dst);
+    SDL_SetRenderDrawColor(appR, 0, 0, 255, 40);
+    SDL_RenderFillRect(appR, &screenHitbox2Dst);*/
+}
+
 
 
 ACE_AnimSprite Skeleton::getIdle() {

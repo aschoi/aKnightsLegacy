@@ -1,10 +1,14 @@
 #pragma once
 #include "AChoiEngine/gameObject/public/GameObject.h"
 #include "AChoiEngine/gfx/public/AnimationSys.h"
-#include "AChoiEngine/camera/public/Camera.h"
+
 
 enum class Mood{ Chill, Patrol, Following, Pissed };
 enum class Intelligence{ Smart, Dumb };
+
+class ACE_Camera2D;
+class ACE_Camera2D_Center;
+
 
 class Skeleton : public ACE_GameObject{
 
@@ -26,6 +30,7 @@ public:
     void UpdateFixed(double dt, const bool* keys);
     void UpdateFrame(uint64_t now_ms);
     void Render(SDL_Renderer* appR, ACE_Camera2D& cam) const;
+    void Render(SDL_Renderer* appR, ACE_Camera2D_Center& cam) const;
     ACE_AnimSprite getIdle();
     ACE_AnimSprite getAttack();
     void collisionResponse();
