@@ -83,10 +83,13 @@ int App::Run(GameManager& appNewGame) {
 	while (appRunning) {
 
 // Used for performance testing
-#if defined(TRACY_ENABLE)
-		ZoneScoped;
-#endif
+//#if defined(TRACY_ENABLE)
+//		ZoneScoped;
+//#endif
 
+//#if defined(TRACY_ENABLE)
+//		ZoneScoped("Main Game Loop");
+//#endif
 		// Timing
 		uint64_t currTimestamp = SDL_GetPerformanceCounter();
 		double frameTime = static_cast<double>(currTimestamp - prevTimestamp) / static_cast<double>(freq);
@@ -105,14 +108,19 @@ int App::Run(GameManager& appNewGame) {
 
 		// Fixed Updates - do unlimited game state updates until its time to render.
 		while (accumulator >= dt) {
+//#if defined(TRACY_ENABLE)
+//			ZoneScoped("UpdateFixed");
+//#endif
 			const bool* kKeys = SDL_GetKeyboardState(nullptr);
 			appNewGame.UpdateFixed(dt, kKeys);
 
 			accumulator -= dt;
+
 		}
 
 		// Per-frame updates (animation and such)
 		const uint64_t kNow_ms = SDL_GetTicks();
+
 		appNewGame.UpdateFrame(kNow_ms);
 
 		audioManager->unloadQ();
@@ -124,7 +132,6 @@ int App::Run(GameManager& appNewGame) {
 		appNewGame.Render(appRenderer_);
 
 		SDL_RenderPresent(appRenderer_);
-
 // Used for performance testing
 #if defined(TRACY_ENABLE)
 		FrameMark;

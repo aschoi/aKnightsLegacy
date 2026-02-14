@@ -3,6 +3,10 @@
 #include <vector>
 #include "assets.h"
 
+#if defined(TRACY_ENABLE)
+#include <tracy/Tracy.hpp>
+#endif
+
 bool AudioManager::ACE_Init(MIX_Mixer* mixer) {
 
     mixer_ = mixer;
@@ -107,6 +111,10 @@ void AudioManager::loadQ(SoundFX sfx) {
 }
 
 void AudioManager::unloadQ() {
+#if defined(TRACY_ENABLE)
+    ZoneScoped("audio manager");
+#endif
+
 
     while (!q.empty()) {
         if (q.front() == SoundFX::Swipe) tracks.push(swipeTrack);

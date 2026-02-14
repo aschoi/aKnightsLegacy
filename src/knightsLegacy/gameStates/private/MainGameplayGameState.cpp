@@ -6,9 +6,11 @@
 #include <string>
 #include <cstdint>
 #include <vector>
+#include <array>
 #include <random>
 #include <unordered_set>
 #include <stdexcept>
+#include <limits>
 #include "AChoiEngine/physics/public/OverlappingHitboxDetectionSys.h"
 #include "AChoiEngine/physics/public/CollisionResponseSys.h"
 #include "AChoiEngine/ai/public/aiPathfindingSys.h"
@@ -172,8 +174,8 @@ bool MainGameplayGameState::Init(SDL_Renderer* appR, AudioManager* audMan, float
 
     // Set Camera parameters
 
-    cam.ACE_SetViewport(appW_pixels_, appH_pixels_);
-    cam.ACE_SetWorldBounds(world_level1_w_, world_level1_h_);
+    //cam.ACE_SetViewport(appW_pixels_, appH_pixels_);
+    //cam.ACE_SetWorldBounds(world_level1_w_, world_level1_h_);
 
     ACE_Cam_SetScreenSize(camCenter, appW_pixels_, appH_pixels_);
 
@@ -207,6 +209,14 @@ bool MainGameplayGameState::Init(SDL_Renderer* appR, AudioManager* audMan, float
 
     audioManager_->ACE_LoadPlayMusic(BackgroundMusic::MainGameplay);
     
+    int w_gu = newMapLayer_.getWorldWidth_gridUnits();
+    int h_gu = newMapLayer_.getWorldHeight_gridUnits();
+    costMap_ = new std::vector<int>(w_gu * h_gu);
+    q_ = new std::vector<std::array<int, 3>>(w_gu * h_gu);
+    visited_ = new std::vector<uint64_t>(w_gu * h_gu, SDL_GetTicks());
+    vectorMap_ = new std::vector<std::pair<int, int>>(w_gu* h_gu, { std::numeric_limits<int>::max(), std::numeric_limits<int>::max() });
+
+
 
 #if SHOW_VECTOR_MAP
     buildArrows();
@@ -292,6 +302,23 @@ void MainGameplayGameState::ACE_Shutdown() {
         hudLayer_ = nullptr;
     }
 
+    if (costMap_) {
+        delete costMap_;
+        costMap_ = nullptr;
+    }
+    if (vectorMap_) {
+        delete vectorMap_;
+        vectorMap_ = nullptr;
+    }
+    if (q_) {
+        delete q_;
+        q_ = nullptr;
+    }
+    if (visited_) {
+        delete visited_;
+        visited_ = nullptr;
+    }
+
     r_ = nullptr;
     audioManager_ = nullptr;
 
@@ -323,6 +350,17 @@ void MainGameplayGameState::ACE_HandleEvent(Keys keyPress) {
 }
 
 void MainGameplayGameState::ACE_UpdateFixed(double dt, const bool* kKeys) {
+
+    vectorMapTimer += dt;
+    if (vectorMapTimer >= COST_MAP_CYCLE && !costCalculated) {
+        ACE_createCostMap(*costMap_, *q_, *visited_, newMapLayer_, *playerLayer_);
+        costCalculated = true;
+    }
+    if (vectorMapTimer >= VECTOR_MAP_CYCLE) {
+        ACE_createVectorMap(*vectorMap_, newMapLayer_, *costMap_, playerLayer_->get_singleGU_sideLen_inPixels());
+        vectorMapTimer = 0.0;
+        costCalculated = false;
+    }
 
     ACE_basicAllEntitiesCollisionResolution(entitiesList_);
 
@@ -384,14 +422,6 @@ void MainGameplayGameState::ACE_UpdateFixed(double dt, const bool* kKeys) {
     //cam.ACE_Follow(playerLayer_->get_x_px(), playerLayer_->get_y_px());
     ACE_Cam_FollowCenter(camCenter, *playerLayer_);
 
-    tempTimer -= 1;
-    if (tempTimer <= 0) {
-        tempTimer = 30;
-        //costMap = CreateCostMap(floorLayer_, *playerLayer_, GetTileCatalog());
-        //vectorMap = CreateVectorMap(floorLayer_, costMap);
-        costMap = ACE_createCostMap(newMapLayer_, *playerLayer_);
-        vectorMap = ACE_createVectorMap(newMapLayer_, costMap);
-    }
 
 #ifdef RANDOM_ENEMY_SPAWN_OFF
     if (newMapLayer_.ACE_intGridType(playerLayer_->get_x_px(), playerLayer_->get_y_px()) == 4) {
@@ -405,30 +435,31 @@ void MainGameplayGameState::ACE_UpdateFixed(double dt, const bool* kKeys) {
 
 }
 
+// MAKE SURE TO CHANGE TO now_ms
 void MainGameplayGameState::ACE_UpdateFrame(uint64_t now_ms) {
     (void)now_ms;
 
-    playerLayer_->UpdateFrame(SDL_GetTicks());
+    playerLayer_->UpdateFrame(now_ms);
 
 #ifdef RANDOM_ENEMY_SPAWN_OFF
-    skeletonOne_->UpdateFrame(SDL_GetTicks());
-    skeletonTwo_->UpdateFrame(SDL_GetTicks());
-    skeletonThree_->UpdateFrame(SDL_GetTicks());
-    skeletonFour_->UpdateFrame(SDL_GetTicks());
-    skeletonFive_->UpdateFrame(SDL_GetTicks());
-    skeletonSix_->UpdateFrame(SDL_GetTicks());
-    skeletonSeven_->UpdateFrame(SDL_GetTicks());
+    skeletonOne_->UpdateFrame(now_ms);
+    skeletonTwo_->UpdateFrame(now_ms);
+    skeletonThree_->UpdateFrame(now_ms);
+    skeletonFour_->UpdateFrame(now_ms);
+    skeletonFive_->UpdateFrame(now_ms);
+    skeletonSix_->UpdateFrame(now_ms);
+    skeletonSeven_->UpdateFrame(now_ms);
 #endif
 
 #ifdef RANDOM_ENEMY_SPAWN_ON
     for (Skeleton* s : skeletonsList_) {
-        s->UpdateFrame(SDL_GetTicks());
+        s->UpdateFrame(now_ms);
     }
 #endif
 
-    projectileLayer_->UpdateFrame(SDL_GetTicks());
-    stunLayer_->UpdateFrame(SDL_GetTicks());
-    hudLayer_->UpdateFrame(SDL_GetTicks(), *playerLayer_);
+    projectileLayer_->UpdateFrame(now_ms);
+    stunLayer_->UpdateFrame(now_ms);
+    hudLayer_->UpdateFrame(now_ms, *playerLayer_);
 
 }
 
@@ -461,7 +492,7 @@ void MainGameplayGameState::ACE_Render(SDL_Renderer* appR) {
 
 
 #if SHOW_VECTOR_MAP
-    ACE_renderArrows(appR, cam, arrowTexures, newMapLayer_, tileSizeAsFloat_, vectorMap);
+    ACE_renderArrows(appR, camCenter, arrowTexures, newMapLayer_, tileSizeAsFloat_, *vectorMap_);
 #endif
 
 }
@@ -526,8 +557,9 @@ void MainGameplayGameState::SkeletonBehavior(Skeleton* curSkeleton_) {
                 if (playerLayer_->get_x_px() > curSkeleton_->get_x_px()) curSkeleton_->facing = Facing::Right;
                 else curSkeleton_->facing = Facing::Left;
                 //ACE_smartFollow(curSkeleton_, floorLayer_, vectorMap, costMap);
-                ACE_smartFollow_vecField(curSkeleton_, newMapLayer_, vectorMap, costMap);
-                
+                //ACE_smartFollow_vecField(curSkeleton_, newMapLayer_, vectorMap, costMap);
+                ACE_smartFollow_vecField(curSkeleton_, newMapLayer_, *vectorMap_, *costMap_);
+
             }
         }
     }

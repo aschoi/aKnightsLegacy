@@ -1,6 +1,8 @@
 #pragma once
 #include "AChoiEngine/gameStateInterface/public/GameStateInterface.h"
 #include <vector>
+#include <array>
+//#include <unordered_set>
 #include "AChoiEngine/input/public/Keyboard.h"
 #include "AChoiEngine/worldLayer/public/LdtkMapLoader.h"
 #include "AChoiEngine/worldLayer/public/MapObject.h"
@@ -17,6 +19,8 @@ class Player;
 class Stun;
 class Hud;
 class SwordWaveProjectile;
+
+struct PairHash;
 
 
 class MainGameplayGameState : public ACE_GameStateInterface {
@@ -44,7 +48,7 @@ public:
     float world_level1_w_ = 0.0f;
     float world_level1_h_ = 0.0f;
 
-    int tempTimer = 0;
+    //int tempTimer = 0;
 
     SDL_Color whiteColor{ 255, 255, 255, 255 };
     SDL_Color blackColor{ 0, 0, 0, 255 };
@@ -75,19 +79,23 @@ private:
     Skeleton* skeletonFive_ = nullptr;
     Skeleton* skeletonSix_ = nullptr;
     Skeleton* skeletonSeven_ = nullptr;
+
+    std::vector<ACE_GameObject*> entitiesList_;
+    std::vector<Skeleton*> skeletonsList_;
     
     Hud* hudLayer_ = nullptr;
     ACE_Camera2D cam;
     ACE_Camera2D_Center camCenter;
-    
-    std::vector<std::vector<int>> costMap;
-    std::vector<std::vector<std::pair<int, int>>> vectorMap;
 
-    
-    std::vector<ACE_GameObject*> entitiesList_;
-
-    std::vector<Skeleton*> skeletonsList_;
-
+    // VECTOR MAP CLASS MEMBERS
+    double vectorMapTimer = 0.5;
+    bool costCalculated = false;
+    const double COST_MAP_CYCLE = 0.25; // halfway through cycle - at 250 ms
+    const double VECTOR_MAP_CYCLE = 0.5; // end of cycle - at 500 ms
+    std::vector<int>* costMap_ = nullptr;
+    std::vector<std::array<int, 3>>* q_ = nullptr;
+    std::vector<uint64_t>* visited_ = nullptr;
+    std::vector<std::pair<int, int>>* vectorMap_ = nullptr;
 
 
 };  

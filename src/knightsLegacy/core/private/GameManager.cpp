@@ -9,6 +9,10 @@
 #include "knightsLegacy/gameStates/public/MainGameplayGameState.h"
 #include "assets.h"
 
+#if defined(TRACY_ENABLE)
+#include <tracy/Tracy.hpp>
+#endif
+
 
 bool GameManager::Init(SDL_Renderer* appR, MIX_Mixer* appM, float appW, float appH) {
     return false;
@@ -136,6 +140,7 @@ void GameManager::HandleEvent(const SDL_Event& event) {
 }
 
 void GameManager::UpdateFixed(double dt, const bool* kKeys) {
+
     if (startMenuGS_ && curGS_ == GameState::StartMenu) {
         startMenuGS_->ACE_UpdateFixed(dt, kKeys);
     }
@@ -148,6 +153,10 @@ void GameManager::UpdateFixed(double dt, const bool* kKeys) {
 }
 
 void GameManager::UpdateFrame(uint64_t now_ms) {
+#if defined(TRACY_ENABLE)
+    ZoneScoped("UpdateFrame");
+#endif
+
     (void)now_ms;
 
     if (startMenuGS_ && curGS_ == GameState::StartMenu) {
@@ -162,6 +171,9 @@ void GameManager::UpdateFrame(uint64_t now_ms) {
 }
 
 void GameManager::Render(SDL_Renderer* appR) {
+#if defined(TRACY_ENABLE)
+    ZoneScoped("render");
+#endif
 
     if (startMenuGS_ && curGS_ == GameState::StartMenu) {
         startMenuGS_->ACE_Render(appR);

@@ -1,10 +1,13 @@
 #pragma once
 #include <vector>
+#include <array>
+#include <unordered_set>
 #include "AChoiEngine/worldLayer/public/TxtMapLoader.h"
 
 class ACE_GameObject;
 class ACE_MapObject;
 class ACE_Camera2D;
+class ACE_Camera2D_Center;
 class SDL_Renderer;
 class SDL_Texture;
 
@@ -15,19 +18,19 @@ void ACE_smartFollow_aStar(ACE_GameObject& hunter, ACE_GameObject& target, ACE_M
 
 void ACE_smartFollow_vecField(ACE_GameObject* hunter,
 							  ACE_MapObject& curMap,
-							  std::vector<std::vector<std::pair<int, int>>>& vecMap,
-							  std::vector<std::vector<int>>& costMap);
+							  std::vector<std::pair<int, int>>& vecMap,
+							  std::vector<int>& costMap);
 
-std::vector<std::vector<int>> ACE_createCostMap(ACE_MapObject& curMap, ACE_GameObject& player);
+void ACE_createCostMap(std::vector<int>& costMap, std::vector<std::array<int, 3>>& q, std::vector<uint64_t>& visited_, ACE_MapObject& curMap, ACE_GameObject& player);
 
-std::vector<std::vector<std::pair<int, int>>> ACE_createVectorMap(ACE_MapObject& curMap, std::vector<std::vector<int>>& costMap);
+void ACE_createVectorMap(std::vector<std::pair<int, int>>& vectorMap, ACE_MapObject& curMap, std::vector<int>& costMap, float tileSize);
 
 void ACE_renderArrows(SDL_Renderer* r,
-					  ACE_Camera2D& cam,
+					  ACE_Camera2D_Center& cam,
 					  std::vector<SDL_Texture*>& arrowTextures,
 					  ACE_MapObject& curMap,
 					  float tileSize_pixels,
-					  std::vector<std::vector<std::pair<int, int>>>& vecMap);
+					  std::vector<std::pair<int, int>>& vectorMap);
 
 
 
