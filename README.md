@@ -14,8 +14,23 @@ AChoiEngine, a custom 2D game engine, provides an open source framework for deve
 --------------
 Imagine League of Legends meets Slay the Spire. This is the vision for A Knight's Legacy. A single player 2D top down game where as the player progresses, they are able to choose from a plethora of weapons, spells, and stat upgrades. Player experience can range from straightfoward hack and slash, to putting together huge combos. The direction of progression being dictaed by the random items the player picks up along the way. 
 
-<!-- ## VIDEO
-(I want to add a couple videos here. One describing gameplay, and one describing some of the tech.) -->
+
+## Video  
+#### Gameplay Demo  
+<a href="https://youtu.be/I-YYLb9pudE">
+  <img src="https://img.youtube.com/vi/I-YYLb9pudE/hqdefault.jpg" width="500">
+</a>
+
+#### Vector Field Pathfinding Visualization (arrows)  
+<a href="https://youtu.be/8tmiX0gIHTg">
+  <img src="https://img.youtube.com/vi/8tmiX0gIHTg/maxresdefault.jpg" width="500">
+</a>
+
+#### Performance Stress Test - 450 AI agents (skeletons)  
+<a href="https://youtu.be/vmZKZ0Q6Fs8">
+  <img src="https://img.youtube.com/vi/vmZKZ0Q6Fs8/maxresdefault.jpg" width="500">
+</a>
+
 
 ## Key Features
 #### AChoiEngine
