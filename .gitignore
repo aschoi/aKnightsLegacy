@@ -76,3 +76,6 @@ Thumbs.db
 # test output & cache
 Testing/
 .cache/
+
+# Misc
+demo_videos/
