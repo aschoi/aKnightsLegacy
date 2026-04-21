@@ -10,8 +10,8 @@
 int main(int, char**) {
 
 #ifdef PERF_TEST_ON
-	//App app(1700, 1000, "A Knight's Legacy");
-	App app(960, 544, "A Knight's Legacy");
+	App app(1500, 800, "A Knight's Legacy");
+	//App app(960, 544, "A Knight's Legacy");
 
 #else
 	App app(960, 544, "A Knight's Legacy");

@@ -52,7 +52,9 @@ bool MainGameplayGameState::Init(SDL_Renderer* appR, AudioManager* audMan, float
     //baseLayer_.ACE_LoadTiles(appR, environmentTilesheets, doorChestAnimPath.c_str(), dungeon1Base.c_str(), tileSizeAsFloat_);
     //floorLayer_.ACE_LoadTiles(appR, environmentTilesheets, doorChestAnimPath.c_str(), map1.c_str(), tileSizeAsFloat_);
              
-    newMapLayer_.ACE_Init(appR, jsonLevel1v2.c_str());
+    if (!newMapLayer_.ACE_Init(appR, jsonLevel1v2.c_str())) {
+        return false;
+    }
     world_level1_w_ = newMapLayer_.getWorldWidth_pixels();
     world_level1_h_ = newMapLayer_.getWorldHeight_pixels();
     
@@ -332,8 +334,9 @@ void MainGameplayGameState::ACE_HandleEvent(Keys keyPress) {
         playerLayer_->HandleEvent(Keys::Space);
         audioManager_->loadQ(SoundFX::Swipe);
     }
-    else if (keyPress == Keys::Q) {
+    else if (keyPress == Keys::Q && now >= playerLayer_->getSlideTimer()) {
         playerLayer_->HandleEvent(Keys::Q);
+        audioManager_->loadQ(SoundFX::Slide);
     }
     else if (keyPress == Keys::W && now >= playerLayer_->getHammerTimer()) {
         playerLayer_->HandleEvent(Keys::W);

@@ -89,6 +89,7 @@ const std::string uiSelect = "assets/audio/sci_fi_hover_high.wav";
 const std::string sfxHammerPath = "assets/audio/sfxHammer.wav";
 const std::string sfxUltPath = "assets/audio/ult.wav";
 const std::string sfxSplatPath = "assets/audio/crunch_splat.wav";
+const std::string sfxSlidePath = "assets/audio/slide.wav";
 
 // MUSIC
 const std::string music1 = "assets/audio/music/Action_1_(Loop).wav";

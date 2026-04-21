@@ -103,6 +103,8 @@ void ACE_createCostMap(std::vector<int>& costMap, std::vector<std::array<int, 3>
 
     const int h_gUnits = curMap.getWorldHeight_gridUnits(); // rows
     const int w_gUnits = curMap.getWorldWidth_gridUnits();  // cols
+    const int sideLen = player.get_singleGU_sideLen_inPixels();
+    uint64_t now = SDL_GetTicks();
 
     int iCurr = 0;
     int iLast = 0; // technically this is supposed to be the first opening in the vectors. 
@@ -110,7 +112,6 @@ void ACE_createCostMap(std::vector<int>& costMap, std::vector<std::array<int, 3>
     iLast++;
 
     costMap[player.get_y_gu() * w_gUnits + player.get_x_gu()] = 0;
-    uint64_t now = SDL_GetTicks();
     visited[player.get_y_gu() * w_gUnits + player.get_x_gu()] = now;
 
     while (iCurr < iLast) {
@@ -123,10 +124,10 @@ void ACE_createCostMap(std::vector<int>& costMap, std::vector<std::array<int, 3>
 
             // for the curMap cost, its avoiding 1's and 2's. If the ldtk intGridCsv grid is a 1 or 2, ai will avoid those 
             // specific numbers. Can modify this to adapt which numbers its avoids, but that how this is set up right now.
-            if (nr >= 0 && nr < curMap.getWorldHeight_gridUnits()
-                && nc >= 0 && nc < curMap.getWorldWidth_gridUnits()
-                && (!(curMap.ACE_intGridType(nc * player.get_singleGU_sideLen_inPixels(), nr * player.get_singleGU_sideLen_inPixels()) == 1))
-                && (!(curMap.ACE_intGridType(nc * player.get_singleGU_sideLen_inPixels(), nr * player.get_singleGU_sideLen_inPixels()) == 2))
+            if (nr >= 0 && nr < h_gUnits
+                && nc >= 0 && nc < w_gUnits
+                && !(curMap.ACE_intGridType(nc * sideLen, nr * sideLen) == 1)
+                && !(curMap.ACE_intGridType(nc * sideLen, nr * sideLen) == 2)
                 && !(visited[nr * w_gUnits + nc] == now)) {
 
                 costMap[nr * w_gUnits + nc] = curDist + 1;
@@ -169,19 +170,21 @@ void ACE_createVectorMap(std::vector<std::pair<int, int>>& vectorMap, ACE_MapObj
             int bestCost = std::numeric_limits<int>::max();
             std::pair<int, int> bestDir = { std::numeric_limits<int>::max(), std::numeric_limits<int>::max() };
 
-            for (auto [dr, dc] : dirs) {
+            for (const auto& [dr, dc] : dirs) {
                 int nr = curR + dr;
                 int nc = curC + dc;
 
-                if (nr >= 0 && nr < curMap.getWorldHeight_gridUnits()
-                    && nc >= 0 && nc < curMap.getWorldWidth_gridUnits()
-                    && !(costMap[nr * w_gUnits + nc] == -1)) {
+                if (nr >= 0 && nr < h_gUnits
+                    && nc >= 0 && nc < w_gUnits
+                    && !(costMap[nr * w_gUnits + nc] == -1)
+                    && !(curMap.ACE_intGridType(nc * tileSize, nr * tileSize) == 1)
+                    && !(curMap.ACE_intGridType(nc * tileSize, nr * tileSize) == 2)) {
 
                     if (costMap[nr * w_gUnits + nc] < bestCost) {
                         bestCost = costMap[nr * w_gUnits + nc];
                         bestDir = { dr, dc };
                     }
-                    if (costMap[nr * w_gUnits + nc] == bestCost && SDL_GetTicks() % 2 == 0) { // added for a little movement variety/randomness
+                    else if (costMap[nr * w_gUnits + nc] == bestCost && SDL_GetTicks() % 2 == 0) { // added for a little movement variety/randomness
                         bestCost = costMap[nr * w_gUnits + nc];
                         bestDir = { dr, dc };
                     }
@@ -228,19 +231,20 @@ void ACE_smartFollow_vecField(ACE_GameObject* hunter, ACE_MapObject& curMap, std
         int bestCost = std::numeric_limits<int>::max();
         std::pair<int, int> bestDir = { std::numeric_limits<int>::max(), std::numeric_limits<int>::max() };
 
-        for (auto [dr, dc] : dirs) {
+        for (const auto& [dr, dc] : dirs) {
             int nr = y_gu + dr;
             int nc = x_gu + dc;
 
-            if (nr >= 0 && nr < curMap.getWorldHeight_gridUnits()
-                && nc >= 0 && nc < curMap.getWorldWidth_gridUnits()
-                && !(costMap[nr * w_gUnits + nc] == -1) && !visited.contains({ nr, nc })) {
+            if (nr >= 0 && nr < h_gUnits
+                && nc >= 0 && nc < w_gUnits
+                && !(costMap[nr * w_gUnits + nc] == -1) 
+                && !visited.contains({ nr, nc })) {
 
                 if (costMap[nr * w_gUnits + nc] < bestCost) {
                     bestCost = costMap[nr * w_gUnits + nc];
                     bestDir = { dr, dc };
                 }
-                if (costMap[nr * w_gUnits + nc] == bestCost && SDL_GetTicks() % 2 == 0) { // added 
+                else if (costMap[nr * w_gUnits + nc] == bestCost && SDL_GetTicks() % 2 == 0) { // added 
                     bestCost = costMap[nr * w_gUnits + nc];
                     bestDir = { dr, dc };
                 }
@@ -278,27 +282,27 @@ void ACE_smartFollow_vecField(ACE_GameObject* hunter, ACE_MapObject& curMap, std
 
 
     // extra extra safety. not sure if its needed, so currently commented out.
-    //float tempX = hunter->get_x_px() + dx * hunter->get_speed_pixels() * (float)ai_dt;
-    //float tempY = hunter->get_y_px() + dy * hunter->get_speed_pixels() * (float)ai_dt;
+    float tempX = hunter->get_x_px() + dx * hunter->get_speed_pixels() * (float)ai_dt;
+    float tempY = hunter->get_y_px() + dy * hunter->get_speed_pixels() * (float)ai_dt;
 
-    //int tl = curMap.ACE_intGridType(tempX, tempY);
-    //int tr = curMap.ACE_intGridType(tempX + 20, tempY);
-    //int bl = curMap.ACE_intGridType(tempX, tempY + 20);
-    //int br = curMap.ACE_intGridType(tempX + 20, tempY + 20);
+    int tl = curMap.ACE_intGridType(tempX, tempY);
+    int tr = curMap.ACE_intGridType(tempX + 20, tempY);
+    int bl = curMap.ACE_intGridType(tempX, tempY + 20);
+    int br = curMap.ACE_intGridType(tempX + 20, tempY + 20);
 
-    //if (!(0 < tl && tl < 3) || !(0 < tr && tr < 3) || !(0 < bl && bl < 3) || !(0 < br && br < 3)) {
-    //    hunter->set_x_px(hunter->get_x_px() + dx * hunter->get_speed_pixels() * (float)ai_dt);
-    //    hunter->set_y_px(hunter->get_y_px() + dy * hunter->get_speed_pixels() * (float)ai_dt);
-    //    hunter->set_center_px();
-    //    hunter->set_x_gu(static_cast<int>(std::floor(hunter->get_x_px() / hunter->get_singleGU_sideLen_inPixels())));
-    //    hunter->set_y_gu(static_cast<int>(std::floor(hunter->get_y_px() / hunter->get_singleGU_sideLen_inPixels())));
-    //}
+    if (!(0 < tl && tl < 3) || !(0 < tr && tr < 3) || !(0 < bl && bl < 3) || !(0 < br && br < 3)) {
+        hunter->set_x_px(hunter->get_x_px() + dx * hunter->get_speed_pixels() * (float)ai_dt);
+        hunter->set_y_px(hunter->get_y_px() + dy * hunter->get_speed_pixels() * (float)ai_dt);
+        hunter->set_center_px();
+        hunter->set_x_gu(static_cast<int>(std::floor(hunter->get_x_px() / hunter->get_singleGU_sideLen_inPixels())));
+        hunter->set_y_gu(static_cast<int>(std::floor(hunter->get_y_px() / hunter->get_singleGU_sideLen_inPixels())));
+    }
     
-    hunter->set_x_px(hunter->get_x_px() + dx * hunter->get_speed_pixels() * (float)ai_dt);
-    hunter->set_y_px(hunter->get_y_px() + dy * hunter->get_speed_pixels() * (float)ai_dt);
-    hunter->set_center_px();
-    hunter->set_x_gu(static_cast<int>(std::floor(hunter->get_x_px() / hunter->get_singleGU_sideLen_inPixels())));
-    hunter->set_y_gu(static_cast<int>(std::floor(hunter->get_y_px() / hunter->get_singleGU_sideLen_inPixels())));
+    //hunter->set_x_px(hunter->get_x_px() + dx * hunter->get_speed_pixels() * (float)ai_dt);
+    //hunter->set_y_px(hunter->get_y_px() + dy * hunter->get_speed_pixels() * (float)ai_dt);
+    //hunter->set_center_px();
+    //hunter->set_x_gu(static_cast<int>(std::floor(hunter->get_x_px() / hunter->get_singleGU_sideLen_inPixels())));
+    //hunter->set_y_gu(static_cast<int>(std::floor(hunter->get_y_px() / hunter->get_singleGU_sideLen_inPixels())));
 
 }
 

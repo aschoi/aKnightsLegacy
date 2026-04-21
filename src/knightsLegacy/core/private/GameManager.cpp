@@ -91,8 +91,10 @@ void GameManager::HandleEvent(const SDL_Event& event) {
                 mainGameGS_ = nullptr;
             }
             mainGameGS_ = new MainGameplayGameState();
-            mainGameGS_->Init(appR_, audioManager_, appW_pixels_, appH_pixels_, tileSizeAsInt_, tileSizeAsFloat_);
-
+            if (!mainGameGS_->Init(appR_, audioManager_, appW_pixels_, appH_pixels_, tileSizeAsInt_, tileSizeAsFloat_)) {
+                SDL_Log("Error: Map Failed to load.");
+                set_closeGame(true);
+            }
         }
         else if (startMenuGS_->creditsPressed == true) {
             startMenuGS_->creditsPressed = false;

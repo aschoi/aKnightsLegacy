@@ -11,7 +11,7 @@ enum class PlayerAudioState { QCast, WCast, ECast, RCast, Attack, Walking, Runni
 enum class SkeletonAudioState { Attack, Walking, Running, TakingDamage, Death };
 enum class HammerAudioState { InFlight };
 enum class ProjectileAudioState { Charging, InFlight, Impact };
-enum class SoundFX { Hammer, Splat, Ult, Swipe, Select, Confirm, Count};
+enum class SoundFX { Hammer, Splat, Ult, Slide, Swipe, Select, Confirm, Count};
 enum class BackgroundMusic { StartMenu, MainGameplay, Credits };
 
 
@@ -44,6 +44,9 @@ private:
 
 	MIX_Audio* ultAudio = nullptr;
 	MIX_Track* ultTrack = nullptr;
+
+	MIX_Audio* slideAudio = nullptr;
+	MIX_Track* slideTrack = nullptr;
 
 	MIX_Audio* music1Audio = nullptr;
 	MIX_Track* music1Track = nullptr;

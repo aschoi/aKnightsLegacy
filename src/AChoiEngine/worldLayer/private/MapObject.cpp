@@ -22,6 +22,10 @@ bool ACE_MapObject::ACE_Init(SDL_Renderer* appR, const char* jsonPath) {
     worldWidth_pixels_ = static_cast<float>(worldWidth_gridUnits_) * tileSize_pixels_;
     worldHeight_pixels_ = static_cast<float>(worldHeight_gridUnits_) * tileSize_pixels_;
 
+    if (ldtk_project.layerInstances.empty()) {
+        return false;
+    }
+
     // Load all tilesheets
     for (const auto& layer : ldtk_project.layerInstances) {
         if (layer.l_type == LDTK_LayerType::Tiles) {
@@ -50,6 +54,11 @@ bool ACE_MapObject::ACE_Init(SDL_Renderer* appR, const char* jsonPath) {
     }
 
     // Kinda dangerous at the moment. I should make this more robust when I get a chance.
+
+    if (ldtk_project.project_intGrid.empty()) {
+        return false;
+    }
+
     solids_ = ldtk_project.project_intGrid[0].layer_intGrid;
     
     return worldWidth_gridUnits_ > 0 && worldHeight_gridUnits_ > 0;
